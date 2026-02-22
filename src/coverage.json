@@ -1,90 +1,93 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-22T06:24:45.257Z",
+  "generatedAt": "2026-02-22T06:36:32.746Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 8,
+    "total": 9,
     "implemented": 6,
     "items": [
       {
-        "id": "REQ-31",
-        "summary": "Change door count logic to count only unique door sizes (height × width combinations). Multiple coating selections on the same size must count as a single door.",
+        "id": "REQ-39",
+        "summary": "Display the actual entered door size (not rounded size) in the door entries table and PDF quotations. Example: if user inputs 79 1/4 × 30 1/8, display exactly '79 1/4 × 30 1/8'. Rounded size must only be used internally for square footage calculations.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/components/DoorEntryList.tsx",
+          "frontend/src/utils/pdfGenerator.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/DoorEntryList.tsx",
+          "frontend/src/utils/pdfGenerator.ts"
+        ]
+      },
+      {
+        "id": "REQ-40",
+        "summary": "Add support for inch fractions in height and width input fields. Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8. Accept input as decimal (78.25) or fraction notation (78 2/8). Convert fraction input internally to decimal for calculations.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/fractionParser.ts",
           "frontend/src/components/DoorEntryForm.tsx",
           "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/DoorEntryForm.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/utils/fractionParser.ts",
+          "frontend/src/components/DoorEntryForm.tsx"
         ]
       },
       {
-        "id": "REQ-32",
-        "summary": "Replace the current door entries table structure with a new format having columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft. Each row represents ONE unique door size with coating amounts shown in separate columns.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/DoorEntryDisplay.tsx",
-          "frontend/src/components/DoorEntryList.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/DoorEntryDisplay.tsx",
-          "frontend/src/components/DoorEntryList.tsx"
-        ]
-      },
-      {
-        "id": "REQ-33",
-        "summary": "Remove all rate (₹/sq.ft) displays from the UI and PDF. Show only the final calculated amounts per coating type without showing the rate used for calculation.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/DoorEntryDisplay.tsx",
-          "frontend/src/utils/pdfGenerator.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/DoorEntryDisplay.tsx",
-          "frontend/src/utils/pdfGenerator.ts"
-        ]
-      },
-      {
-        "id": "REQ-34",
-        "summary": "Update the totals section to show only Total Square Feet and separate totals for each coating type (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate). Remove Grand Total and Total Quantity displays.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/GrandTotals.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/utils/pdfGenerator.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/GrandTotals.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/utils/pdfGenerator.ts"
-        ]
-      },
-      {
-        "id": "REQ-35",
-        "summary": "Update the square footage calculation formula to: Sq.Ft = (Rounded Height × Rounded Width) / 144. Update amount calculation to: Amount per coating = Sq.Ft × respective coating rate.",
+        "id": "REQ-41",
+        "summary": "Update backend data model to store both the actual entered size (as string with fractions if applicable) and the rounded size (for calculations). Modify the addDoor function to accept and store the original entered dimensions alongside rounded dimensions.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-36",
-        "summary": "Ensure the new table layout and totals structure are consistent between the app preview UI and the generated PDF quotation.",
+        "id": "REQ-42",
+        "summary": "Remove Rate column and Quantity column from the door entries table display. Table must show only: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/pdfGenerator.ts"
+          "frontend/src/components/DoorEntryList.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/pdfGenerator.ts"
+          "frontend/src/components/DoorEntryList.tsx"
         ]
       },
       {
-        "id": "REQ-37",
-        "summary": "Update the confirmation message after quotation generation to display 'Quotation generated for X door size(s).' where X is the count of unique door sizes (not total entries).",
+        "id": "REQ-43",
+        "summary": "Update the totals section to display below the table with exactly these fields: Single Coating Total, Double Coating Total, Double Coating + Sagwan Patti Total, Laminate Total, and Total Square Feet. Remove Grand Total and Total Quantity displays.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/components/GrandTotals.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-44",
+        "summary": "Ensure the square footage calculation uses the formula: Sq.Ft = (Rounded Height × Rounded Width) / 144. Ensure amount calculation uses: Amount = Sq.Ft × coating rate (where coating rates are: Single Coating 165, Double Coating 185, Double Coating + Sagwan Patti 210, Laminate 240).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-45",
+        "summary": "Fix WhatsApp PDF sharing functionality to generate an actual downloadable PDF file and use the device native share intent so WhatsApp can receive the PDF as a file attachment (not just a text message).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/whatsappShare.ts",
+          "frontend/src/components/QuotationActions.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/whatsappShare.ts",
+          "frontend/src/components/QuotationActions.tsx"
+        ]
+      },
+      {
+        "id": "REQ-46",
+        "summary": "Update the confirmation message after quotation generation to display: 'Quotation generated based on actual size.'",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/QuotationActions.tsx"
@@ -94,11 +97,15 @@
         ]
       },
       {
-        "id": "REQ-38",
-        "summary": "Refactor the backend data model to group door entries by unique size (height × width) and store coating selections as properties of each size group rather than separate entries.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-47",
+        "summary": "Update PDF generation to use actual entered dimensions (with fractions if applicable) instead of rounded dimensions. Ensure table structure, totals section, and all formatting match the updated UI specifications.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/pdfGenerator.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/pdfGenerator.ts"
+        ]
       }
     ]
   },
@@ -111,15 +118,14 @@
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/DoorEntryDisplay.tsx",
     "frontend/src/components/DoorEntryForm.tsx",
     "frontend/src/components/DoorEntryList.tsx",
-    "frontend/src/components/GrandTotals.tsx",
     "frontend/src/components/QuotationActions.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/fractionParser.ts",
     "frontend/src/utils/pdfGenerator.ts",
+    "frontend/src/utils/whatsappShare.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

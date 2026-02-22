@@ -28,9 +28,11 @@ export function QuotationActions({
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
+  const hasEntries = types && types.length > 0;
+
   const handleGeneratePDF = async () => {
-    if (!types || types.length === 0) {
-      toast.error('Please add at least one door entry before generating quotation');
+    if (!hasEntries || !totalSquareFeet || !coatingAmounts) {
+      toast.error('Please add at least one door entry');
       return;
     }
 
@@ -40,104 +42,86 @@ export function QuotationActions({
         customerName,
         customerMobile,
         types,
-        totalSquareFeet: totalSquareFeet || 0,
-        coatingAmounts: coatingAmounts || {
-          singleCoatingAmount: 0,
-          doubleCoatingAmount: 0,
-          doubleSagwanAmount: 0,
-          laminateAmount: 0,
-        },
+        totalSquareFeet,
+        coatingAmounts,
       });
 
       setPdfBlob(blob);
-
+      
       // Clear all entries after successful PDF generation
-      if (types && types.length > 0) {
+      if (types) {
         for (const type of types) {
           await deleteTypeMutation.mutateAsync(type.id);
         }
       }
 
-      const doorCount = types.length;
-      toast.success(
-        `Quotation generated for ${doorCount} door ${doorCount === 1 ? 'size' : 'sizes'}. Entries cleared.`
-      );
-      
-      // Notify parent to reset form
+      toast.success('Quotation generated based on actual size.');
       onQuotationGenerated();
     } catch (error) {
-      console.error('Error generating quotation:', error);
-      toast.error('Failed to generate quotation. Please try again.');
+      toast.error('Failed to generate quotation');
+      console.error('Error generating PDF:', error);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleShareWhatsApp = async () => {
+  const handleWhatsAppShare = async () => {
     if (!pdfBlob) {
-      toast.error('Please generate quotation first before sharing');
+      toast.error('Please generate a quotation first');
       return;
     }
 
     try {
       await shareViaWhatsApp(pdfBlob, customerName);
-      toast.success('Opening WhatsApp...');
     } catch (error) {
+      toast.error('Failed to share via WhatsApp');
       console.error('Error sharing via WhatsApp:', error);
-      toast.error('Failed to share via WhatsApp. Please try again.');
     }
   };
 
   return (
-    <Card className="shadow-md border-2 border-accent/30 bg-accent/5">
+    <Card className="shadow-md border-2 border-primary/30">
       <CardHeader>
-        <CardTitle className="text-2xl">Generate Quotation</CardTitle>
-        <CardDescription className="text-base">
-          Create and share professional quotations (Print to save as PDF)
+        <CardTitle className="text-xl">Generate Quotation</CardTitle>
+        <CardDescription>
+          Create a printable quotation or share via WhatsApp
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap gap-4">
-          <Button
-            size="lg"
-            className="flex-1 min-w-[200px] h-14 text-lg"
-            onClick={handleGeneratePDF}
-            disabled={isGenerating || !types || types.length === 0}
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Printer className="mr-2 h-5 w-5" />
-                Generate Quotation PDF
-              </>
-            )}
-          </Button>
+      <CardContent className="space-y-4">
+        <Button
+          onClick={handleGeneratePDF}
+          disabled={!hasEntries || isGenerating}
+          size="lg"
+          className="w-full h-14 text-lg"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Printer className="mr-2 h-5 w-5" />
+              Generate & Print Quotation
+            </>
+          )}
+        </Button>
 
+        {pdfBlob && (
           <Button
-            size="lg"
+            onClick={handleWhatsAppShare}
             variant="outline"
-            className="min-w-[200px] h-14 text-lg"
-            onClick={handleShareWhatsApp}
-            disabled={!pdfBlob}
+            size="lg"
+            className="w-full h-14 text-lg border-2 border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700"
           >
             <SiWhatsapp className="mr-2 h-5 w-5" />
             Share via WhatsApp
           </Button>
-        </div>
-
-        {types && types.length === 0 && (
-          <p className="mt-4 text-sm text-muted-foreground text-center">
-            Add door entries above to generate quotation
-          </p>
         )}
 
-        {pdfBlob && (
-          <p className="mt-4 text-sm text-muted-foreground text-center">
-            💡 Tip: Use your browser's Print function (Ctrl+P / Cmd+P) and select "Save as PDF" to download the quotation
+        {!hasEntries && (
+          <p className="text-sm text-muted-foreground text-center">
+            Add door entries above to generate a quotation
           </p>
         )}
       </CardContent>

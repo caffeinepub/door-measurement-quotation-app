@@ -197,6 +197,16 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
           padding-top: 20px;
           border-top: 1px solid #ddd;
         }
+
+        .note {
+          margin-top: 20px;
+          padding: 15px;
+          background: #fff3cd;
+          border-left: 4px solid #ffc107;
+          border-radius: 4px;
+          font-size: 13px;
+          color: #856404;
+        }
         
         @media print {
           body {
@@ -251,7 +261,7 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
               (type, index) => `
             <tr>
               <td>${index + 1}</td>
-              <td><strong>${type.roundedHeight.toString()} × ${type.roundedWidth.toString()}"</strong></td>
+              <td><strong>${type.enteredHeight} × ${type.enteredWidth}"</strong></td>
               <td class="${type.coatings.singleCoating ? 'amount-cell text-right' : 'dash-cell'}">
                 ${type.coatings.singleCoating ? `₹${formatCurrency(calculateCoatingAmount(type.squareFeet, 165))}` : '—'}
               </td>
@@ -315,6 +325,10 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
               : ''
           }
         </div>
+      </div>
+
+      <div class="note">
+        <strong>Note:</strong> Quotation generated based on actual size.
       </div>
       
       <div class="footer">

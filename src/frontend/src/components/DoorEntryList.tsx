@@ -90,7 +90,7 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
                   <TableRow key={type.id.toString()}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell className="font-semibold">
-                      {type.roundedHeight.toString()} × {type.roundedWidth.toString()}"
+                      {type.enteredHeight} × {type.enteredWidth}"
                     </TableCell>
                     <TableCell className="text-right">
                       {type.coatings.singleCoating ? (

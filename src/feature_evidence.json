@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-change-door-count-logic-to-count-only-unique-door-sizes-height-width-combinations-multiple-coating-selections-on-the-same-size-must-count-as-a-single-door",
-      "featureTitle": "Change door count logic to count only unique door sizes (height × width combinations). Multiple coating selections on the same size must count as a single door.",
+      "featureId": "feature-display-the-actual-entered-door-size-not-rounded-size-in-the-door-entries-table-and-pdf-quotations-example-if-user-inputs-79-1-4-30-1-8-display-exactly-79-1-4-30-1-8-rounded-size-must-only-be-used-internally-for-square-footage-calculations",
+      "featureTitle": "Display the actual entered door size (not rounded size) in the door entries table and PDF quotations. Example: if user inputs 79 1/4 × 30 1/8, display exactly '79 1/4 × 30 1/8'. Rounded size must only be used internally for square footage calculations.",
       "files": [
-        "frontend/src/components/DoorEntryForm.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/DoorEntryList.tsx",
+        "frontend/src/utils/pdfGenerator.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -16,15 +16,33 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-31"
+        "REQ-39"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-replace-the-current-door-entries-table-structure-with-a-new-format-having-columns-sr-no-size-single-coating-double-coating-double-coating-sagwan-patti-laminate-sq-ft-each-row-represents-one-unique-door-size-with-coating-amounts-shown-in-separate-columns",
-      "featureTitle": "Replace the current door entries table structure with a new format having columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft. Each row represents ONE unique door size with coating amounts shown in separate columns.",
+      "featureId": "feature-add-support-for-inch-fractions-in-height-and-width-input-fields-allowed-fractions-0-1-8-2-8-3-8-4-8-5-8-6-8-7-8-accept-input-as-decimal-78-25-or-fraction-notation-78-2-8-convert-fraction-input-internally-to-decimal-for-calculations",
+      "featureTitle": "Add support for inch fractions in height and width input fields. Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8. Accept input as decimal (78.25) or fraction notation (78 2/8). Convert fraction input internally to decimal for calculations.",
       "files": [
-        "frontend/src/components/DoorEntryDisplay.tsx",
+        "frontend/src/components/DoorEntryForm.tsx",
+        "frontend/src/utils/fractionParser.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-40"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-rate-column-and-quantity-column-from-the-door-entries-table-display-table-must-show-only-sr-no-size-single-coating-double-coating-double-coating-sagwan-patti-laminate-sq-ft",
+      "featureTitle": "Remove Rate column and Quantity column from the door entries table display. Table must show only: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft.",
+      "files": [
         "frontend/src/components/DoorEntryList.tsx"
       ],
       "components": [
@@ -35,16 +53,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-32"
+        "REQ-42"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-remove-all-rate-sq-ft-displays-from-the-ui-and-pdf-show-only-the-final-calculated-amounts-per-coating-type-without-showing-the-rate-used-for-calculation",
-      "featureTitle": "Remove all rate (₹/sq.ft) displays from the UI and PDF. Show only the final calculated amounts per coating type without showing the rate used for calculation.",
+      "featureId": "feature-fix-whatsapp-pdf-sharing-functionality-to-generate-an-actual-downloadable-pdf-file-and-use-the-device-native-share-intent-so-whatsapp-can-receive-the-pdf-as-a-file-attachment-not-just-a-text-message",
+      "featureTitle": "Fix WhatsApp PDF sharing functionality to generate an actual downloadable PDF file and use the device native share intent so WhatsApp can receive the PDF as a file attachment (not just a text message).",
       "files": [
-        "frontend/src/components/DoorEntryDisplay.tsx",
-        "frontend/src/utils/pdfGenerator.ts"
+        "frontend/src/components/QuotationActions.tsx",
+        "frontend/src/utils/whatsappShare.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -54,51 +72,13 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-33"
+        "REQ-45"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-totals-section-to-show-only-total-square-feet-and-separate-totals-for-each-coating-type-single-coating-double-coating-double-coating-sagwan-patti-laminate-remove-grand-total-and-total-quantity-displays",
-      "featureTitle": "Update the totals section to show only Total Square Feet and separate totals for each coating type (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate). Remove Grand Total and Total Quantity displays.",
-      "files": [
-        "frontend/src/components/GrandTotals.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/utils/pdfGenerator.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-34"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-new-table-layout-and-totals-structure-are-consistent-between-the-app-preview-ui-and-the-generated-pdf-quotation",
-      "featureTitle": "Ensure the new table layout and totals structure are consistent between the app preview UI and the generated PDF quotation.",
-      "files": [
-        "frontend/src/utils/pdfGenerator.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-36"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-confirmation-message-after-quotation-generation-to-display-quotation-generated-for-x-door-size-s-where-x-is-the-count-of-unique-door-sizes-not-total-entries",
-      "featureTitle": "Update the confirmation message after quotation generation to display 'Quotation generated for X door size(s).' where X is the count of unique door sizes (not total entries).",
+      "featureId": "feature-update-the-confirmation-message-after-quotation-generation-to-display-quotation-generated-based-on-actual-size",
+      "featureTitle": "Update the confirmation message after quotation generation to display: 'Quotation generated based on actual size.'",
       "files": [
         "frontend/src/components/QuotationActions.tsx"
       ],
@@ -110,7 +90,25 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-37"
+        "REQ-46"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-pdf-generation-to-use-actual-entered-dimensions-with-fractions-if-applicable-instead-of-rounded-dimensions-ensure-table-structure-totals-section-and-all-formatting-match-the-updated-ui-specifications",
+      "featureTitle": "Update PDF generation to use actual entered dimensions (with fractions if applicable) instead of rounded dimensions. Ensure table structure, totals section, and all formatting match the updated UI specifications.",
+      "files": [
+        "frontend/src/utils/pdfGenerator.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-47"
       ],
       "confidence": "high"
     }

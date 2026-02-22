@@ -11,8 +11,10 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export interface AddDoorInput {
-  'height' : number,
-  'width' : number,
+  'roundedHeight' : bigint,
+  'roundedWidth' : bigint,
+  'enteredWidth' : string,
+  'enteredHeight' : string,
   'coatings' : CoatingType,
 }
 export interface AddDoorOutput { 'createdType' : DoorType }
@@ -24,11 +26,11 @@ export interface CoatingType {
 }
 export interface DoorType {
   'id' : bigint,
-  'height' : number,
   'squareFeet' : number,
   'roundedHeight' : bigint,
   'roundedWidth' : bigint,
-  'width' : number,
+  'enteredWidth' : string,
+  'enteredHeight' : string,
   'coatings' : CoatingType,
 }
 export interface _SERVICE {

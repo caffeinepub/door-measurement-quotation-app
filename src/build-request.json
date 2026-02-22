@@ -1,172 +1,192 @@
 {
   "kind": "build_request",
-  "title": "Refactor door quotation to use size-based grouping with coating columns",
+  "title": "Add fraction input support and actual size display",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-31",
-      "text": "Change door count logic to count only unique door sizes (height × width combinations). Multiple coating selections on the same size must count as a single door.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Door count must be based ONLY on unique door SIZE. Multiple coating selections on same size must NOT increase door count. Example: 78 x 36 with 4 coatings = 1 door"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A door with height 78 and width 36 with 4 different coatings selected counts as 1 door",
-        "Door count increments only when a new unique size combination is added",
-        "Backend groups entries by size and aggregates coatings per size"
-      ]
-    },
-    {
-      "id": "REQ-32",
-      "text": "Replace the current door entries table structure with a new format having columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft. Each row represents ONE unique door size with coating amounts shown in separate columns.",
+      "id": "REQ-39",
+      "text": "Display the actual entered door size (not rounded size) in the door entries table and PDF quotations. Example: if user inputs 79 1/4 × 30 1/8, display exactly '79 1/4 × 30 1/8'. Rounded size must only be used internally for square footage calculations.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Replace current door entries table with: Columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft. Each row = ONE door size. Each coating amount shown in its own column"
+          "Always display ACTUAL entered door size. Do NOT display rounded size."
         ]
       },
       "acceptanceCriteria": [
-        "Table displays one row per unique door size",
-        "Each coating type has its own column showing the calculated amount",
-        "If a coating is not selected for a size, its column shows a dash or remains empty",
-        "Size column displays format like '78 × 36'",
-        "Sq.Ft column shows the square footage for that size"
+        "Table shows actual entered dimensions, not rounded dimensions",
+        "PDF quotation shows actual entered dimensions",
+        "Rounded size is used only for internal calculations"
       ]
     },
     {
-      "id": "REQ-33",
-      "text": "Remove all rate (₹/sq.ft) displays from the UI and PDF. Show only the final calculated amounts per coating type without showing the rate used for calculation.",
+      "id": "REQ-40",
+      "text": "Add support for inch fractions in height and width input fields. Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8. Accept input as decimal (78.25) or fraction notation (78 2/8). Convert fraction input internally to decimal for calculations.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Do NOT show rate (₹/sq.ft) anywhere in UI or PDF. Only final calculated amount per coating."
+          "Support inch fractions in height and width: Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8"
         ]
       },
       "acceptanceCriteria": [
-        "Rate field is not visible in the door entries table",
-        "Rate is not shown in the PDF quotation",
-        "Only coating amounts are displayed, not the rate used to calculate them"
+        "Height input accepts both decimal and fraction notation",
+        "Width input accepts both decimal and fraction notation",
+        "Fraction inputs are converted to decimal internally",
+        "Original fraction format is preserved for display"
       ]
     },
     {
-      "id": "REQ-34",
-      "text": "Update the totals section to show only Total Square Feet and separate totals for each coating type (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate). Remove Grand Total and Total Quantity displays.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Remove: Grand Total, Total Quantity. Show ONLY: Total Square Feet, Separate total for each coating type"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Totals section displays Total Square Feet",
-        "Separate total amounts shown for each coating type (4 coating totals)",
-        "Grand Total amount is not displayed",
-        "Total Quantity field is not displayed",
-        "Backend provides separate totals per coating type"
-      ]
-    },
-    {
-      "id": "REQ-35",
-      "text": "Update the square footage calculation formula to: Sq.Ft = (Rounded Height × Rounded Width) / 144. Update amount calculation to: Amount per coating = Sq.Ft × respective coating rate.",
+      "id": "REQ-41",
+      "text": "Update backend data model to store both the actual entered size (as string with fractions if applicable) and the rounded size (for calculations). Modify the addDoor function to accept and store the original entered dimensions alongside rounded dimensions.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Sq.Ft = (Rounded Height × Rounded Width) / 144. Amount per coating: Sq.Ft × respective coating rate"
+          "Always display ACTUAL entered door size. Do NOT display rounded size."
         ]
       },
       "acceptanceCriteria": [
-        "Square feet calculated using (Rounded Height × Rounded Width) / 144",
-        "Each coating amount calculated as Sq.Ft × coating rate (165, 185, 210, or 240)",
-        "Calculations match the specified formula exactly"
+        "Backend stores original entered dimensions",
+        "Backend stores rounded dimensions separately",
+        "Square feet calculation uses rounded dimensions",
+        "Query functions return both original and rounded dimensions"
       ]
     },
     {
-      "id": "REQ-36",
-      "text": "Ensure the new table layout and totals structure are consistent between the app preview UI and the generated PDF quotation.",
+      "id": "REQ-42",
+      "text": "Remove Rate column and Quantity column from the door entries table display. Table must show only: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Ensure same layout and logic in: App preview, Generated PDF"
+          "Do NOT show: - Rate column - Quantity column"
         ]
       },
       "acceptanceCriteria": [
-        "PDF displays the same table structure with Sr No | Size | coating columns | Sq.Ft",
-        "PDF totals section matches the UI totals section (Total Sq.Ft + coating totals)",
-        "Formatting and data presentation are identical between UI and PDF"
+        "Rate column is not visible in table",
+        "Quantity column is not visible in table",
+        "All coating amount columns are visible",
+        "Square feet column is visible"
       ]
     },
     {
-      "id": "REQ-37",
-      "text": "Update the confirmation message after quotation generation to display 'Quotation generated for X door size(s).' where X is the count of unique door sizes (not total entries).",
+      "id": "REQ-43",
+      "text": "Update the totals section to display below the table with exactly these fields: Single Coating Total, Double Coating Total, Double Coating + Sagwan Patti Total, Laminate Total, and Total Square Feet. Remove Grand Total and Total Quantity displays.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Display message: 'Quotation generated for 1 door size.'"
+          "Show BELOW TABLE: - Single Coating Total - Double Coating Total - Double Coating + Sagwan Patti Total - Laminate Total - Total Square Feet"
         ]
       },
       "acceptanceCriteria": [
-        "Message shows actual count of unique door sizes",
-        "Message format is 'Quotation generated for 1 door size.' for single size",
-        "Message format is 'Quotation generated for X door sizes.' for multiple sizes",
-        "Message appears after successful PDF generation"
+        "Totals section appears below the door entries table",
+        "Shows separate total for each coating type",
+        "Shows Total Square Feet",
+        "Does not show Grand Total",
+        "Does not show Total Quantity"
       ]
     },
     {
-      "id": "REQ-38",
-      "text": "Refactor the backend data model to group door entries by unique size (height × width) and store coating selections as properties of each size group rather than separate entries.",
+      "id": "REQ-44",
+      "text": "Ensure the square footage calculation uses the formula: Sq.Ft = (Rounded Height × Rounded Width) / 144. Ensure amount calculation uses: Amount = Sq.Ft × coating rate (where coating rates are: Single Coating 165, Double Coating 185, Double Coating + Sagwan Patti 210, Laminate 240).",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Each row = ONE door size. Each coating amount shown in its own column"
+          "Sq.Ft = (Rounded Height × Rounded Width) / 144",
+          "Amount = Sq.Ft × coating rate"
         ]
       },
       "acceptanceCriteria": [
-        "Backend stores one record per unique door size",
-        "Each size record contains coating selections as separate fields or a map",
-        "Querying entries returns data grouped by size with coating amounts",
-        "Adding a door with existing size updates that size's coating selections"
+        "Square feet calculated from rounded dimensions only",
+        "Amount calculated by multiplying square feet by coating rate",
+        "Correct rates applied per coating type"
+      ]
+    },
+    {
+      "id": "REQ-45",
+      "text": "Fix WhatsApp PDF sharing functionality to generate an actual downloadable PDF file and use the device native share intent so WhatsApp can receive the PDF as a file attachment (not just a text message).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ],
+        "quotes": [
+          "Generate actual downloadable PDF file. Use device native share intent. Ensure WhatsApp can receive PDF as file attachment."
+        ]
+      },
+      "acceptanceCriteria": [
+        "PDF is generated as a downloadable file blob",
+        "Native share API is used for sharing",
+        "WhatsApp receives PDF as file attachment",
+        "Fallback behavior works if native share is unavailable"
+      ]
+    },
+    {
+      "id": "REQ-46",
+      "text": "Update the confirmation message after quotation generation to display: 'Quotation generated based on actual size.'",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ],
+        "quotes": [
+          "Show message: 'Quotation generated based on actual size.'"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Confirmation message displays after PDF generation",
+        "Message reads exactly 'Quotation generated based on actual size.'"
+      ]
+    },
+    {
+      "id": "REQ-47",
+      "text": "Update PDF generation to use actual entered dimensions (with fractions if applicable) instead of rounded dimensions. Ensure table structure, totals section, and all formatting match the updated UI specifications.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ],
+        "quotes": [
+          "Always display ACTUAL entered door size.",
+          "Ensure the new table layout and totals structure are consistent between the app preview UI and the generated PDF quotation."
+        ]
+      },
+      "acceptanceCriteria": [
+        "PDF shows actual entered dimensions with fractions",
+        "PDF table structure matches UI table structure",
+        "PDF totals section matches UI totals section",
+        "No rate or quantity columns in PDF table"
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend single-actor architecture",
-    "Maintain existing rounding logic for height (72/75/78/80/84) and width (30/32/34/36/38/40/42/48)",
-    "Preserve existing coating rates: Single Coating (165), Double Coating (185), Double Coating + Sagwan Patti (210), Laminate (240)",
-    "Keep the auto-clear functionality after quotation generation",
-    "Maintain Indian Rupee (₹) symbol and comma formatting for currency"
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts",
+    "Do not modify frontend/src/hooks/useActor.ts",
+    "Do not modify frontend/src/main.tsx",
+    "Do not modify files in frontend/src/components/ui",
+    "Maintain single-actor backend architecture in backend/main.mo"
   ],
   "nonGoals": [
-    "Changing the customer information form fields",
-    "Modifying the WhatsApp sharing functionality",
-    "Altering the theme toggle or dark/light mode implementation",
-    "Changing the door type selection UI (checkboxes remain)",
-    "Modifying the height/width input fields or rounding rules"
+    "Adding new coating types beyond the four existing types",
+    "Changing the rounding logic for height and width",
+    "Adding authentication or user accounts",
+    "Modifying the theme toggle functionality",
+    "Changing the customer information form fields"
   ],
   "imageRequirements": {
     "required": [],

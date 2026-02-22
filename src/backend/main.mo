@@ -1,10 +1,10 @@
 import Nat "mo:core/Nat";
 import Int "mo:core/Int";
-import Array "mo:core/Array";
-import Map "mo:core/Map";
 import Float "mo:core/Float";
-import Runtime "mo:core/Runtime";
 import Order "mo:core/Order";
+import Map "mo:core/Map";
+import Array "mo:core/Array";
+import Runtime "mo:core/Runtime";
 import Migration "migration";
 
 (with migration = Migration.run)
@@ -27,8 +27,8 @@ actor {
 
   type DoorType = {
     id : Nat;
-    height : Float;
-    width : Float;
+    enteredHeight : Text; // Store entered size in string to allow fractions
+    enteredWidth : Text;
     roundedHeight : Nat;
     roundedWidth : Nat;
     coatings : CoatingType;
@@ -44,27 +44,15 @@ actor {
   let laminateRate : Float = 240.0;
 
   public type AddDoorInput = {
-    height : Float;
-    width : Float;
+    enteredHeight : Text; // Received as Text to allow diversity of inputs (w/o JS regex)
+    enteredWidth : Text;
+    roundedHeight : Nat;
+    roundedWidth : Nat;
     coatings : CoatingType;
   };
 
   type AddDoorOutput = {
     createdType : DoorType;
-  };
-
-  func roundHeight(height : Float) : Nat {
-    let h = height.toInt().toNat();
-    if (h <= 72) { 72 } else if (h <= 75) { 75 } else if (h <= 78) { 78 } else if (h <= 80) { 80 } else { 84 };
-  };
-
-  func roundWidth(width : Float) : Nat {
-    let w = width.toInt().toNat();
-    if (w <= 30) { 30 } else if (w <= 32) { 32 } else if (w <= 34) { 34 } else if (w <= 36) { 36 } else if (w <= 38) {
-      38;
-    } else if (w <= 40) {
-      40;
-    } else if (w <= 42) { 42 } else { 48 };
   };
 
   func calculateSquareFeet(height : Nat, width : Nat) : Float {
@@ -76,16 +64,14 @@ actor {
   };
 
   public shared ({ caller }) func addDoor(input : AddDoorInput) : async AddDoorOutput {
-    let roundedHeight = roundHeight(input.height);
-    let roundedWidth = roundWidth(input.width);
-    let squareFeet = calculateSquareFeet(roundedHeight, roundedWidth);
+    let squareFeet = calculateSquareFeet(input.roundedHeight, input.roundedWidth);
 
     let newType : DoorType = {
       id = nextId;
-      height = input.height;
-      width = input.width;
-      roundedHeight;
-      roundedWidth;
+      enteredHeight = input.enteredHeight;
+      enteredWidth = input.enteredWidth;
+      roundedHeight = input.roundedHeight;
+      roundedWidth = input.roundedWidth;
       coatings = input.coatings;
       squareFeet;
     };

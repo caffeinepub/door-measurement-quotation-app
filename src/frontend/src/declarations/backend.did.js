@@ -15,17 +15,19 @@ export const CoatingType = IDL.Record({
   'doubleCoating' : IDL.Bool,
 });
 export const AddDoorInput = IDL.Record({
-  'height' : IDL.Float64,
-  'width' : IDL.Float64,
+  'roundedHeight' : IDL.Nat,
+  'roundedWidth' : IDL.Nat,
+  'enteredWidth' : IDL.Text,
+  'enteredHeight' : IDL.Text,
   'coatings' : CoatingType,
 });
 export const DoorType = IDL.Record({
   'id' : IDL.Nat,
-  'height' : IDL.Float64,
   'squareFeet' : IDL.Float64,
   'roundedHeight' : IDL.Nat,
   'roundedWidth' : IDL.Nat,
-  'width' : IDL.Float64,
+  'enteredWidth' : IDL.Text,
+  'enteredHeight' : IDL.Text,
   'coatings' : CoatingType,
 });
 export const AddDoorOutput = IDL.Record({ 'createdType' : DoorType });
@@ -71,17 +73,19 @@ export const idlFactory = ({ IDL }) => {
     'doubleCoating' : IDL.Bool,
   });
   const AddDoorInput = IDL.Record({
-    'height' : IDL.Float64,
-    'width' : IDL.Float64,
+    'roundedHeight' : IDL.Nat,
+    'roundedWidth' : IDL.Nat,
+    'enteredWidth' : IDL.Text,
+    'enteredHeight' : IDL.Text,
     'coatings' : CoatingType,
   });
   const DoorType = IDL.Record({
     'id' : IDL.Nat,
-    'height' : IDL.Float64,
     'squareFeet' : IDL.Float64,
     'roundedHeight' : IDL.Nat,
     'roundedWidth' : IDL.Nat,
-    'width' : IDL.Float64,
+    'enteredWidth' : IDL.Text,
+    'enteredHeight' : IDL.Text,
     'coatings' : CoatingType,
   });
   const AddDoorOutput = IDL.Record({ 'createdType' : DoorType });

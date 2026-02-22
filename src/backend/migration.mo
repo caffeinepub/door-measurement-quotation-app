@@ -2,23 +2,26 @@ import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 
 module {
-  type OldDoorEntry = {
+  type OldCoatingType = {
+    singleCoating : Bool;
+    doubleCoating : Bool;
+    doubleSagwan : Bool;
+    laminate : Bool;
+  };
+
+  type OldDoorType = {
     id : Nat;
-    doorType : Text;
     height : Float;
     width : Float;
-    rate : Float;
-    quantity : Nat;
     roundedHeight : Nat;
     roundedWidth : Nat;
+    coatings : OldCoatingType;
     squareFeet : Float;
-    amount : Nat;
   };
 
   type OldActor = {
     nextId : Nat;
-    defaultRate : Float;
-    entries : [OldDoorEntry];
+    typesMap : Map.Map<Nat, OldDoorType>;
   };
 
   type NewCoatingType = {
@@ -30,8 +33,8 @@ module {
 
   type NewDoorType = {
     id : Nat;
-    height : Float;
-    width : Float;
+    enteredHeight : Text;
+    enteredWidth : Text;
     roundedHeight : Nat;
     roundedWidth : Nat;
     coatings : NewCoatingType;
@@ -44,6 +47,19 @@ module {
   };
 
   public func run(old : OldActor) : NewActor {
-    { nextId = old.nextId; typesMap = Map.empty<Nat, NewDoorType>() };
+    let newTypesMap = old.typesMap.map<Nat, OldDoorType, NewDoorType>(
+      func(_id, oldDoor) {
+        {
+          id = oldDoor.id;
+          enteredHeight = oldDoor.height.toText();
+          enteredWidth = oldDoor.width.toText();
+          roundedHeight = oldDoor.roundedHeight;
+          roundedWidth = oldDoor.roundedWidth;
+          coatings = oldDoor.coatings;
+          squareFeet = oldDoor.squareFeet;
+        };
+      }
+    );
+    { old with typesMap = newTypesMap };
   };
 };

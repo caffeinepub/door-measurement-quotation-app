@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 9,
-  "summary": "Android mobile application using Flutter and Dart for door manufacturers to calculate rounded door sizes, square feet, and quotations with multi-coating selection per door size (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate), displaying one row per unique door size with separate coating columns, and PDF quotation generation with WhatsApp sharing",
+  "projectStateVersion": 11,
+  "summary": "Android mobile application using Flutter and Dart for door manufacturers to calculate rounded door sizes (internal use only), square feet, and quotations with multi-coating selection per door size (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate), displaying one row per unique door size with separate coating columns, and PDF quotation generation with WhatsApp sharing. Displays actual entered size (with fraction support 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8), not rounded size. Quotations show only coating totals and total square feet.",
   "architectural_notes": [
     "Flutter/Dart Android mobile application",
     "Custom rounding logic: height rounds to 72/75/78/80/84, width rounds to 30/32/34/36/38/40/42/48",
@@ -15,7 +15,7 @@
     "WhatsApp integration for quotation sharing"
   ],
   "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-create-input-form-with-three-fields-door-height-decimal-input-with-placeholder-78-25-door-width-decimal-input-with-placeholder-30-25-and-rate-per-sq-ft-decimal-input-with-default-value-185-include-an-add-door-button-to-submit-the-form",
@@ -238,6 +238,54 @@
       "title": "Update the confirmation message after quotation generation to display 'Quotation generated for X door size(s).' where X is the count of unique door sizes (not total entries).",
       "reqIds": [
         "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-the-actual-entered-door-size-not-rounded-size-in-the-door-entries-table-and-pdf-quotations-example-if-user-inputs-79-1-4-30-1-8-display-exactly-79-1-4-30-1-8-rounded-size-must-only-be-used-internally-for-square-footage-calculations",
+      "title": "Display the actual entered door size (not rounded size) in the door entries table and PDF quotations. Example: if user inputs 79 1/4 × 30 1/8, display exactly '79 1/4 × 30 1/8'. Rounded size must only be used internally for square footage calculations.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-support-for-inch-fractions-in-height-and-width-input-fields-allowed-fractions-0-1-8-2-8-3-8-4-8-5-8-6-8-7-8-accept-input-as-decimal-78-25-or-fraction-notation-78-2-8-convert-fraction-input-internally-to-decimal-for-calculations",
+      "title": "Add support for inch fractions in height and width input fields. Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8. Accept input as decimal (78.25) or fraction notation (78 2/8). Convert fraction input internally to decimal for calculations.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-rate-column-and-quantity-column-from-the-door-entries-table-display-table-must-show-only-sr-no-size-single-coating-double-coating-double-coating-sagwan-patti-laminate-sq-ft",
+      "title": "Remove Rate column and Quantity column from the door entries table display. Table must show only: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-whatsapp-pdf-sharing-functionality-to-generate-an-actual-downloadable-pdf-file-and-use-the-device-native-share-intent-so-whatsapp-can-receive-the-pdf-as-a-file-attachment-not-just-a-text-message",
+      "title": "Fix WhatsApp PDF sharing functionality to generate an actual downloadable PDF file and use the device native share intent so WhatsApp can receive the PDF as a file attachment (not just a text message).",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-confirmation-message-after-quotation-generation-to-display-quotation-generated-based-on-actual-size",
+      "title": "Update the confirmation message after quotation generation to display: 'Quotation generated based on actual size.'",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-pdf-generation-to-use-actual-entered-dimensions-with-fractions-if-applicable-instead-of-rounded-dimensions-ensure-table-structure-totals-section-and-all-formatting-match-the-updated-ui-specifications",
+      "title": "Update PDF generation to use actual entered dimensions (with fractions if applicable) instead of rounded dimensions. Ensure table structure, totals section, and all formatting match the updated UI specifications.",
+      "reqIds": [
+        "REQ-47"
       ],
       "version": 1
     }
@@ -488,6 +536,66 @@
       "summary": "Refactor the backend data model to group door entries by unique size (height × width) and store coating selections as properties of each size group rather than separate entries.",
       "reqIds": [
         "REQ-38"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Display ACTUAL entered door size (not rounded size) in table and PDF. Rounded size used only for internal calculation.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-49",
+      "summary": "Add support for inch fractions in height/width inputs: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8. Accept input as decimal (78.25) or fraction (78 2/8), convert to decimal internally for calculation.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-50",
+      "summary": "Remove Rate column and Quantity column from table display.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Update totals section to show ONLY: Single Coating Total, Double Coating Total, Double Coating + Sagwan Patti Total, Laminate Total, Total Square Feet. Remove Grand Total and Total Quantity.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-52",
+      "summary": "Fix WhatsApp PDF sharing: generate actual downloadable PDF file using device native share intent so WhatsApp can receive PDF as file attachment.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-53",
+      "summary": "Update confirmation message after quotation generation to: 'Quotation generated based on actual size.'",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-56",
+      "summary": "Update backend data model to store both the actual entered size (as string with fractions if applicable) and the rounded size (for calculations). Modify the addDoor function to accept and store the original entered dimensions alongside rounded dimensions.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-58",
+      "summary": "Update the totals section to display below the table with exactly these fields: Single Coating Total, Double Coating Total, Double Coating + Sagwan Patti Total, Laminate Total, and Total Square Feet. Remove Grand Total and Total Quantity displays.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-59",
+      "summary": "Ensure the square footage calculation uses the formula: Sq.Ft = (Rounded Height × Rounded Width) / 144. Ensure amount calculation uses: Amount = Sq.Ft × coating rate (where coating rates are: Single Coating 165, Double Coating 185, Double Coating + Sagwan Patti 210, Laminate 240).",
+      "reqIds": [
+        "REQ-44"
       ],
       "status": "pending"
     }

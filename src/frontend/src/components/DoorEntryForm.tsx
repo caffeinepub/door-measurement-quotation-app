@@ -1,4 +1,4 @@
-import { useState, useEffect, useImperativeHandle } from 'react';
+import { useState, useImperativeHandle } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Plus, Loader2, RotateCcw } from 'lucide-react';
 import { useAddDoor } from '../hooks/useQueries';
 import { toast } from 'sonner';
 import type { CoatingType } from '../backend';
+import { parseDimensionInput, roundToNearestInch } from '../utils/fractionParser';
 
 interface DoorEntryFormProps {
   onEntryAdded: () => void;
@@ -68,23 +69,26 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
       return;
     }
 
-    const heightNum = parseFloat(height);
-    const widthNum = parseFloat(width);
-
-    if (isNaN(heightNum) || heightNum <= 0) {
-      toast.error('Please enter a valid door height');
+    // Parse height input
+    const heightResult = parseDimensionInput(height);
+    if (!heightResult.isValid || heightResult.decimal <= 0) {
+      toast.error('Please enter a valid door height (e.g., 78.25 or 78 2/8)');
       return;
     }
 
-    if (isNaN(widthNum) || widthNum <= 0) {
-      toast.error('Please enter a valid door width');
+    // Parse width input
+    const widthResult = parseDimensionInput(width);
+    if (!widthResult.isValid || widthResult.decimal <= 0) {
+      toast.error('Please enter a valid door width (e.g., 30.25 or 30 2/8)');
       return;
     }
 
     try {
       await addDoorMutation.mutateAsync({
-        height: heightNum,
-        width: widthNum,
+        enteredHeight: heightResult.enteredFormat,
+        enteredWidth: widthResult.enteredFormat,
+        roundedHeight: BigInt(roundToNearestInch(heightResult.decimal)),
+        roundedWidth: BigInt(roundToNearestInch(widthResult.decimal)),
         coatings,
       });
 
@@ -104,7 +108,7 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
       <CardHeader>
         <CardTitle className="text-2xl">Add New Door Entry</CardTitle>
         <CardDescription className="text-base">
-          Enter door dimensions and select coating types to calculate quotation
+          Enter door dimensions (supports fractions like 78 2/8) and select coating types
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -147,14 +151,16 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
               </Label>
               <Input
                 id="height"
-                type="number"
-                step="0.01"
-                placeholder="78.25"
+                type="text"
+                placeholder="78.25 or 78 2/8"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
                 className="h-14 text-lg"
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                Enter as decimal (78.25) or fraction (78 2/8)
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -163,14 +169,16 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
               </Label>
               <Input
                 id="width"
-                type="number"
-                step="0.01"
-                placeholder="30.25"
+                type="text"
+                placeholder="30.25 or 30 2/8"
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
                 className="h-14 text-lg"
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                Enter as decimal (30.25) or fraction (30 2/8)
+              </p>
             </div>
           </div>
 
