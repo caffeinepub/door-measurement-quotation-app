@@ -11,51 +11,38 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export interface AddDoorInput {
-  'roundedHeight' : bigint,
-  'roundedWidth' : bigint,
-  'enteredWidth' : string,
-  'enteredHeight' : string,
-  'coatings' : CoatingType,
+  'heightEntered' : number,
+  'heightRounded' : bigint,
+  'widthEntered' : number,
+  'coatingType' : CoatingType,
+  'widthRounded' : bigint,
 }
-export interface AddDoorOutput { 'createdType' : DoorType }
-export interface CoatingType {
-  'singleCoating' : boolean,
-  'doubleSagwan' : boolean,
-  'laminate' : boolean,
-  'doubleCoating' : boolean,
+export type CoatingType = { 'doubleSagwan' : null } |
+  { 'double' : null } |
+  { 'laminate' : null } |
+  { 'single' : null };
+export interface ComputeTotals {
+  'singleCoating' : number,
+  'doubleSagwan' : number,
+  'laminate' : number,
+  'doubleCoating' : number,
+  'grandTotal' : number,
 }
-export interface DoorType {
+export interface CreateDoorType { 'createdType' : DoorEntry }
+export interface DoorEntry {
   'id' : bigint,
   'squareFeet' : number,
-  'roundedHeight' : bigint,
-  'roundedWidth' : bigint,
-  'enteredWidth' : string,
-  'enteredHeight' : string,
-  'coatings' : CoatingType,
+  'heightEntered' : number,
+  'heightRounded' : bigint,
+  'widthEntered' : number,
+  'coatingType' : CoatingType,
+  'widthRounded' : bigint,
 }
 export interface _SERVICE {
-  'addDoor' : ActorMethod<[AddDoorInput], AddDoorOutput>,
-  'calculateCoatingAmounts' : ActorMethod<
-    [],
-    {
-      'doubleCoatingAmount' : number,
-      'laminateAmount' : number,
-      'singleCoatingAmount' : number,
-      'doubleSagwanAmount' : number,
-    }
-  >,
-  'deleteType' : ActorMethod<[bigint], undefined>,
-  'getAllTypes' : ActorMethod<[], Array<DoorType>>,
-  'getCoatingTotals' : ActorMethod<
-    [],
-    {
-      'singleCoating' : number,
-      'doubleSagwan' : number,
-      'laminate' : number,
-      'doubleCoating' : number,
-    }
-  >,
-  'getTotalSquareFeet' : ActorMethod<[], number>,
+  'addDoor' : ActorMethod<[AddDoorInput], CreateDoorType>,
+  'deleteDoor' : ActorMethod<[bigint], undefined>,
+  'getAllTypes' : ActorMethod<[], Array<DoorEntry>>,
+  'getTotalSquareFeet' : ActorMethod<[], ComputeTotals>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

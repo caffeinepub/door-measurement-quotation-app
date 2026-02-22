@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { useGetTotalSquareFeet, useGetCoatingAmounts } from '../hooks/useQueries';
+import { useGetTotalSquareFeet } from '../hooks/useQueries';
 import { Loader2 } from 'lucide-react';
+import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from '../utils/coatingRates';
 
 interface GrandTotalsProps {
   refreshTrigger: number;
@@ -11,11 +12,7 @@ function formatCurrency(amount: number): string {
 }
 
 export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
-  const { data: totalSquareFeet, isLoading: isLoadingSqFt, error: errorSqFt } = useGetTotalSquareFeet(refreshTrigger);
-  const { data: coatingAmounts, isLoading: isLoadingAmounts, error: errorAmounts } = useGetCoatingAmounts(refreshTrigger);
-
-  const isLoading = isLoadingSqFt || isLoadingAmounts;
-  const error = errorSqFt || errorAmounts;
+  const { data: totals, isLoading, error } = useGetTotalSquareFeet(refreshTrigger);
 
   if (isLoading) {
     return (
@@ -37,6 +34,15 @@ export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
     );
   }
 
+  if (!totals) {
+    return null;
+  }
+
+  const singleCoatingAmount = Math.round(totals.singleCoating * SINGLE_COATING_RATE);
+  const doubleCoatingAmount = Math.round(totals.doubleCoating * DOUBLE_COATING_RATE);
+  const doubleSagwanAmount = Math.round(totals.doubleSagwan * DOUBLE_SAGWAN_RATE);
+  const laminateAmount = Math.round(totals.laminate * LAMINATE_RATE);
+
   return (
     <div className="space-y-4">
       {/* Total Square Feet */}
@@ -45,53 +51,53 @@ export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
           Total Square Feet
         </p>
         <p className="mt-2 text-2xl font-bold text-foreground">
-          {totalSquareFeet?.toFixed(2) || '0.00'}
+          {totals.grandTotal.toFixed(2)}
           <span className="ml-2 text-base font-normal text-muted-foreground">sq.ft</span>
         </p>
       </div>
 
       {/* Coating Totals */}
       <div className="grid gap-4 sm:grid-cols-2">
-        {coatingAmounts && coatingAmounts.singleCoatingAmount > 0 && (
+        {totals.singleCoating > 0 && (
           <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Single Coating Total
+              Total Single Coating
             </p>
-            <p className="mt-2 text-xl font-bold text-primary">
-              ₹{formatCurrency(coatingAmounts.singleCoatingAmount)}
+            <p className="mt-2 text-xl font-bold text-foreground">
+              ₹{formatCurrency(singleCoatingAmount)}
             </p>
           </div>
         )}
 
-        {coatingAmounts && coatingAmounts.doubleCoatingAmount > 0 && (
+        {totals.doubleCoating > 0 && (
           <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Double Coating Total
+              Total Double Coating
             </p>
-            <p className="mt-2 text-xl font-bold text-primary">
-              ₹{formatCurrency(coatingAmounts.doubleCoatingAmount)}
+            <p className="mt-2 text-xl font-bold text-foreground">
+              ₹{formatCurrency(doubleCoatingAmount)}
             </p>
           </div>
         )}
 
-        {coatingAmounts && coatingAmounts.doubleSagwanAmount > 0 && (
+        {totals.doubleSagwan > 0 && (
           <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Double Coating + Sagwan Patti Total
+              Total Double + Sagwan
             </p>
-            <p className="mt-2 text-xl font-bold text-primary">
-              ₹{formatCurrency(coatingAmounts.doubleSagwanAmount)}
+            <p className="mt-2 text-xl font-bold text-foreground">
+              ₹{formatCurrency(doubleSagwanAmount)}
             </p>
           </div>
         )}
 
-        {coatingAmounts && coatingAmounts.laminateAmount > 0 && (
+        {totals.laminate > 0 && (
           <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Laminate Total
+              Total Laminate
             </p>
-            <p className="mt-2 text-xl font-bold text-primary">
-              ₹{formatCurrency(coatingAmounts.laminateAmount)}
+            <p className="mt-2 text-xl font-bold text-foreground">
+              ₹{formatCurrency(laminateAmount)}
             </p>
           </div>
         )}

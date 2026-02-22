@@ -1,13 +1,11 @@
 /**
  * Utility functions for parsing and handling fraction inputs for door dimensions
+ * Supports Indian fractions: 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8
  */
-
-// Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8
-const ALLOWED_FRACTIONS = [0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8];
 
 /**
  * Parse a dimension input that can be in decimal or fraction format
- * Examples: "78.25", "78 2/8", "78 1/4"
+ * Examples: "78.25", "78 2/8", "78 1/4", "79 3/8"
  * Returns the decimal value and the original entered format
  */
 export function parseDimensionInput(input: string): {
@@ -44,9 +42,9 @@ export function parseDimensionInput(input: string): {
     const fractionValue = numerator / denominator;
     const decimal = whole + fractionValue;
     
-    // Validate that the fraction is allowed (must be in eighths)
+    // Validate that the fraction is allowed (must be in eighths: 1/8 through 7/8)
     const eighthValue = Math.round(fractionValue * 8);
-    if (eighthValue >= 0 && eighthValue <= 7 && Math.abs(fractionValue - eighthValue / 8) < 0.001) {
+    if (eighthValue >= 1 && eighthValue <= 7 && Math.abs(fractionValue - eighthValue / 8) < 0.001) {
       return {
         decimal,
         enteredFormat: trimmed,
@@ -56,13 +54,6 @@ export function parseDimensionInput(input: string): {
   }
   
   return { decimal: 0, enteredFormat: trimmed, isValid: false };
-}
-
-/**
- * Round a decimal dimension to the nearest inch
- */
-export function roundToNearestInch(decimal: number): number {
-  return Math.round(decimal);
 }
 
 /**

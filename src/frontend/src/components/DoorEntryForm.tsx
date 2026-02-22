@@ -3,51 +3,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Loader2, RotateCcw } from 'lucide-react';
 import { useAddDoor } from '../hooks/useQueries';
 import { toast } from 'sonner';
-import type { CoatingType } from '../backend';
-import { parseDimensionInput, roundToNearestInch } from '../utils/fractionParser';
+import { CoatingType } from '../backend';
+import { parseDimensionInput } from '../utils/fractionParser';
+import { roundHeight, roundWidth } from '../utils/dimensionRounding';
 
 interface DoorEntryFormProps {
   onEntryAdded: () => void;
   resetRef?: React.MutableRefObject<(() => void) | undefined>;
 }
 
-const COATING_OPTIONS = [
-  { key: 'singleCoating', label: 'Single Coating', rate: 165 },
-  { key: 'doubleCoating', label: 'Double Coating', rate: 185 },
-  { key: 'doubleSagwan', label: 'Double Coating + Sagwan Patti', rate: 210 },
-  { key: 'laminate', label: 'Laminate', rate: 240 },
-] as const;
-
 export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
-  const [coatings, setCoatings] = useState<CoatingType>({
-    singleCoating: false,
-    doubleCoating: false,
-    doubleSagwan: false,
-    laminate: false,
-  });
   const [height, setHeight] = useState('');
   const [width, setWidth] = useState('');
 
   const addDoorMutation = useAddDoor();
 
-  const handleCoatingToggle = (key: keyof CoatingType) => {
-    setCoatings((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
-
   const resetForm = () => {
-    setCoatings({
-      singleCoating: false,
-      doubleCoating: false,
-      doubleSagwan: false,
-      laminate: false,
-    });
     setHeight('');
     setWidth('');
   };
@@ -63,12 +37,6 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const hasAnyCoating = Object.values(coatings).some((v) => v);
-    if (!hasAnyCoating) {
-      toast.error('Please select at least one coating type');
-      return;
-    }
-
     // Parse height input
     const heightResult = parseDimensionInput(height);
     if (!heightResult.isValid || heightResult.decimal <= 0) {
@@ -83,19 +51,33 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
       return;
     }
 
+    // Calculate rounded dimensions
+    const heightRounded = roundHeight(heightResult.decimal);
+    const widthRounded = roundWidth(widthResult.decimal);
+
     try {
-      await addDoorMutation.mutateAsync({
-        enteredHeight: heightResult.enteredFormat,
-        enteredWidth: widthResult.enteredFormat,
-        roundedHeight: BigInt(roundToNearestInch(heightResult.decimal)),
-        roundedWidth: BigInt(roundToNearestInch(widthResult.decimal)),
-        coatings,
-      });
+      // Add all 4 coating types for this door size
+      const coatingTypes: CoatingType[] = [
+        CoatingType.single,
+        CoatingType.double_,
+        CoatingType.doubleSagwan,
+        CoatingType.laminate,
+      ];
+
+      for (const coatingType of coatingTypes) {
+        await addDoorMutation.mutateAsync({
+          heightEntered: heightResult.decimal,
+          widthEntered: widthResult.decimal,
+          heightRounded: BigInt(heightRounded),
+          widthRounded: BigInt(widthRounded),
+          coatingType,
+        });
+      }
 
       // Clear form
       resetForm();
 
-      toast.success('Door size added successfully');
+      toast.success('Door size added with all coating types');
       onEntryAdded();
     } catch (error) {
       toast.error('Failed to add door entry');
@@ -108,42 +90,11 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
       <CardHeader>
         <CardTitle className="text-2xl">Add New Door Entry</CardTitle>
         <CardDescription className="text-base">
-          Enter door dimensions (supports fractions like 78 2/8) and select coating types
+          Enter door dimensions (supports fractions like 79 1/4, 30 3/8). All 4 coating types will be calculated automatically.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Coating Type Multi-Selection */}
-          <div className="space-y-3">
-            <Label className="text-base font-semibold">
-              Coating Types (Select one or more)
-            </Label>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {COATING_OPTIONS.map((option) => (
-                <div
-                  key={option.key}
-                  className="flex items-center space-x-3 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors"
-                >
-                  <Checkbox
-                    id={option.key}
-                    checked={coatings[option.key]}
-                    onCheckedChange={() => handleCoatingToggle(option.key)}
-                    className="h-5 w-5"
-                  />
-                  <Label
-                    htmlFor={option.key}
-                    className="flex-1 cursor-pointer text-sm font-medium leading-tight"
-                  >
-                    {option.label}
-                    <span className="block text-xs text-muted-foreground mt-1">
-                      ₹{option.rate}/sq.ft
-                    </span>
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="height" className="text-base font-semibold">
@@ -152,14 +103,14 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
               <Input
                 id="height"
                 type="text"
-                placeholder="78.25 or 78 2/8"
+                placeholder="79 1/4 or 79.25"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
                 className="h-14 text-lg"
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Enter as decimal (78.25) or fraction (78 2/8)
+                Enter as decimal (79.25) or fraction (79 1/4, 79 3/8)
               </p>
             </div>
 
@@ -170,14 +121,14 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
               <Input
                 id="width"
                 type="text"
-                placeholder="30.25 or 30 2/8"
+                placeholder="30 1/4 or 30.25"
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
                 className="h-14 text-lg"
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Enter as decimal (30.25) or fraction (30 2/8)
+                Enter as decimal (30.25) or fraction (30 1/4, 30 3/8)
               </p>
             </div>
           </div>
@@ -197,7 +148,7 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
               ) : (
                 <>
                   <Plus className="mr-2 h-5 w-5" />
-                  Add to List
+                  Add Door Size
                 </>
               )}
             </Button>

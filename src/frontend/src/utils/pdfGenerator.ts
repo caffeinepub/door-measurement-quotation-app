@@ -1,15 +1,24 @@
-import type { DoorType } from '../backend';
+import type { DoorEntry } from '../backend';
+import { CoatingType } from '../backend';
+import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from './coatingRates';
+import { decimalToFractionDisplay } from './fractionParser';
+
+interface GroupedDoor {
+  heightEntered: number;
+  widthEntered: number;
+  squareFeet: number;
+}
 
 interface QuotationData {
   customerName: string;
   customerMobile: string;
-  types: DoorType[];
-  totalSquareFeet: number;
-  coatingAmounts: {
-    singleCoatingAmount: number;
-    doubleCoatingAmount: number;
-    doubleSagwanAmount: number;
-    laminateAmount: number;
+  entries: DoorEntry[];
+  totals: {
+    singleCoating: number;
+    doubleCoating: number;
+    doubleSagwan: number;
+    laminate: number;
+    grandTotal: number;
   };
 }
 
@@ -18,15 +27,40 @@ function formatCurrency(amount: number): string {
 }
 
 function calculateCoatingAmount(squareFeet: number, rate: number): number {
-  return squareFeet * rate;
+  return Math.round(squareFeet * rate);
+}
+
+function groupDoorsBySize(entries: DoorEntry[]): GroupedDoor[] {
+  const groups = new Map<string, GroupedDoor>();
+
+  for (const entry of entries) {
+    const key = `${entry.heightEntered}-${entry.widthEntered}`;
+    
+    if (!groups.has(key)) {
+      groups.set(key, {
+        heightEntered: entry.heightEntered,
+        widthEntered: entry.widthEntered,
+        squareFeet: entry.squareFeet,
+      });
+    }
+  }
+
+  return Array.from(groups.values());
 }
 
 export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
-  const currentDate = new Date().toLocaleDateString('en-US', {
+  const currentDate = new Date().toLocaleDateString('en-IN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+
+  const groupedDoors = groupDoorsBySize(data.entries);
+
+  const singleCoatingAmount = Math.round(data.totals.singleCoating * SINGLE_COATING_RATE);
+  const doubleCoatingAmount = Math.round(data.totals.doubleCoating * DOUBLE_COATING_RATE);
+  const doubleSagwanAmount = Math.round(data.totals.doubleSagwan * DOUBLE_SAGWAN_RATE);
+  const laminateAmount = Math.round(data.totals.laminate * LAMINATE_RATE);
 
   // Generate HTML content for the quotation
   const htmlContent = `
@@ -122,7 +156,7 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
         
         th {
           font-weight: bold;
-          font-size: 12px;
+          font-size: 11px;
         }
         
         td {
@@ -146,11 +180,6 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
           color: #45342a;
         }
         
-        .dash-cell {
-          color: #999;
-          text-align: center;
-        }
-        
         .totals {
           background: #f5f0eb;
           padding: 25px;
@@ -165,10 +194,12 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
         }
         
         .total-sqft {
-          font-size: 16px;
+          font-size: 18px;
           margin-bottom: 20px;
-          padding-bottom: 15px;
-          border-bottom: 1px solid #45342a;
+          padding: 15px;
+          background: white;
+          border-radius: 6px;
+          border-left: 4px solid #45342a;
         }
         
         .total-sqft strong {
@@ -177,35 +208,48 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
         
         .coating-totals {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(2, 1fr);
           gap: 15px;
         }
         
         .coating-total-item {
-          font-size: 14px;
+          background: white;
+          padding: 15px;
+          border-radius: 6px;
+          border-left: 4px solid #45342a;
         }
         
-        .coating-total-item strong {
+        .coating-total-item .label {
+          font-size: 12px;
+          color: #666;
+          margin-bottom: 6px;
+          text-transform: uppercase;
+          font-weight: bold;
+        }
+        
+        .coating-total-item .amount {
+          font-size: 18px;
+          font-weight: bold;
           color: #45342a;
+        }
+        
+        .note {
+          margin-top: 30px;
+          padding: 15px;
+          background: #fff3cd;
+          border-left: 4px solid #ffc107;
+          border-radius: 6px;
+          font-size: 13px;
+          color: #856404;
         }
         
         .footer {
           margin-top: 40px;
+          padding-top: 20px;
+          border-top: 2px solid #ddd;
           text-align: center;
           font-size: 12px;
           color: #666;
-          padding-top: 20px;
-          border-top: 1px solid #ddd;
-        }
-
-        .note {
-          margin-top: 20px;
-          padding: 15px;
-          background: #fff3cd;
-          border-left: 4px solid #ffc107;
-          border-radius: 4px;
-          font-size: 13px;
-          color: #856404;
         }
         
         @media print {
@@ -213,147 +257,158 @@ export async function generateQuotationPDF(data: QuotationData): Promise<Blob> {
             padding: 20px;
           }
           
-          .no-print {
-            display: none;
+          .header {
+            break-inside: avoid;
+          }
+          
+          table {
+            break-inside: avoid;
+          }
+          
+          .totals {
+            break-inside: avoid;
           }
         }
       </style>
     </head>
     <body>
       <div class="header">
-        <h1>Door Quotation Pro</h1>
-        <p>Coating & Laminate Edition</p>
+        <h1>Door Measurement & Quotation</h1>
+        <p>Professional Door Coating Services</p>
       </div>
       
       <div class="date">
         <strong>Date:</strong> ${currentDate}
       </div>
       
-      ${
-        data.customerName || data.customerMobile
-          ? `
       <div class="customer-info">
         <h2>Customer Information</h2>
-        ${data.customerName ? `<p><strong>Name:</strong> ${data.customerName}</p>` : ''}
-        ${data.customerMobile ? `<p><strong>Mobile:</strong> ${data.customerMobile}</p>` : ''}
+        <p><strong>Name:</strong> ${data.customerName}</p>
+        <p><strong>Mobile:</strong> ${data.customerMobile}</p>
       </div>
-      `
-          : ''
-      }
       
-      <h2 class="section-title">Door Entries</h2>
+      <h2 class="section-title">Door Details</h2>
       
       <table>
         <thead>
           <tr>
-            <th>Sr No</th>
-            <th>Size</th>
+            <th style="width: 60px;">Sr No</th>
+            <th>Size (Actual)</th>
             <th class="text-right">Single Coating</th>
             <th class="text-right">Double Coating</th>
-            <th class="text-right">Double Coating + Sagwan Patti</th>
+            <th class="text-right">Double + Sagwan</th>
             <th class="text-right">Laminate</th>
             <th class="text-right">Sq.Ft</th>
           </tr>
         </thead>
         <tbody>
-          ${data.types
+          ${groupedDoors
             .map(
-              (type, index) => `
+              (door, index) => {
+                const heightDisplay = decimalToFractionDisplay(door.heightEntered);
+                const widthDisplay = decimalToFractionDisplay(door.widthEntered);
+                return `
             <tr>
               <td>${index + 1}</td>
-              <td><strong>${type.enteredHeight} × ${type.enteredWidth}"</strong></td>
-              <td class="${type.coatings.singleCoating ? 'amount-cell text-right' : 'dash-cell'}">
-                ${type.coatings.singleCoating ? `₹${formatCurrency(calculateCoatingAmount(type.squareFeet, 165))}` : '—'}
-              </td>
-              <td class="${type.coatings.doubleCoating ? 'amount-cell text-right' : 'dash-cell'}">
-                ${type.coatings.doubleCoating ? `₹${formatCurrency(calculateCoatingAmount(type.squareFeet, 185))}` : '—'}
-              </td>
-              <td class="${type.coatings.doubleSagwan ? 'amount-cell text-right' : 'dash-cell'}">
-                ${type.coatings.doubleSagwan ? `₹${formatCurrency(calculateCoatingAmount(type.squareFeet, 210))}` : '—'}
-              </td>
-              <td class="${type.coatings.laminate ? 'amount-cell text-right' : 'dash-cell'}">
-                ${type.coatings.laminate ? `₹${formatCurrency(calculateCoatingAmount(type.squareFeet, 240))}` : '—'}
-              </td>
-              <td class="text-right"><strong>${type.squareFeet.toFixed(2)}</strong></td>
+              <td><strong>${heightDisplay} × ${widthDisplay}"</strong></td>
+              <td class="text-right amount-cell">₹${formatCurrency(calculateCoatingAmount(door.squareFeet, SINGLE_COATING_RATE))}</td>
+              <td class="text-right amount-cell">₹${formatCurrency(calculateCoatingAmount(door.squareFeet, DOUBLE_COATING_RATE))}</td>
+              <td class="text-right amount-cell">₹${formatCurrency(calculateCoatingAmount(door.squareFeet, DOUBLE_SAGWAN_RATE))}</td>
+              <td class="text-right amount-cell">₹${formatCurrency(calculateCoatingAmount(door.squareFeet, LAMINATE_RATE))}</td>
+              <td class="text-right"><strong>${door.squareFeet.toFixed(2)}</strong></td>
             </tr>
-          `
+          `;
+              }
             )
             .join('')}
         </tbody>
       </table>
       
       <div class="totals">
-        <h2>Totals</h2>
+        <h2>Summary</h2>
+        
         <div class="total-sqft">
-          <strong>Total Square Feet:</strong> ${data.totalSquareFeet.toFixed(2)} sq.ft
+          <strong>Total Square Feet:</strong> ${data.totals.grandTotal.toFixed(2)} sq.ft
         </div>
+        
         <div class="coating-totals">
           ${
-            data.coatingAmounts.singleCoatingAmount > 0
+            data.totals.singleCoating > 0
               ? `
           <div class="coating-total-item">
-            <strong>Single Coating Total:</strong> ₹${formatCurrency(data.coatingAmounts.singleCoatingAmount)}
+            <div class="label">Total Single Coating</div>
+            <div class="amount">₹${formatCurrency(singleCoatingAmount)}</div>
           </div>
           `
               : ''
           }
+          
           ${
-            data.coatingAmounts.doubleCoatingAmount > 0
+            data.totals.doubleCoating > 0
               ? `
           <div class="coating-total-item">
-            <strong>Double Coating Total:</strong> ₹${formatCurrency(data.coatingAmounts.doubleCoatingAmount)}
+            <div class="label">Total Double Coating</div>
+            <div class="amount">₹${formatCurrency(doubleCoatingAmount)}</div>
           </div>
           `
               : ''
           }
+          
           ${
-            data.coatingAmounts.doubleSagwanAmount > 0
+            data.totals.doubleSagwan > 0
               ? `
           <div class="coating-total-item">
-            <strong>Double Coating + Sagwan Patti Total:</strong> ₹${formatCurrency(data.coatingAmounts.doubleSagwanAmount)}
+            <div class="label">Total Double + Sagwan</div>
+            <div class="amount">₹${formatCurrency(doubleSagwanAmount)}</div>
           </div>
           `
               : ''
           }
+          
           ${
-            data.coatingAmounts.laminateAmount > 0
+            data.totals.laminate > 0
               ? `
           <div class="coating-total-item">
-            <strong>Laminate Total:</strong> ₹${formatCurrency(data.coatingAmounts.laminateAmount)}
+            <div class="label">Total Laminate</div>
+            <div class="amount">₹${formatCurrency(laminateAmount)}</div>
           </div>
           `
               : ''
           }
         </div>
       </div>
-
+      
       <div class="note">
-        <strong>Note:</strong> Quotation generated based on actual size.
+        <strong>Note:</strong> Calculation done as per standard rounded size, display shows actual size.
       </div>
       
       <div class="footer">
         <p>Thank you for your business!</p>
-        <p>Generated by Door Quotation Pro - Coating & Laminate Edition</p>
+        <p>For any queries, please contact us.</p>
       </div>
     </body>
     </html>
   `;
 
-  // Create a blob from the HTML content
-  const blob = new Blob([htmlContent], { type: 'text/html' });
-  
-  // Open the HTML in a new window for printing
-  const url = URL.createObjectURL(blob);
-  const printWindow = window.open(url, '_blank');
-  
-  if (printWindow) {
-    printWindow.onload = () => {
-      // Small delay to ensure content is rendered
-      setTimeout(() => {
-        printWindow.print();
-      }, 250);
-    };
+  // Create a new window for printing
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    throw new Error('Failed to open print window. Please allow pop-ups.');
   }
 
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+
+  // Wait for content to load
+  await new Promise((resolve) => {
+    printWindow.onload = resolve;
+    setTimeout(resolve, 500);
+  });
+
+  // Trigger print dialog
+  printWindow.print();
+
+  // Convert HTML to blob for sharing
+  const blob = new Blob([htmlContent], { type: 'text/html' });
   return blob;
 }

@@ -7,46 +7,41 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface CoatingType {
-    singleCoating: boolean;
-    doubleSagwan: boolean;
-    laminate: boolean;
-    doubleCoating: boolean;
+export interface CreateDoorType {
+    createdType: DoorEntry;
 }
-export interface AddDoorOutput {
-    createdType: DoorType;
+export interface ComputeTotals {
+    singleCoating: number;
+    doubleSagwan: number;
+    laminate: number;
+    doubleCoating: number;
+    grandTotal: number;
 }
 export interface AddDoorInput {
-    roundedHeight: bigint;
-    roundedWidth: bigint;
-    enteredWidth: string;
-    enteredHeight: string;
-    coatings: CoatingType;
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: CoatingType;
+    widthRounded: bigint;
 }
-export interface DoorType {
+export interface DoorEntry {
     id: bigint;
     squareFeet: number;
-    roundedHeight: bigint;
-    roundedWidth: bigint;
-    enteredWidth: string;
-    enteredHeight: string;
-    coatings: CoatingType;
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: CoatingType;
+    widthRounded: bigint;
+}
+export enum CoatingType {
+    doubleSagwan = "doubleSagwan",
+    double_ = "double",
+    laminate = "laminate",
+    single = "single"
 }
 export interface backendInterface {
-    addDoor(input: AddDoorInput): Promise<AddDoorOutput>;
-    calculateCoatingAmounts(): Promise<{
-        doubleCoatingAmount: number;
-        laminateAmount: number;
-        singleCoatingAmount: number;
-        doubleSagwanAmount: number;
-    }>;
-    deleteType(id: bigint): Promise<void>;
-    getAllTypes(): Promise<Array<DoorType>>;
-    getCoatingTotals(): Promise<{
-        singleCoating: number;
-        doubleSagwan: number;
-        laminate: number;
-        doubleCoating: number;
-    }>;
-    getTotalSquareFeet(): Promise<number>;
+    addDoor(input: AddDoorInput): Promise<CreateDoorType>;
+    deleteDoor(id: bigint): Promise<void>;
+    getAllTypes(): Promise<Array<DoorEntry>>;
+    getTotalSquareFeet(): Promise<ComputeTotals>;
 }

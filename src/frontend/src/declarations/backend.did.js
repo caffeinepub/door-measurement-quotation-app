@@ -8,117 +8,83 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const CoatingType = IDL.Record({
-  'singleCoating' : IDL.Bool,
-  'doubleSagwan' : IDL.Bool,
-  'laminate' : IDL.Bool,
-  'doubleCoating' : IDL.Bool,
+export const CoatingType = IDL.Variant({
+  'doubleSagwan' : IDL.Null,
+  'double' : IDL.Null,
+  'laminate' : IDL.Null,
+  'single' : IDL.Null,
 });
 export const AddDoorInput = IDL.Record({
-  'roundedHeight' : IDL.Nat,
-  'roundedWidth' : IDL.Nat,
-  'enteredWidth' : IDL.Text,
-  'enteredHeight' : IDL.Text,
-  'coatings' : CoatingType,
+  'heightEntered' : IDL.Float64,
+  'heightRounded' : IDL.Nat,
+  'widthEntered' : IDL.Float64,
+  'coatingType' : CoatingType,
+  'widthRounded' : IDL.Nat,
 });
-export const DoorType = IDL.Record({
+export const DoorEntry = IDL.Record({
   'id' : IDL.Nat,
   'squareFeet' : IDL.Float64,
-  'roundedHeight' : IDL.Nat,
-  'roundedWidth' : IDL.Nat,
-  'enteredWidth' : IDL.Text,
-  'enteredHeight' : IDL.Text,
-  'coatings' : CoatingType,
+  'heightEntered' : IDL.Float64,
+  'heightRounded' : IDL.Nat,
+  'widthEntered' : IDL.Float64,
+  'coatingType' : CoatingType,
+  'widthRounded' : IDL.Nat,
 });
-export const AddDoorOutput = IDL.Record({ 'createdType' : DoorType });
+export const CreateDoorType = IDL.Record({ 'createdType' : DoorEntry });
+export const ComputeTotals = IDL.Record({
+  'singleCoating' : IDL.Float64,
+  'doubleSagwan' : IDL.Float64,
+  'laminate' : IDL.Float64,
+  'doubleCoating' : IDL.Float64,
+  'grandTotal' : IDL.Float64,
+});
 
 export const idlService = IDL.Service({
-  'addDoor' : IDL.Func([AddDoorInput], [AddDoorOutput], []),
-  'calculateCoatingAmounts' : IDL.Func(
-      [],
-      [
-        IDL.Record({
-          'doubleCoatingAmount' : IDL.Float64,
-          'laminateAmount' : IDL.Float64,
-          'singleCoatingAmount' : IDL.Float64,
-          'doubleSagwanAmount' : IDL.Float64,
-        }),
-      ],
-      ['query'],
-    ),
-  'deleteType' : IDL.Func([IDL.Nat], [], []),
-  'getAllTypes' : IDL.Func([], [IDL.Vec(DoorType)], ['query']),
-  'getCoatingTotals' : IDL.Func(
-      [],
-      [
-        IDL.Record({
-          'singleCoating' : IDL.Float64,
-          'doubleSagwan' : IDL.Float64,
-          'laminate' : IDL.Float64,
-          'doubleCoating' : IDL.Float64,
-        }),
-      ],
-      ['query'],
-    ),
-  'getTotalSquareFeet' : IDL.Func([], [IDL.Float64], ['query']),
+  'addDoor' : IDL.Func([AddDoorInput], [CreateDoorType], []),
+  'deleteDoor' : IDL.Func([IDL.Nat], [], []),
+  'getAllTypes' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
+  'getTotalSquareFeet' : IDL.Func([], [ComputeTotals], ['query']),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const CoatingType = IDL.Record({
-    'singleCoating' : IDL.Bool,
-    'doubleSagwan' : IDL.Bool,
-    'laminate' : IDL.Bool,
-    'doubleCoating' : IDL.Bool,
+  const CoatingType = IDL.Variant({
+    'doubleSagwan' : IDL.Null,
+    'double' : IDL.Null,
+    'laminate' : IDL.Null,
+    'single' : IDL.Null,
   });
   const AddDoorInput = IDL.Record({
-    'roundedHeight' : IDL.Nat,
-    'roundedWidth' : IDL.Nat,
-    'enteredWidth' : IDL.Text,
-    'enteredHeight' : IDL.Text,
-    'coatings' : CoatingType,
+    'heightEntered' : IDL.Float64,
+    'heightRounded' : IDL.Nat,
+    'widthEntered' : IDL.Float64,
+    'coatingType' : CoatingType,
+    'widthRounded' : IDL.Nat,
   });
-  const DoorType = IDL.Record({
+  const DoorEntry = IDL.Record({
     'id' : IDL.Nat,
     'squareFeet' : IDL.Float64,
-    'roundedHeight' : IDL.Nat,
-    'roundedWidth' : IDL.Nat,
-    'enteredWidth' : IDL.Text,
-    'enteredHeight' : IDL.Text,
-    'coatings' : CoatingType,
+    'heightEntered' : IDL.Float64,
+    'heightRounded' : IDL.Nat,
+    'widthEntered' : IDL.Float64,
+    'coatingType' : CoatingType,
+    'widthRounded' : IDL.Nat,
   });
-  const AddDoorOutput = IDL.Record({ 'createdType' : DoorType });
+  const CreateDoorType = IDL.Record({ 'createdType' : DoorEntry });
+  const ComputeTotals = IDL.Record({
+    'singleCoating' : IDL.Float64,
+    'doubleSagwan' : IDL.Float64,
+    'laminate' : IDL.Float64,
+    'doubleCoating' : IDL.Float64,
+    'grandTotal' : IDL.Float64,
+  });
   
   return IDL.Service({
-    'addDoor' : IDL.Func([AddDoorInput], [AddDoorOutput], []),
-    'calculateCoatingAmounts' : IDL.Func(
-        [],
-        [
-          IDL.Record({
-            'doubleCoatingAmount' : IDL.Float64,
-            'laminateAmount' : IDL.Float64,
-            'singleCoatingAmount' : IDL.Float64,
-            'doubleSagwanAmount' : IDL.Float64,
-          }),
-        ],
-        ['query'],
-      ),
-    'deleteType' : IDL.Func([IDL.Nat], [], []),
-    'getAllTypes' : IDL.Func([], [IDL.Vec(DoorType)], ['query']),
-    'getCoatingTotals' : IDL.Func(
-        [],
-        [
-          IDL.Record({
-            'singleCoating' : IDL.Float64,
-            'doubleSagwan' : IDL.Float64,
-            'laminate' : IDL.Float64,
-            'doubleCoating' : IDL.Float64,
-          }),
-        ],
-        ['query'],
-      ),
-    'getTotalSquareFeet' : IDL.Func([], [IDL.Float64], ['query']),
+    'addDoor' : IDL.Func([AddDoorInput], [CreateDoorType], []),
+    'deleteDoor' : IDL.Func([IDL.Nat], [], []),
+    'getAllTypes' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
+    'getTotalSquareFeet' : IDL.Func([], [ComputeTotals], ['query']),
   });
 };
 

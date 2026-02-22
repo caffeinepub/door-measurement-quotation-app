@@ -11,7 +11,7 @@ export async function shareViaWhatsApp(pdfBlob: Blob, customerName: string): Pro
       try {
         await navigator.share({
           title: 'Door Quotation',
-          text: `Door quotation for ${customerName || 'customer'}. Quotation generated based on actual size.`,
+          text: `Door quotation for ${customerName || 'customer'}. Calculation done as per standard rounded size, display shows actual size.`,
           files: [file],
         });
         return;
@@ -26,7 +26,7 @@ export async function shareViaWhatsApp(pdfBlob: Blob, customerName: string): Pro
 
   // Fallback: Open WhatsApp Web with a message
   const message = encodeURIComponent(
-    `Door Quotation for ${customerName || 'customer'}\n\nQuotation generated based on actual size.\n\nGenerated on ${new Date().toLocaleDateString()}\n\nNote: The quotation document has been generated. Please save it as PDF using your browser's print function (Print > Save as PDF) and attach it to this message.`
+    `Door Quotation for ${customerName || 'customer'}\n\nCalculation done as per standard rounded size, display shows actual size.\n\nGenerated on ${new Date().toLocaleDateString()}\n\nNote: The quotation document has been generated. Please save it as PDF using your browser's print function (Print > Save as PDF) and attach it to this message.`
   );
 
   // For mobile devices, use WhatsApp app URL scheme

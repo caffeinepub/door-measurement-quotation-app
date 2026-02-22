@@ -2,14 +2,24 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { useGetAllTypes, useDeleteType } from '../hooks/useQueries';
+import { useGetAllTypes, useDeleteDoor } from '../hooks/useQueries';
 import { Loader2, Package, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import type { DoorType } from '../backend';
+import type { DoorEntry } from '../backend';
+import { CoatingType } from '../backend';
+import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from '../utils/coatingRates';
+import { decimalToFractionDisplay } from '../utils/fractionParser';
 
 interface DoorEntryListProps {
   refreshTrigger: number;
   onEntryDeleted: () => void;
+}
+
+interface GroupedDoor {
+  heightEntered: number;
+  widthEntered: number;
+  entries: DoorEntry[];
+  squareFeet: number;
 }
 
 function formatCurrency(amount: number): string {
@@ -17,25 +27,50 @@ function formatCurrency(amount: number): string {
 }
 
 function calculateCoatingAmount(squareFeet: number, rate: number): number {
-  return squareFeet * rate;
+  return Math.round(squareFeet * rate);
+}
+
+function groupDoorsBySize(entries: DoorEntry[]): GroupedDoor[] {
+  const groups = new Map<string, GroupedDoor>();
+
+  for (const entry of entries) {
+    const key = `${entry.heightEntered}-${entry.widthEntered}`;
+    
+    if (!groups.has(key)) {
+      groups.set(key, {
+        heightEntered: entry.heightEntered,
+        widthEntered: entry.widthEntered,
+        entries: [],
+        squareFeet: entry.squareFeet,
+      });
+    }
+    
+    groups.get(key)!.entries.push(entry);
+  }
+
+  return Array.from(groups.values());
 }
 
 export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListProps) {
-  const { data: types, isLoading, error } = useGetAllTypes(refreshTrigger);
-  const deleteTypeMutation = useDeleteType();
-  const [deletingId, setDeletingId] = useState<bigint | null>(null);
+  const { data: entries, isLoading, error } = useGetAllTypes(refreshTrigger);
+  const deleteDoorMutation = useDeleteDoor();
+  const [deletingKey, setDeletingKey] = useState<string | null>(null);
 
-  const handleDelete = async (id: bigint) => {
-    setDeletingId(id);
+  const handleDelete = async (group: GroupedDoor) => {
+    const key = `${group.heightEntered}-${group.widthEntered}`;
+    setDeletingKey(key);
     try {
-      await deleteTypeMutation.mutateAsync(id);
+      // Delete all entries for this door size
+      for (const entry of group.entries) {
+        await deleteDoorMutation.mutateAsync(entry.id);
+      }
       toast.success('Door size deleted successfully');
       onEntryDeleted();
     } catch (error) {
       toast.error('Failed to delete door size');
-      console.error('Error deleting type:', error);
+      console.error('Error deleting door:', error);
     } finally {
-      setDeletingId(null);
+      setDeletingKey(null);
     }
   };
 
@@ -59,91 +94,87 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
     );
   }
 
+  const groupedDoors = entries ? groupDoorsBySize(entries) : [];
+
   return (
     <Card className="shadow-md">
       <CardHeader>
         <CardTitle className="text-xl">Door Entries</CardTitle>
         <CardDescription>
-          {types && types.length > 0
-            ? `${types.length} door ${types.length === 1 ? 'size' : 'sizes'} added`
+          {groupedDoors.length > 0
+            ? `${groupedDoors.length} door ${groupedDoors.length === 1 ? 'size' : 'sizes'} added`
             : 'No door entries yet'}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {types && types.length > 0 ? (
+        {groupedDoors.length > 0 ? (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-16">Sr No</TableHead>
-                  <TableHead>Size</TableHead>
+                  <TableHead>Size (Actual)</TableHead>
                   <TableHead className="text-right">Single Coating</TableHead>
                   <TableHead className="text-right">Double Coating</TableHead>
-                  <TableHead className="text-right">Double Coating + Sagwan Patti</TableHead>
+                  <TableHead className="text-right">Double + Sagwan</TableHead>
                   <TableHead className="text-right">Laminate</TableHead>
                   <TableHead className="text-right">Sq.Ft</TableHead>
                   <TableHead className="w-16"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {types.map((type, index) => (
-                  <TableRow key={type.id.toString()}>
-                    <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell className="font-semibold">
-                      {type.enteredHeight} × {type.enteredWidth}"
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {type.coatings.singleCoating ? (
+                {groupedDoors.map((group, index) => {
+                  const heightDisplay = decimalToFractionDisplay(group.heightEntered);
+                  const widthDisplay = decimalToFractionDisplay(group.widthEntered);
+                  const key = `${group.heightEntered}-${group.widthEntered}`;
+                  
+                  return (
+                    <TableRow key={key}>
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell className="font-semibold">
+                        {heightDisplay} × {widthDisplay}"
+                      </TableCell>
+                      <TableCell className="text-right">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(type.squareFeet, 165))}
+                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, SINGLE_COATING_RATE))}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {type.coatings.doubleCoating ? (
+                      </TableCell>
+                      <TableCell className="text-right">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(type.squareFeet, 185))}
+                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, DOUBLE_COATING_RATE))}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {type.coatings.doubleSagwan ? (
+                      </TableCell>
+                      <TableCell className="text-right">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(type.squareFeet, 210))}
+                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, DOUBLE_SAGWAN_RATE))}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {type.coatings.laminate ? (
+                      </TableCell>
+                      <TableCell className="text-right">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(type.squareFeet, 240))}
+                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, LAMINATE_RATE))}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {type.squareFeet.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(type.id)}
-                        disabled={deletingId === type.id}
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {group.squareFeet.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(group)}
+                          disabled={deletingKey === key}
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          {deletingKey === key ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

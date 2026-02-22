@@ -1,21 +1,14 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-22T06:36:32.742Z",
-  "summary": "The implementation successfully addresses all requirements related to fraction input support, actual size display, backend data model updates, table column changes, totals section updates, square footage calculation, and WhatsApp PDF sharing. All 9 requirements (REQ-39 through REQ-47) are implemented with evidence in the diff.",
+  "generatedAt": "2026-02-22T22:54:25.028Z",
+  "summary": "The implementation correctly addresses both requirements. REQ-1 is satisfied by clearing customer name and mobile fields in App.tsx after successful quotation generation. REQ-2 is satisfied by coordinating the customer data reset with the existing door entries clearing mechanism via handleQuotationGenerated callback.",
   "missing_requirements": [],
   "hallucinated_features": [],
   "confidence": 0.95,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/DoorEntryForm.tsx",
-    "frontend/src/components/DoorEntryList.tsx",
-    "frontend/src/components/QuotationActions.tsx",
-    "frontend/src/utils/fractionParser.ts",
-    "frontend/src/utils/pdfGenerator.ts",
-    "frontend/src/utils/whatsappShare.ts",
+    "frontend/src/App.tsx",
     "project_state.json"
   ]
 }

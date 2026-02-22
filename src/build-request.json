@@ -1,192 +1,52 @@
 {
   "kind": "build_request",
-  "title": "Add fraction input support and actual size display",
+  "title": "Clear customer info after quotation generation",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-39",
-      "text": "Display the actual entered door size (not rounded size) in the door entries table and PDF quotations. Example: if user inputs 79 1/4 × 30 1/8, display exactly '79 1/4 × 30 1/8'. Rounded size must only be used internally for square footage calculations.",
+      "id": "REQ-1",
+      "text": "Clear the customer name and mobile number input fields in the CustomerInfoForm component after the quotation PDF is successfully generated and printed",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
+          "msg-6"
         ],
         "quotes": [
-          "Always display ACTUAL entered door size. Do NOT display rounded size."
+          "Clear customer name and mobile number after generate & print quotation"
         ]
       },
       "acceptanceCriteria": [
-        "Table shows actual entered dimensions, not rounded dimensions",
-        "PDF quotation shows actual entered dimensions",
-        "Rounded size is used only for internal calculations"
+        "Customer name field is reset to empty after PDF generation",
+        "Mobile number field is reset to empty after PDF generation",
+        "Fields are only cleared after successful quotation generation, not on failure",
+        "The clearing happens automatically without requiring user action"
       ]
     },
     {
-      "id": "REQ-40",
-      "text": "Add support for inch fractions in height and width input fields. Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8. Accept input as decimal (78.25) or fraction notation (78 2/8). Convert fraction input internally to decimal for calculations.",
+      "id": "REQ-2",
+      "text": "Update App.tsx to reset customer data state after quotation generation, coordinating with the existing door entries clearing behavior",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Support inch fractions in height and width: Allowed fractions: 0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8"
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "Height input accepts both decimal and fraction notation",
-        "Width input accepts both decimal and fraction notation",
-        "Fraction inputs are converted to decimal internally",
-        "Original fraction format is preserved for display"
-      ]
-    },
-    {
-      "id": "REQ-41",
-      "text": "Update backend data model to store both the actual entered size (as string with fractions if applicable) and the rounded size (for calculations). Modify the addDoor function to accept and store the original entered dimensions alongside rounded dimensions.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Always display ACTUAL entered door size. Do NOT display rounded size."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Backend stores original entered dimensions",
-        "Backend stores rounded dimensions separately",
-        "Square feet calculation uses rounded dimensions",
-        "Query functions return both original and rounded dimensions"
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "text": "Remove Rate column and Quantity column from the door entries table display. Table must show only: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Do NOT show: - Rate column - Quantity column"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Rate column is not visible in table",
-        "Quantity column is not visible in table",
-        "All coating amount columns are visible",
-        "Square feet column is visible"
-      ]
-    },
-    {
-      "id": "REQ-43",
-      "text": "Update the totals section to display below the table with exactly these fields: Single Coating Total, Double Coating Total, Double Coating + Sagwan Patti Total, Laminate Total, and Total Square Feet. Remove Grand Total and Total Quantity displays.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Show BELOW TABLE: - Single Coating Total - Double Coating Total - Double Coating + Sagwan Patti Total - Laminate Total - Total Square Feet"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Totals section appears below the door entries table",
-        "Shows separate total for each coating type",
-        "Shows Total Square Feet",
-        "Does not show Grand Total",
-        "Does not show Total Quantity"
-      ]
-    },
-    {
-      "id": "REQ-44",
-      "text": "Ensure the square footage calculation uses the formula: Sq.Ft = (Rounded Height × Rounded Width) / 144. Ensure amount calculation uses: Amount = Sq.Ft × coating rate (where coating rates are: Single Coating 165, Double Coating 185, Double Coating + Sagwan Patti 210, Laminate 240).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Sq.Ft = (Rounded Height × Rounded Width) / 144",
-          "Amount = Sq.Ft × coating rate"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Square feet calculated from rounded dimensions only",
-        "Amount calculated by multiplying square feet by coating rate",
-        "Correct rates applied per coating type"
-      ]
-    },
-    {
-      "id": "REQ-45",
-      "text": "Fix WhatsApp PDF sharing functionality to generate an actual downloadable PDF file and use the device native share intent so WhatsApp can receive the PDF as a file attachment (not just a text message).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Generate actual downloadable PDF file. Use device native share intent. Ensure WhatsApp can receive PDF as file attachment."
-        ]
-      },
-      "acceptanceCriteria": [
-        "PDF is generated as a downloadable file blob",
-        "Native share API is used for sharing",
-        "WhatsApp receives PDF as file attachment",
-        "Fallback behavior works if native share is unavailable"
-      ]
-    },
-    {
-      "id": "REQ-46",
-      "text": "Update the confirmation message after quotation generation to display: 'Quotation generated based on actual size.'",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Show message: 'Quotation generated based on actual size.'"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Confirmation message displays after PDF generation",
-        "Message reads exactly 'Quotation generated based on actual size.'"
-      ]
-    },
-    {
-      "id": "REQ-47",
-      "text": "Update PDF generation to use actual entered dimensions (with fractions if applicable) instead of rounded dimensions. Ensure table structure, totals section, and all formatting match the updated UI specifications.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "Always display ACTUAL entered door size.",
-          "Ensure the new table layout and totals structure are consistent between the app preview UI and the generated PDF quotation."
-        ]
-      },
-      "acceptanceCriteria": [
-        "PDF shows actual entered dimensions with fractions",
-        "PDF table structure matches UI table structure",
-        "PDF totals section matches UI totals section",
-        "No rate or quantity columns in PDF table"
+        "Customer data state in App.tsx is reset after successful quotation generation",
+        "Customer data clearing is coordinated with the existing door entries clearing mechanism",
+        "The CustomerInfoForm reflects the cleared state immediately"
       ]
     }
   ],
   "constraints": [
-    "Do not modify frontend/src/hooks/useInternetIdentity.ts",
-    "Do not modify frontend/src/hooks/useActor.ts",
-    "Do not modify frontend/src/main.tsx",
-    "Do not modify files in frontend/src/components/ui",
-    "Maintain single-actor backend architecture in backend/main.mo"
+    "Do not modify the backend/main.mo file",
+    "Maintain the existing quotation generation flow in QuotationActions.tsx",
+    "Preserve the current PDF generation functionality"
   ],
   "nonGoals": [
-    "Adding new coating types beyond the four existing types",
-    "Changing the rounding logic for height and width",
-    "Adding authentication or user accounts",
-    "Modifying the theme toggle functionality",
-    "Changing the customer information form fields"
+    "Clearing customer data on any action other than successful quotation generation",
+    "Adding confirmation dialogs before clearing",
+    "Storing customer history or previous customer data"
   ],
   "imageRequirements": {
     "required": [],

@@ -89,132 +89,90 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface CoatingType {
-    singleCoating: boolean;
-    doubleSagwan: boolean;
-    laminate: boolean;
-    doubleCoating: boolean;
+export interface CreateDoorType {
+    createdType: DoorEntry;
 }
-export interface AddDoorOutput {
-    createdType: DoorType;
+export interface ComputeTotals {
+    singleCoating: number;
+    doubleSagwan: number;
+    laminate: number;
+    doubleCoating: number;
+    grandTotal: number;
 }
 export interface AddDoorInput {
-    roundedHeight: bigint;
-    roundedWidth: bigint;
-    enteredWidth: string;
-    enteredHeight: string;
-    coatings: CoatingType;
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: CoatingType;
+    widthRounded: bigint;
 }
-export interface DoorType {
+export interface DoorEntry {
     id: bigint;
     squareFeet: number;
-    roundedHeight: bigint;
-    roundedWidth: bigint;
-    enteredWidth: string;
-    enteredHeight: string;
-    coatings: CoatingType;
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: CoatingType;
+    widthRounded: bigint;
+}
+export enum CoatingType {
+    doubleSagwan = "doubleSagwan",
+    double_ = "double",
+    laminate = "laminate",
+    single = "single"
 }
 export interface backendInterface {
-    addDoor(input: AddDoorInput): Promise<AddDoorOutput>;
-    calculateCoatingAmounts(): Promise<{
-        doubleCoatingAmount: number;
-        laminateAmount: number;
-        singleCoatingAmount: number;
-        doubleSagwanAmount: number;
-    }>;
-    deleteType(id: bigint): Promise<void>;
-    getAllTypes(): Promise<Array<DoorType>>;
-    getCoatingTotals(): Promise<{
-        singleCoating: number;
-        doubleSagwan: number;
-        laminate: number;
-        doubleCoating: number;
-    }>;
-    getTotalSquareFeet(): Promise<number>;
+    addDoor(input: AddDoorInput): Promise<CreateDoorType>;
+    deleteDoor(id: bigint): Promise<void>;
+    getAllTypes(): Promise<Array<DoorEntry>>;
+    getTotalSquareFeet(): Promise<ComputeTotals>;
 }
+import type { AddDoorInput as _AddDoorInput, CoatingType as _CoatingType, CreateDoorType as _CreateDoorType, DoorEntry as _DoorEntry } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addDoor(arg0: AddDoorInput): Promise<AddDoorOutput> {
+    async addDoor(arg0: AddDoorInput): Promise<CreateDoorType> {
         if (this.processError) {
             try {
-                const result = await this.actor.addDoor(arg0);
+                const result = await this.actor.addDoor(to_candid_AddDoorInput_n1(this._uploadFile, this._downloadFile, arg0));
+                return from_candid_CreateDoorType_n5(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addDoor(to_candid_AddDoorInput_n1(this._uploadFile, this._downloadFile, arg0));
+            return from_candid_CreateDoorType_n5(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async deleteDoor(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteDoor(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addDoor(arg0);
+            const result = await this.actor.deleteDoor(arg0);
             return result;
         }
     }
-    async calculateCoatingAmounts(): Promise<{
-        doubleCoatingAmount: number;
-        laminateAmount: number;
-        singleCoatingAmount: number;
-        doubleSagwanAmount: number;
-    }> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.calculateCoatingAmounts();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.calculateCoatingAmounts();
-            return result;
-        }
-    }
-    async deleteType(arg0: bigint): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.deleteType(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.deleteType(arg0);
-            return result;
-        }
-    }
-    async getAllTypes(): Promise<Array<DoorType>> {
+    async getAllTypes(): Promise<Array<DoorEntry>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getAllTypes();
-                return result;
+                return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getAllTypes();
-            return result;
+            return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getCoatingTotals(): Promise<{
-        singleCoating: number;
-        doubleSagwan: number;
-        laminate: number;
-        doubleCoating: number;
-    }> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getCoatingTotals();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getCoatingTotals();
-            return result;
-        }
-    }
-    async getTotalSquareFeet(): Promise<number> {
+    async getTotalSquareFeet(): Promise<ComputeTotals> {
         if (this.processError) {
             try {
                 const result = await this.actor.getTotalSquareFeet();
@@ -228,6 +186,111 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+}
+function from_candid_CoatingType_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CoatingType): CoatingType {
+    return from_candid_variant_n10(_uploadFile, _downloadFile, value);
+}
+function from_candid_CreateDoorType_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CreateDoorType): CreateDoorType {
+    return from_candid_record_n6(_uploadFile, _downloadFile, value);
+}
+function from_candid_DoorEntry_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _DoorEntry): DoorEntry {
+    return from_candid_record_n8(_uploadFile, _downloadFile, value);
+}
+function from_candid_record_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    createdType: _DoorEntry;
+}): {
+    createdType: DoorEntry;
+} {
+    return {
+        createdType: from_candid_DoorEntry_n7(_uploadFile, _downloadFile, value.createdType)
+    };
+}
+function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    squareFeet: number;
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: _CoatingType;
+    widthRounded: bigint;
+}): {
+    id: bigint;
+    squareFeet: number;
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: CoatingType;
+    widthRounded: bigint;
+} {
+    return {
+        id: value.id,
+        squareFeet: value.squareFeet,
+        heightEntered: value.heightEntered,
+        heightRounded: value.heightRounded,
+        widthEntered: value.widthEntered,
+        coatingType: from_candid_CoatingType_n9(_uploadFile, _downloadFile, value.coatingType),
+        widthRounded: value.widthRounded
+    };
+}
+function from_candid_variant_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    doubleSagwan: null;
+} | {
+    double: null;
+} | {
+    laminate: null;
+} | {
+    single: null;
+}): CoatingType {
+    return "doubleSagwan" in value ? CoatingType.doubleSagwan : "double" in value ? CoatingType.double : "laminate" in value ? CoatingType.laminate : "single" in value ? CoatingType.single : value;
+}
+function from_candid_vec_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_DoorEntry>): Array<DoorEntry> {
+    return value.map((x)=>from_candid_DoorEntry_n7(_uploadFile, _downloadFile, x));
+}
+function to_candid_AddDoorInput_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: AddDoorInput): _AddDoorInput {
+    return to_candid_record_n2(_uploadFile, _downloadFile, value);
+}
+function to_candid_CoatingType_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CoatingType): _CoatingType {
+    return to_candid_variant_n4(_uploadFile, _downloadFile, value);
+}
+function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: CoatingType;
+    widthRounded: bigint;
+}): {
+    heightEntered: number;
+    heightRounded: bigint;
+    widthEntered: number;
+    coatingType: _CoatingType;
+    widthRounded: bigint;
+} {
+    return {
+        heightEntered: value.heightEntered,
+        heightRounded: value.heightRounded,
+        widthEntered: value.widthEntered,
+        coatingType: to_candid_CoatingType_n3(_uploadFile, _downloadFile, value.coatingType),
+        widthRounded: value.widthRounded
+    };
+}
+function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CoatingType): {
+    doubleSagwan: null;
+} | {
+    double: null;
+} | {
+    laminate: null;
+} | {
+    single: null;
+} {
+    return value == CoatingType.doubleSagwan ? {
+        doubleSagwan: null
+    } : value == CoatingType.double ? {
+        double_: null
+    } : value == CoatingType.laminate ? {
+        laminate: null
+    } : value == CoatingType.single ? {
+        single: null
+    } : value;
 }
 export interface CreateActorOptions {
     agent?: Agent;

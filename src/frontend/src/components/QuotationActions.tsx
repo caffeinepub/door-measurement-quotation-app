@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Loader2, Printer } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
-import { useGetAllTypes, useGetTotalSquareFeet, useGetCoatingAmounts, useDeleteType } from '../hooks/useQueries';
+import { useGetAllTypes, useGetTotalSquareFeet, useDeleteDoor } from '../hooks/useQueries';
 import { generateQuotationPDF } from '../utils/pdfGenerator';
 import { shareViaWhatsApp } from '../utils/whatsappShare';
 import { toast } from 'sonner';
@@ -21,17 +21,16 @@ export function QuotationActions({
   refreshTrigger,
   onQuotationGenerated,
 }: QuotationActionsProps) {
-  const { data: types } = useGetAllTypes(refreshTrigger);
-  const { data: totalSquareFeet } = useGetTotalSquareFeet(refreshTrigger);
-  const { data: coatingAmounts } = useGetCoatingAmounts(refreshTrigger);
-  const deleteTypeMutation = useDeleteType();
+  const { data: entries } = useGetAllTypes(refreshTrigger);
+  const { data: totals } = useGetTotalSquareFeet(refreshTrigger);
+  const deleteDoorMutation = useDeleteDoor();
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
-  const hasEntries = types && types.length > 0;
+  const hasEntries = entries && entries.length > 0;
 
   const handleGeneratePDF = async () => {
-    if (!hasEntries || !totalSquareFeet || !coatingAmounts) {
+    if (!hasEntries || !totals) {
       toast.error('Please add at least one door entry');
       return;
     }
@@ -41,21 +40,20 @@ export function QuotationActions({
       const blob = await generateQuotationPDF({
         customerName,
         customerMobile,
-        types,
-        totalSquareFeet,
-        coatingAmounts,
+        entries,
+        totals,
       });
 
       setPdfBlob(blob);
       
       // Clear all entries after successful PDF generation
-      if (types) {
-        for (const type of types) {
-          await deleteTypeMutation.mutateAsync(type.id);
+      if (entries) {
+        for (const entry of entries) {
+          await deleteDoorMutation.mutateAsync(entry.id);
         }
       }
 
-      toast.success('Quotation generated based on actual size.');
+      toast.success('Calculation done as per standard rounded size, display shows actual size.');
       onQuotationGenerated();
     } catch (error) {
       toast.error('Failed to generate quotation');
