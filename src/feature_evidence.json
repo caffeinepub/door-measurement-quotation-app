@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-input-form-with-three-fields-door-height-decimal-input-with-placeholder-78-25-door-width-decimal-input-with-placeholder-30-25-and-rate-per-sq-ft-decimal-input-with-default-value-185-include-an-add-door-button-to-submit-the-form",
-      "featureTitle": "Create input form with three fields: Door Height (decimal input with placeholder '78.25'), Door Width (decimal input with placeholder '30.25'), and Rate per Sq.Ft (decimal input with default value 185). Include an 'Add Door' button to submit the form.",
+      "featureId": "feature-change-door-count-logic-to-count-only-unique-door-sizes-height-width-combinations-multiple-coating-selections-on-the-same-size-must-count-as-a-single-door",
+      "featureTitle": "Change door count logic to count only unique door sizes (height × width combinations). Multiple coating selections on the same size must count as a single door.",
       "files": [
-        "frontend/src/components/DoorEntryForm.tsx"
+        "frontend/src/components/DoorEntryForm.tsx",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -15,32 +16,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-8"
+        "REQ-31"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-display-output-section-for-each-door-entry-showing-final-rounded-size-in-format-height-width-e-g-80-32-square-feet-with-2-decimal-places-and-amount-as-integer",
-      "featureTitle": "Display output section for each door entry showing: Final Rounded Size in format 'Height × Width' (e.g., '80 × 32'), Square Feet with 2 decimal places, and Amount as integer.",
+      "featureId": "feature-replace-the-current-door-entries-table-structure-with-a-new-format-having-columns-sr-no-size-single-coating-double-coating-double-coating-sagwan-patti-laminate-sq-ft-each-row-represents-one-unique-door-size-with-coating-amounts-shown-in-separate-columns",
+      "featureTitle": "Replace the current door entries table structure with a new format having columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft. Each row represents ONE unique door size with coating amounts shown in separate columns.",
       "files": [
-        "frontend/src/components/DoorEntryDisplay.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-9"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-display-list-of-all-door-entries-with-each-entry-showing-its-rounded-size-square-feet-and-amount-include-a-delete-button-for-each-entry",
-      "featureTitle": "Display list of all door entries with each entry showing its rounded size, square feet, and amount. Include a delete button for each entry.",
-      "files": [
+        "frontend/src/components/DoorEntryDisplay.tsx",
         "frontend/src/components/DoorEntryList.tsx"
       ],
       "components": [
@@ -51,15 +35,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-10"
+        "REQ-32"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-display-grand-total-section-showing-total-square-feet-sum-of-all-entries-and-total-amount-sum-of-all-amounts-update-totals-automatically-when-entries-change",
-      "featureTitle": "Display grand total section showing Total Square Feet (sum of all entries) and Total Amount (sum of all amounts). Update totals automatically when entries change.",
+      "featureId": "feature-remove-all-rate-sq-ft-displays-from-the-ui-and-pdf-show-only-the-final-calculated-amounts-per-coating-type-without-showing-the-rate-used-for-calculation",
+      "featureTitle": "Remove all rate (₹/sq.ft) displays from the UI and PDF. Show only the final calculated amounts per coating type without showing the rate used for calculation.",
       "files": [
-        "frontend/src/components/GrandTotals.tsx"
+        "frontend/src/components/DoorEntryDisplay.tsx",
+        "frontend/src/utils/pdfGenerator.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -69,17 +54,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-11"
+        "REQ-33"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-design-a-professional-clean-interface-suitable-for-door-manufacturers-and-carpenters-with-warm-wood-inspired-tones-browns-natural-tans-and-forest-greens-use-clear-typography-optimized-for-quick-data-entry-and-calculation-review-organize-the-layout-with-input-form-at-top-door-entry-list-in-middle-and-grand-totals-prominently-displayed-at-bottom",
-      "featureTitle": "Design a professional, clean interface suitable for door manufacturers and carpenters with warm wood-inspired tones (browns, natural tans, and forest greens). Use clear typography optimized for quick data entry and calculation review. Organize the layout with input form at top, door entry list in middle, and grand totals prominently displayed at bottom.",
+      "featureId": "feature-update-the-totals-section-to-show-only-total-square-feet-and-separate-totals-for-each-coating-type-single-coating-double-coating-double-coating-sagwan-patti-laminate-remove-grand-total-and-total-quantity-displays",
+      "featureTitle": "Update the totals section to show only Total Square Feet and separate totals for each coating type (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate). Remove Grand Total and Total Quantity displays.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/index.css",
-        "frontend/tailwind.config.js"
+        "frontend/src/components/GrandTotals.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/utils/pdfGenerator.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -89,7 +74,43 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-12"
+        "REQ-34"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-new-table-layout-and-totals-structure-are-consistent-between-the-app-preview-ui-and-the-generated-pdf-quotation",
+      "featureTitle": "Ensure the new table layout and totals structure are consistent between the app preview UI and the generated PDF quotation.",
+      "files": [
+        "frontend/src/utils/pdfGenerator.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-36"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-confirmation-message-after-quotation-generation-to-display-quotation-generated-for-x-door-size-s-where-x-is-the-count-of-unique-door-sizes-not-total-entries",
+      "featureTitle": "Update the confirmation message after quotation generation to display 'Quotation generated for X door size(s).' where X is the count of unique door sizes (not total entries).",
+      "files": [
+        "frontend/src/components/QuotationActions.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-37"
       ],
       "confidence": "high"
     }

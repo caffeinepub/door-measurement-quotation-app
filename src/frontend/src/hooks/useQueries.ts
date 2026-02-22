@@ -1,83 +1,98 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { DoorEntry } from '../backend';
+import type { DoorType, AddDoorInput } from '../backend';
 
 // Query key constants
 const QUERY_KEYS = {
-  entries: ['doorEntries'],
-  grandTotals: ['grandTotals'],
+  types: ['doorTypes'],
+  totalSquareFeet: ['totalSquareFeet'],
+  coatingAmounts: ['coatingAmounts'],
 };
 
-// Get all door entries
-export function useGetAllEntries(refreshTrigger: number) {
+// Get all door types
+export function useGetAllTypes(refreshTrigger: number) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<DoorEntry[]>({
-    queryKey: [...QUERY_KEYS.entries, refreshTrigger],
+  return useQuery<DoorType[]>({
+    queryKey: [...QUERY_KEYS.types, refreshTrigger],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllEntries();
+      return actor.getAllTypes();
     },
     enabled: !!actor && !isFetching,
   });
 }
 
-// Get grand totals
-export function useGetGrandTotals(refreshTrigger: number) {
+// Get total square feet
+export function useGetTotalSquareFeet(refreshTrigger: number) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<{ totalSquareFeet: number; totalAmount: bigint }>({
-    queryKey: [...QUERY_KEYS.grandTotals, refreshTrigger],
+  return useQuery<number>({
+    queryKey: [...QUERY_KEYS.totalSquareFeet, refreshTrigger],
     queryFn: async () => {
-      if (!actor) return { totalSquareFeet: 0, totalAmount: BigInt(0) };
-      const [totalSquareFeet, totalAmount] = await Promise.all([
-        actor.getGrandTotalSquareFeet(),
-        actor.getGrandTotalAmount(),
-      ]);
-      return { totalSquareFeet, totalAmount };
+      if (!actor) return 0;
+      return actor.getTotalSquareFeet();
     },
     enabled: !!actor && !isFetching,
   });
 }
 
-// Add door entry mutation
-export function useAddDoorEntry() {
+// Get coating amounts
+export function useGetCoatingAmounts(refreshTrigger: number) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<{
+    singleCoatingAmount: number;
+    doubleCoatingAmount: number;
+    doubleSagwanAmount: number;
+    laminateAmount: number;
+  }>({
+    queryKey: [...QUERY_KEYS.coatingAmounts, refreshTrigger],
+    queryFn: async () => {
+      if (!actor) return {
+        singleCoatingAmount: 0,
+        doubleCoatingAmount: 0,
+        doubleSagwanAmount: 0,
+        laminateAmount: 0,
+      };
+      return actor.calculateCoatingAmounts();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// Add door mutation
+export function useAddDoor() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      height,
-      width,
-      rate,
-    }: {
-      height: number;
-      width: number;
-      rate: number;
-    }) => {
+    mutationFn: async (input: AddDoorInput) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.addDoorEntry(height, width, rate);
+      return actor.addDoor(input);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.entries });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.grandTotals });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.types });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.totalSquareFeet });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.coatingAmounts });
     },
   });
 }
 
-// Delete door entry mutation
-export function useDeleteEntry() {
+// Delete door type mutation
+export function useDeleteType() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteEntry(id);
+      return actor.deleteType(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.entries });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.grandTotals });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.types });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.totalSquareFeet });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.coatingAmounts });
     },
   });
 }

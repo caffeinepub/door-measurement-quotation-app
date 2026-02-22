@@ -1,19 +1,17 @@
 # Specification
 
 ## Summary
-**Goal:** Build a door measurement and quotation calculator for door manufacturers and carpenters that accepts decimal door dimensions, applies industry-standard rounding rules, calculates square footage and pricing, and manages multiple door entries with grand totals.
+**Goal:** Refactor door quotation system to use size-based grouping with coating columns instead of separate entries per coating.
 
 **Planned changes:**
-- Create backend data model for door entries with height, width, rate, rounded dimensions, square feet, and amount calculations
-- Implement height rounding logic (72, 75, 78, 80, or 84 inches based on input thresholds)
-- Implement width rounding logic (30, 32, 34, 36, 38, 40, 42, or 48 inches based on input thresholds)
-- Calculate square feet as (rounded height × rounded width) / 144, rounded to 2 decimals
-- Calculate amount as square feet × rate, rounded to nearest integer
-- Store multiple door entries in backend stable storage
-- Create input form with decimal fields for height, width, and rate (default 185)
-- Display each door entry with rounded size (height × width format), square feet, and amount
-- Show grand total square feet and grand total amount across all entries
-- Add delete functionality for individual entries with automatic total recalculation
-- Design professional interface with warm wood-inspired tones (browns, natural tans, forest greens) suitable for construction industry
+- Change door count logic to count only unique door sizes (height × width), not individual coating selections
+- Replace door entries table with new structure: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft.
+- Display one row per unique door size with coating amounts in separate columns
+- Remove all rate (₹/sq.ft) displays from UI and PDF, show only final calculated amounts
+- Update totals section to show Total Square Feet and separate totals for each coating type only (remove Grand Total and Total Quantity)
+- Update calculation formulas: Sq.Ft = (Rounded Height × Rounded Width) / 144, Amount = Sq.Ft × coating rate
+- Refactor backend data model to group entries by unique size with coating selections as properties
+- Update confirmation message to display "Quotation generated for X door size(s)" based on unique size count
+- Ensure consistent table layout and totals between app preview UI and generated PDF
 
-**User-visible outcome:** Users can enter door dimensions in decimal inches, see automatically rounded sizes with calculated square footage and pricing at $185/sq.ft (customizable), manage multiple door entries in a list, and view running totals in a professional, carpenter-friendly interface.
+**User-visible outcome:** Users can create door quotations where each unique door size appears as a single row with coating types shown in separate columns, making it easier to compare coating options for the same door size. The quotation shows only calculated amounts without rates, and totals are broken down by coating type.

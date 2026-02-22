@@ -1,10 +1,16 @@
 {
-  "frontend/src/App.tsx": "Main application component with header, three-section layout (form, list, totals), and footer with proper state management for coordinating data refresh across components.",
-  "frontend/src/components/DoorEntryForm.tsx": "Form component with three numeric inputs (height, width, rate) that validates input and calls backend addDoorEntry mutation with loading states and toast notifications.",
-  "frontend/src/components/DoorEntryDisplay.tsx": "Display component for a single door entry showing rounded size, square feet, and amount with a delete button.",
-  "frontend/src/components/DoorEntryList.tsx": "List component that fetches and displays all door entries with loading/error states and handles entry deletion.",
-  "frontend/src/components/GrandTotals.tsx": "Prominent totals display component showing aggregated square feet and amount with distinctive styling.",
-  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including fetching entries, grand totals, adding entries, and deleting entries with proper cache invalidation.",
-  "frontend/src/index.css": "Global styles with warm wood-inspired OKLCH color palette (browns, tans, forest greens) for both light and dark modes, optimized for numeric data display.",
-  "frontend/tailwind.config.js": "Tailwind configuration with extended color system, custom fonts (Inter, JetBrains Mono), and professional design tokens for construction industry aesthetic."
+  "frontend/src/App.tsx": "Main application component with header, customer info form, door entry form, list, and quotation actions; removed fixed grand totals section and added form reset coordination after quotation generation with properly initialized useRef.",
+  "frontend/src/components/DoorEntryForm.tsx": "Form component for adding door entries with multi-select coating checkboxes (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate) and height/width inputs; submits a single door size with selected coatings to the backend.",
+  "frontend/src/components/DoorEntryDisplay.tsx": "Display component for a single door entry showing door type, rounded size, square feet, rate, quantity, and total amount with Indian Rupee (₹) currency formatting and comma separators; fixed to pass numeric rate value to formatCurrency.",
+  "frontend/src/components/DoorEntryList.tsx": "Displays door entries as a table with columns for Sr No, Size, and separate coating amount columns (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate), Sq.Ft, and delete action; shows one row per unique door size with coating amounts calculated inline.",
+  "frontend/src/components/GrandTotals.tsx": "Displays total square feet and separate totals for each coating type (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate) in a grid layout; only shows coating totals that have non-zero amounts.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for fetching all door types, total square feet, coating amounts, and mutations for adding/deleting door types with proper cache invalidation.",
+  "frontend/src/index.css": "Global styles with OKLCH color system for light and dark modes, maintaining wood-inspired warm palette with factory-friendly touch target utilities.",
+  "frontend/tailwind.config.js": "Tailwind configuration with extended color system, custom fonts (Inter, JetBrains Mono), and professional design tokens for construction industry aesthetic.",
+  "frontend/src/components/CustomerInfoForm.tsx": "Form component for capturing customer name and mobile number with icon-enhanced input fields for quotation generation.",
+  "frontend/src/components/QuotationActions.tsx": "Component with buttons to generate printable quotations and share via WhatsApp; automatically clears all door entries after successful PDF generation and displays confirmation message showing count of unique door sizes.",
+  "frontend/src/components/ThemeToggle.tsx": "Theme toggle button component that switches between light and dark modes with sun/moon icons.",
+  "frontend/src/hooks/useTheme.ts": "Custom React hook for managing theme state with localStorage persistence and system preference detection.",
+  "frontend/src/utils/pdfGenerator.ts": "Generates printable HTML quotation with table showing Sr No, Size, coating amount columns, and Sq.Ft; includes totals section with total square feet and separate coating totals matching the UI structure.",
+  "frontend/src/utils/whatsappShare.ts": "Utility module for sharing quotations via WhatsApp using Web Share API with fallback to WhatsApp Web URL scheme, providing instructions for manual PDF attachment."
 }

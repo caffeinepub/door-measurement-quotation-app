@@ -60,19 +60,22 @@
         --chart-4: 0.55 0.12 180;
         --chart-5: 0.70 0.20 45;
     }
+}
 
+@layer base {
     * {
         @apply border-border;
     }
-    
     body {
         @apply bg-background text-foreground;
         font-feature-settings: "rlig" 1, "calt" 1;
     }
-    
-    /* Optimized typography for numeric data */
-    input[type="number"] {
-        font-variant-numeric: tabular-nums;
-    }
 }
 
+/* Factory-friendly enhancements */
+@layer utilities {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}

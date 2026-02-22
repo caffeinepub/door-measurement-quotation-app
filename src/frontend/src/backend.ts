@@ -89,98 +89,143 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface DoorEntry {
+export interface CoatingType {
+    singleCoating: boolean;
+    doubleSagwan: boolean;
+    laminate: boolean;
+    doubleCoating: boolean;
+}
+export interface AddDoorOutput {
+    createdType: DoorType;
+}
+export interface AddDoorInput {
+    height: number;
+    width: number;
+    coatings: CoatingType;
+}
+export interface DoorType {
     id: bigint;
     height: number;
-    rate: number;
     squareFeet: number;
     roundedHeight: bigint;
     roundedWidth: bigint;
     width: number;
-    amount: bigint;
+    coatings: CoatingType;
 }
 export interface backendInterface {
-    addDoorEntry(height: number, width: number, rate: number | null): Promise<DoorEntry>;
-    deleteEntry(id: bigint): Promise<void>;
-    getAllEntries(): Promise<Array<DoorEntry>>;
-    getGrandTotalAmount(): Promise<bigint>;
-    getGrandTotalSquareFeet(): Promise<number>;
+    addDoor(input: AddDoorInput): Promise<AddDoorOutput>;
+    calculateCoatingAmounts(): Promise<{
+        doubleCoatingAmount: number;
+        laminateAmount: number;
+        singleCoatingAmount: number;
+        doubleSagwanAmount: number;
+    }>;
+    deleteType(id: bigint): Promise<void>;
+    getAllTypes(): Promise<Array<DoorType>>;
+    getCoatingTotals(): Promise<{
+        singleCoating: number;
+        doubleSagwan: number;
+        laminate: number;
+        doubleCoating: number;
+    }>;
+    getTotalSquareFeet(): Promise<number>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addDoorEntry(arg0: number, arg1: number, arg2: number | null): Promise<DoorEntry> {
+    async addDoor(arg0: AddDoorInput): Promise<AddDoorOutput> {
         if (this.processError) {
             try {
-                const result = await this.actor.addDoorEntry(arg0, arg1, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg2));
+                const result = await this.actor.addDoor(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addDoorEntry(arg0, arg1, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg2));
+            const result = await this.actor.addDoor(arg0);
             return result;
         }
     }
-    async deleteEntry(arg0: bigint): Promise<void> {
+    async calculateCoatingAmounts(): Promise<{
+        doubleCoatingAmount: number;
+        laminateAmount: number;
+        singleCoatingAmount: number;
+        doubleSagwanAmount: number;
+    }> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteEntry(arg0);
+                const result = await this.actor.calculateCoatingAmounts();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteEntry(arg0);
+            const result = await this.actor.calculateCoatingAmounts();
             return result;
         }
     }
-    async getAllEntries(): Promise<Array<DoorEntry>> {
+    async deleteType(arg0: bigint): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.getAllEntries();
+                const result = await this.actor.deleteType(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getAllEntries();
+            const result = await this.actor.deleteType(arg0);
             return result;
         }
     }
-    async getGrandTotalAmount(): Promise<bigint> {
+    async getAllTypes(): Promise<Array<DoorType>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getGrandTotalAmount();
+                const result = await this.actor.getAllTypes();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getGrandTotalAmount();
+            const result = await this.actor.getAllTypes();
             return result;
         }
     }
-    async getGrandTotalSquareFeet(): Promise<number> {
+    async getCoatingTotals(): Promise<{
+        singleCoating: number;
+        doubleSagwan: number;
+        laminate: number;
+        doubleCoating: number;
+    }> {
         if (this.processError) {
             try {
-                const result = await this.actor.getGrandTotalSquareFeet();
+                const result = await this.actor.getCoatingTotals();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getGrandTotalSquareFeet();
+            const result = await this.actor.getCoatingTotals();
             return result;
         }
     }
-}
-function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: number | null): [] | [number] {
-    return value === null ? candid_none() : candid_some(value);
+    async getTotalSquareFeet(): Promise<number> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getTotalSquareFeet();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getTotalSquareFeet();
+            return result;
+        }
+    }
 }
 export interface CreateActorOptions {
     agent?: Agent;

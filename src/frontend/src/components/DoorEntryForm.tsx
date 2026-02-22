@@ -1,29 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect, useImperativeHandle } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2 } from 'lucide-react';
-import { useAddDoorEntry } from '../hooks/useQueries';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Loader2, RotateCcw } from 'lucide-react';
+import { useAddDoor } from '../hooks/useQueries';
 import { toast } from 'sonner';
+import type { CoatingType } from '../backend';
 
 interface DoorEntryFormProps {
   onEntryAdded: () => void;
+  resetRef?: React.MutableRefObject<(() => void) | undefined>;
 }
 
-export function DoorEntryForm({ onEntryAdded }: DoorEntryFormProps) {
+const COATING_OPTIONS = [
+  { key: 'singleCoating', label: 'Single Coating', rate: 165 },
+  { key: 'doubleCoating', label: 'Double Coating', rate: 185 },
+  { key: 'doubleSagwan', label: 'Double Coating + Sagwan Patti', rate: 210 },
+  { key: 'laminate', label: 'Laminate', rate: 240 },
+] as const;
+
+export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
+  const [coatings, setCoatings] = useState<CoatingType>({
+    singleCoating: false,
+    doubleCoating: false,
+    doubleSagwan: false,
+    laminate: false,
+  });
   const [height, setHeight] = useState('');
   const [width, setWidth] = useState('');
-  const [rate, setRate] = useState('185');
 
-  const addDoorEntryMutation = useAddDoorEntry();
+  const addDoorMutation = useAddDoor();
+
+  const handleCoatingToggle = (key: keyof CoatingType) => {
+    setCoatings((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const resetForm = () => {
+    setCoatings({
+      singleCoating: false,
+      doubleCoating: false,
+      doubleSagwan: false,
+      laminate: false,
+    });
+    setHeight('');
+    setWidth('');
+  };
+
+  // Expose reset function via ref
+  useImperativeHandle(resetRef, () => resetForm);
+
+  const handleClear = () => {
+    resetForm();
+    toast.info('Form cleared');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const hasAnyCoating = Object.values(coatings).some((v) => v);
+    if (!hasAnyCoating) {
+      toast.error('Please select at least one coating type');
+      return;
+    }
+
     const heightNum = parseFloat(height);
     const widthNum = parseFloat(width);
-    const rateNum = parseFloat(rate);
 
     if (isNaN(heightNum) || heightNum <= 0) {
       toast.error('Please enter a valid door height');
@@ -35,24 +81,17 @@ export function DoorEntryForm({ onEntryAdded }: DoorEntryFormProps) {
       return;
     }
 
-    if (isNaN(rateNum) || rateNum <= 0) {
-      toast.error('Please enter a valid rate per sq.ft');
-      return;
-    }
-
     try {
-      await addDoorEntryMutation.mutateAsync({
+      await addDoorMutation.mutateAsync({
         height: heightNum,
         width: widthNum,
-        rate: rateNum,
+        coatings,
       });
 
       // Clear form
-      setHeight('');
-      setWidth('');
-      setRate('185');
+      resetForm();
 
-      toast.success('Door entry added successfully');
+      toast.success('Door size added successfully');
       onEntryAdded();
     } catch (error) {
       toast.error('Failed to add door entry');
@@ -63,16 +102,47 @@ export function DoorEntryForm({ onEntryAdded }: DoorEntryFormProps) {
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <CardTitle className="text-xl">Add New Door Entry</CardTitle>
-        <CardDescription>
-          Enter door dimensions and rate to calculate quotation
+        <CardTitle className="text-2xl">Add New Door Entry</CardTitle>
+        <CardDescription className="text-base">
+          Enter door dimensions and select coating types to calculate quotation
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid gap-6 sm:grid-cols-3">
+          {/* Coating Type Multi-Selection */}
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">
+              Coating Types (Select one or more)
+            </Label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {COATING_OPTIONS.map((option) => (
+                <div
+                  key={option.key}
+                  className="flex items-center space-x-3 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors"
+                >
+                  <Checkbox
+                    id={option.key}
+                    checked={coatings[option.key]}
+                    onCheckedChange={() => handleCoatingToggle(option.key)}
+                    className="h-5 w-5"
+                  />
+                  <Label
+                    htmlFor={option.key}
+                    className="flex-1 cursor-pointer text-sm font-medium leading-tight"
+                  >
+                    {option.label}
+                    <span className="block text-xs text-muted-foreground mt-1">
+                      ₹{option.rate}/sq.ft
+                    </span>
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="height" className="text-sm font-medium">
+              <Label htmlFor="height" className="text-base font-semibold">
                 Door Height (inches)
               </Label>
               <Input
@@ -82,13 +152,13 @@ export function DoorEntryForm({ onEntryAdded }: DoorEntryFormProps) {
                 placeholder="78.25"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
-                className="text-base"
+                className="h-14 text-lg"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="width" className="text-sm font-medium">
+              <Label htmlFor="width" className="text-base font-semibold">
                 Door Width (inches)
               </Label>
               <Input
@@ -98,45 +168,44 @@ export function DoorEntryForm({ onEntryAdded }: DoorEntryFormProps) {
                 placeholder="30.25"
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
-                className="text-base"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="rate" className="text-sm font-medium">
-                Rate per Sq.Ft ($)
-              </Label>
-              <Input
-                id="rate"
-                type="number"
-                step="0.01"
-                placeholder="185"
-                value={rate}
-                onChange={(e) => setRate(e.target.value)}
-                className="text-base"
+                className="h-14 text-lg"
                 required
               />
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full sm:w-auto"
-            disabled={addDoorEntryMutation.isPending}
-          >
-            {addDoorEntryMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding...
-              </>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Door Entry
-              </>
-            )}
-          </Button>
+          <div className="flex flex-wrap gap-4">
+            <Button
+              type="submit"
+              size="lg"
+              className="flex-1 min-w-[200px] h-14 text-lg"
+              disabled={addDoorMutation.isPending}
+            >
+              {addDoorMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-5 w-5" />
+                  Add to List
+                </>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="min-w-[150px] h-14 text-lg"
+              onClick={handleClear}
+              disabled={addDoorMutation.isPending}
+            >
+              <RotateCcw className="mr-2 h-5 w-5" />
+              Clear
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

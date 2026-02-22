@@ -1,19 +1,27 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetGrandTotals } from '../hooks/useQueries';
-import { Loader2, Calculator } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { useGetTotalSquareFeet, useGetCoatingAmounts } from '../hooks/useQueries';
+import { Loader2 } from 'lucide-react';
 
 interface GrandTotalsProps {
   refreshTrigger: number;
 }
 
+function formatCurrency(amount: number): string {
+  return amount.toLocaleString('en-IN');
+}
+
 export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
-  const { data: totals, isLoading, error } = useGetGrandTotals(refreshTrigger);
+  const { data: totalSquareFeet, isLoading: isLoadingSqFt, error: errorSqFt } = useGetTotalSquareFeet(refreshTrigger);
+  const { data: coatingAmounts, isLoading: isLoadingAmounts, error: errorAmounts } = useGetCoatingAmounts(refreshTrigger);
+
+  const isLoading = isLoadingSqFt || isLoadingAmounts;
+  const error = errorSqFt || errorAmounts;
 
   if (isLoading) {
     return (
-      <Card className="border-2 border-primary/20 bg-primary/5 shadow-lg">
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <Card className="border-2 border-primary/30 bg-primary/10 shadow-lg">
+        <CardContent className="flex items-center justify-center py-6">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
     );
@@ -21,44 +29,73 @@ export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
 
   if (error) {
     return (
-      <Card className="border-2 border-destructive/20 bg-destructive/5 shadow-lg">
-        <CardContent className="py-12 text-center text-destructive">
-          Error loading grand totals. Please try again.
+      <Card className="border-2 border-destructive/30 bg-destructive/10 shadow-lg">
+        <CardContent className="py-6 text-center text-destructive text-sm">
+          Error loading totals
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-2 border-primary/20 bg-primary/5 shadow-lg">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Calculator className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div>
-            <CardTitle className="text-2xl">Grand Totals</CardTitle>
-            <CardDescription>Summary of all door entries</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="rounded-lg border border-border bg-card p-6">
-            <p className="text-sm font-medium text-muted-foreground">Total Square Feet</p>
-            <p className="mt-2 text-3xl font-bold text-foreground">
-              {totals?.totalSquareFeet.toFixed(2) || '0.00'}
-              <span className="ml-2 text-lg font-normal text-muted-foreground">sq.ft</span>
+    <div className="space-y-4">
+      {/* Total Square Feet */}
+      <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          Total Square Feet
+        </p>
+        <p className="mt-2 text-2xl font-bold text-foreground">
+          {totalSquareFeet?.toFixed(2) || '0.00'}
+          <span className="ml-2 text-base font-normal text-muted-foreground">sq.ft</span>
+        </p>
+      </div>
+
+      {/* Coating Totals */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {coatingAmounts && coatingAmounts.singleCoatingAmount > 0 && (
+          <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Single Coating Total
+            </p>
+            <p className="mt-2 text-xl font-bold text-primary">
+              ₹{formatCurrency(coatingAmounts.singleCoatingAmount)}
             </p>
           </div>
-          <div className="rounded-lg border border-border bg-card p-6">
-            <p className="text-sm font-medium text-muted-foreground">Total Amount</p>
-            <p className="mt-2 text-3xl font-bold text-foreground">
-              ${totals?.totalAmount.toString() || '0'}
+        )}
+
+        {coatingAmounts && coatingAmounts.doubleCoatingAmount > 0 && (
+          <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Double Coating Total
+            </p>
+            <p className="mt-2 text-xl font-bold text-primary">
+              ₹{formatCurrency(coatingAmounts.doubleCoatingAmount)}
             </p>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        )}
+
+        {coatingAmounts && coatingAmounts.doubleSagwanAmount > 0 && (
+          <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Double Coating + Sagwan Patti Total
+            </p>
+            <p className="mt-2 text-xl font-bold text-primary">
+              ₹{formatCurrency(coatingAmounts.doubleSagwanAmount)}
+            </p>
+          </div>
+        )}
+
+        {coatingAmounts && coatingAmounts.laminateAmount > 0 && (
+          <div className="rounded-lg border-2 border-primary/30 bg-primary/10 p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Laminate Total
+            </p>
+            <p className="mt-2 text-xl font-bold text-primary">
+              ₹{formatCurrency(coatingAmounts.laminateAmount)}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

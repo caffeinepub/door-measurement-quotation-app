@@ -1,12 +1,18 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "Android mobile application using Flutter and Dart for door manufacturers and carpenters to calculate rounded door sizes, square feet, and quotations with custom rounding logic",
+  "projectStateVersion": 9,
+  "summary": "Android mobile application using Flutter and Dart for door manufacturers to calculate rounded door sizes, square feet, and quotations with multi-coating selection per door size (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate), displaying one row per unique door size with separate coating columns, and PDF quotation generation with WhatsApp sharing",
   "architectural_notes": [
     "Flutter/Dart Android mobile application",
     "Custom rounding logic: height rounds to 72/75/78/80/84, width rounds to 30/32/34/36/38/40/42/48",
     "Calculation formula: Sq.Ft = (Rounded Height × Rounded Width) / 144, Amount = Sq.Ft × Rate",
-    "Decimal precision: Sq.Ft rounded to 2 decimals, Amount rounded to nearest integer"
+    "Decimal precision: Sq.Ft rounded to 2 decimals, Amount rounded to nearest integer",
+    "Door type selection: Single Coating (165), Double Coating (185), Double Coating + Sagwan Patti (210), Laminate (240)",
+    "Calculation formula updated: Door Total = Sq.Ft × Rate × Quantity",
+    "Factory-friendly UI with large inputs, prominent buttons, and fixed bottom grand total",
+    "Dark/light mode support using Material Design theming",
+    "PDF generation with customer details (name, mobile, auto date)",
+    "WhatsApp integration for quotation sharing"
   ],
   "known_issues": [],
   "isFixRequest": false,
@@ -48,6 +54,190 @@
       "title": "Design a professional, clean interface suitable for door manufacturers and carpenters with warm wood-inspired tones (browns, natural tans, and forest greens). Use clear typography optimized for quick data entry and calculation review. Organize the layout with input form at top, door entry list in middle, and grand totals prominently displayed at bottom.",
       "reqIds": [
         "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-quantity-input-field-to-the-door-entry-form-with-default-value-of-1-accepting-positive-integers-only",
+      "title": "Add Quantity input field to the door entry form with default value of 1, accepting positive integers only",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-door-type-selection-dropdown-or-radio-button-group-with-four-options-single-coating-double-coating-double-coating-sagwan-patti-and-laminate",
+      "title": "Add door type selection dropdown or radio button group with four options: Single Coating, Double Coating, Double Coating + Sagwan Patti, and Laminate",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-automatic-rate-update-when-door-type-is-selected-single-coating-defaults-to-165-double-coating-to-185-double-coating-sagwan-patti-to-210-and-laminate-to-240-user-can-manually-override-the-auto-filled-rate-value",
+      "title": "Implement automatic rate update when door type is selected: Single Coating defaults to 165, Double Coating to 185, Double Coating + Sagwan Patti to 210, and Laminate to 240. User can manually override the auto-filled rate value.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-door-entry-output-display-to-show-door-type-rounded-size-square-feet-rate-quantity-and-total-amount-for-each-entry",
+      "title": "Update door entry output display to show door type, rounded size, square feet, rate, quantity, and total amount for each entry",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-total-quantity-field-to-the-grand-totals-section-that-sums-the-quantity-of-all-door-entries",
+      "title": "Add Total Quantity field to the grand totals section that sums the quantity of all door entries",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-ui-to-be-factory-friendly-with-larger-input-boxes-bigger-calculate-add-to-list-clear-buttons-and-ensure-grand-total-section-is-fixed-at-the-bottom-of-the-viewport",
+      "title": "Enhance UI to be factory-friendly with larger input boxes, bigger Calculate/Add to List/Clear buttons, and ensure grand total section is fixed at the bottom of the viewport",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-dark-and-light-mode-toggle-with-system-preference-detection-applying-appropriate-color-schemes-to-all-ui-elements",
+      "title": "Implement dark and light mode toggle with system preference detection, applying appropriate color schemes to all UI elements",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-customer-information-form-with-fields-for-customer-name-and-mobile-number-to-be-included-in-quotations",
+      "title": "Add customer information form with fields for customer name and mobile number to be included in quotations",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-pdf-quotation-generation-feature-that-includes-customer-name-mobile-number-automatic-current-date-all-door-entries-with-details-door-type-size-square-feet-rate-quantity-amount-and-grand-totals-total-square-feet-total-quantity-grand-total-amount",
+      "title": "Implement PDF quotation generation feature that includes customer name, mobile number, automatic current date, all door entries with details (door type, size, square feet, rate, quantity, amount), and grand totals (total square feet, total quantity, grand total amount)",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-whatsapp-sharing-feature-that-allows-users-to-share-the-generated-pdf-quotation-directly-via-whatsapp",
+      "title": "Implement WhatsApp sharing feature that allows users to share the generated PDF quotation directly via WhatsApp",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-clear-reset-button-to-the-form-that-clears-all-input-fields-and-resets-them-to-default-values-including-door-type-selection-quantity-to-1-and-rate-to-its-default",
+      "title": "Add Clear/Reset button to the form that clears all input fields and resets them to default values (including door type selection, quantity to 1, and rate to its default)",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-single-door-type-dropdown-with-a-multi-selection-checkbox-list-containing-four-options-single-coating-double-coating-double-coating-sagwan-patti-and-laminate-allow-users-to-select-one-or-multiple-door-types-simultaneously",
+      "title": "Replace the single door type dropdown with a multi-selection checkbox list containing four options: Single Coating, Double Coating, Double Coating + Sagwan Patti, and Laminate. Allow users to select one or multiple door types simultaneously.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-when-the-user-adds-a-door-entry-with-multiple-door-types-selected-create-separate-door-entries-for-each-selected-type-with-the-same-height-width-and-quantity-values-each-door-type-should-calculate-its-own-square-feet-and-amount-based-on-its-respective-default-rate-single-coating-165-double-coating-185-double-coating-sagwan-patti-210-laminate-240",
+      "title": "When the user adds a door entry with multiple door types selected, create separate door entries for each selected type with the same height, width, and quantity values. Each door type should calculate its own square feet and amount based on its respective default rate (Single Coating: 165, Double Coating: 185, Double Coating + Sagwan Patti: 210, Laminate: 240).",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-the-user-clicks-generate-quotation-pdf-automatically-clear-all-added-door-entries-from-the-list-reset-all-input-fields-height-width-quantity-door-type-selections-to-their-default-values-and-reset-all-totals-to-zero",
+      "title": "After the user clicks 'Generate Quotation PDF', automatically clear all added door entries from the list, reset all input fields (height, width, quantity, door type selections) to their default values, and reset all totals to zero.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-or-hide-the-live-total-display-cards-total-square-feet-total-quantity-grand-total-amount-from-the-main-screen-these-values-should-only-be-visible-inside-the-quotation-preview-and-generated-pdf",
+      "title": "Remove or hide the live total display cards (Total Square Feet, Total Quantity, Grand Total Amount) from the main screen. These values should only be visible inside the quotation preview and generated PDF.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-all-dollar-sign-symbols-throughout-the-application-with-the-indian-rupee-symbol-format-currency-amounts-with-comma-separators-e-g-3-289-12-450",
+      "title": "Replace all dollar sign '$' symbols throughout the application with the Indian Rupee symbol '₹'. Format currency amounts with comma separators (e.g., ₹ 3,289, ₹ 12,450).",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-a-confirmation-message-quotation-generated-successfully-entries-cleared-after-the-user-generates-a-quotation-and-the-entries-are-cleared",
+      "title": "Display a confirmation message 'Quotation generated successfully. Entries cleared.' after the user generates a quotation and the entries are cleared.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-change-door-count-logic-to-count-only-unique-door-sizes-height-width-combinations-multiple-coating-selections-on-the-same-size-must-count-as-a-single-door",
+      "title": "Change door count logic to count only unique door sizes (height × width combinations). Multiple coating selections on the same size must count as a single door.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-current-door-entries-table-structure-with-a-new-format-having-columns-sr-no-size-single-coating-double-coating-double-coating-sagwan-patti-laminate-sq-ft-each-row-represents-one-unique-door-size-with-coating-amounts-shown-in-separate-columns",
+      "title": "Replace the current door entries table structure with a new format having columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft. Each row represents ONE unique door size with coating amounts shown in separate columns.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-all-rate-sq-ft-displays-from-the-ui-and-pdf-show-only-the-final-calculated-amounts-per-coating-type-without-showing-the-rate-used-for-calculation",
+      "title": "Remove all rate (₹/sq.ft) displays from the UI and PDF. Show only the final calculated amounts per coating type without showing the rate used for calculation.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-totals-section-to-show-only-total-square-feet-and-separate-totals-for-each-coating-type-single-coating-double-coating-double-coating-sagwan-patti-laminate-remove-grand-total-and-total-quantity-displays",
+      "title": "Update the totals section to show only Total Square Feet and separate totals for each coating type (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate). Remove Grand Total and Total Quantity displays.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-new-table-layout-and-totals-structure-are-consistent-between-the-app-preview-ui-and-the-generated-pdf-quotation",
+      "title": "Ensure the new table layout and totals structure are consistent between the app preview UI and the generated PDF quotation.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-confirmation-message-after-quotation-generation-to-display-quotation-generated-for-x-door-size-s-where-x-is-the-count-of-unique-door-sizes-not-total-entries",
+      "title": "Update the confirmation message after quotation generation to display 'Quotation generated for X door size(s).' where X is the count of unique door sizes (not total entries).",
+      "reqIds": [
+        "REQ-37"
       ],
       "version": 1
     }
@@ -142,6 +332,162 @@
       "summary": "Create backend function to delete a door entry by ID and recalculate totals.",
       "reqIds": [
         "REQ-7"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Add Quantity input field (default 1) to door entry form",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Implement door type selection (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate) with corresponding default rates (165, 185, 210, 240)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Auto-update rate when door type is selected, allow manual rate override",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Update calculation formula to: Door Total = Square Feet × Rate × Quantity",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Display door type, rounded size, square feet, rate, quantity, and total amount in output",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Show each door entry in card format with subtotal and delete option",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Add Total Quantity to grand total section alongside Total Square Feet and Grand Total Amount",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Implement factory-friendly UI with large input boxes, big Calculate/Add/Clear buttons, and fixed grand total section at bottom",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "Add dark and light mode support",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Generate PDF quotation with customer name, mobile, and auto date",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Implement WhatsApp sharing for quotation",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Ensure offline functionality with no login requirement",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Update backend door entry data model to include doorType (text), quantity (integer with default 1), and modify the amount calculation to: Amount = Square Feet × Rate × Quantity, rounded to nearest integer",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Replace single door type dropdown with multi-selection checkbox list allowing users to select one or multiple door types (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate) simultaneously, with each type calculating separately and adding to quotation list",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Implement auto-clear functionality after quotation generation: clear all door entries, reset input fields (height, width, quantity, door type selections), and reset totals to zero",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Hide live total display cards (Total Square Feet, Total Quantity, Grand Total Amount) from main screen; show these values only in quotation preview and generated PDF",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Replace all currency symbols from '$' to Indian Rupee '₹' with proper formatting (e.g., ₹ 3,289)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Add confirmation message after quotation generation: 'Quotation generated successfully. Entries cleared.'",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Refactor door count logic to count based ONLY on unique door size (height × width), not coating selections - multiple coatings on same size = 1 door",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Replace door entries table structure with columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft, where each row represents ONE unique door size with coating amounts in separate columns",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Remove rate (₹/sq.ft) display from all UI elements and PDF - show only final calculated amounts per coating",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Update totals section to show ONLY Total Square Feet and separate totals for each coating type (remove Grand Total and Total Quantity)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Update confirmation message to display 'Quotation generated for X door size(s).' based on unique door sizes",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Update the square footage calculation formula to: Sq.Ft = (Rounded Height × Rounded Width) / 144. Update amount calculation to: Amount per coating = Sq.Ft × respective coating rate.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Refactor the backend data model to group door entries by unique size (height × width) and store coating selections as properties of each size group rather than separate entries.",
+      "reqIds": [
+        "REQ-38"
       ],
       "status": "pending"
     }

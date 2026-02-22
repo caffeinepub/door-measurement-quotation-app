@@ -1,101 +1,131 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Door Measurement & Quotation Calculator - Frontend Implementation",
+  "title": "Refactor door quotation to use size-based grouping with coating columns",
   "requirements": [
     {
-      "id": "REQ-8",
-      "summary": "Create input form for door measurements with height, width, and rate fields",
+      "id": "REQ-31",
+      "summary": "Change door count logic to count only unique door sizes (height × width combinations)",
       "acceptanceCriteria": [
-        "Height input accepts decimal values",
-        "Width input accepts decimal values",
-        "Rate input has default value of 185",
-        "Form validates that all fields have valid numeric values before submission",
-        "Add Door button triggers entry creation"
+        "A door with height 78 and width 36 with 4 different coatings selected counts as 1 door",
+        "Door count increments only when a new unique size combination is added",
+        "Backend groups entries by size and aggregates coatings per size"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/DoorEntryForm.tsx",
-          "operation": "create",
-          "description": "Create a form component with three numeric input fields: Door Height (decimal, placeholder '78.25'), Door Width (decimal, placeholder '30.25'), and Rate per Sq.Ft (decimal, default 185). Include validation to ensure all fields contain valid numeric values. Add an 'Add Door' button that calls the backend addDoorEntry function with the form values. Use shadcn/ui Input and Button components for consistent styling. Clear form fields after successful submission."
+          "operation": "modify",
+          "description": "Update form submission logic to work with the new size-based backend data model. Ensure the form sends coating selections as part of a single door size entry rather than creating separate entries per coating type."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Update query hooks to work with the new backend interface that returns size-grouped door data with coating selections as properties of each size group."
         }
       ]
     },
     {
-      "id": "REQ-9",
-      "summary": "Display output for each door entry showing rounded size, square feet, and amount",
+      "id": "REQ-32",
+      "summary": "Replace door entries table with size-grouped format showing coating amounts in separate columns",
       "acceptanceCriteria": [
-        "Rounded size displays as 'height × width' format",
-        "Square feet shows exactly 2 decimal places",
-        "Amount displays as integer with no decimal places",
-        "Output updates immediately after adding entry"
+        "Table displays one row per unique door size",
+        "Each coating type has its own column showing the calculated amount",
+        "If a coating is not selected for a size, its column shows a dash or remains empty",
+        "Size column displays format like '78 × 36'",
+        "Sq.Ft column shows the square footage for that size"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/DoorEntryDisplay.tsx",
-          "operation": "create",
-          "description": "Create a component that displays a single door entry showing Final Rounded Size in 'height × width' format (e.g., '80 × 32'), Square Feet formatted to exactly 2 decimal places, and Amount as an integer with no decimal places. Accept a DoorEntry prop matching the backend interface type. Use shadcn/ui Card component for clean presentation."
+          "operation": "modify",
+          "description": "Replace the current entry display with a new table row format displaying: Sr No | Size (formatted as 'H × W') | Single Coating amount | Double Coating amount | Double Coating + Sagwan Patti amount | Laminate amount | Sq.Ft. Show dashes for coatings not selected for that size. Remove rate display entirely."
+        },
+        {
+          "path": "frontend/src/components/DoorEntryList.tsx",
+          "operation": "modify",
+          "description": "Update to render door entries as a table with column headers (Sr No, Size, Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate, Sq.Ft) instead of individual cards. Each row represents one unique door size with its coating amounts in separate columns."
         }
       ]
     },
     {
-      "id": "REQ-10",
-      "summary": "Display list of all door entries with delete functionality",
+      "id": "REQ-33",
+      "summary": "Remove all rate displays from UI and PDF, showing only calculated coating amounts",
       "acceptanceCriteria": [
-        "All door entries are displayed in a list",
-        "Each entry shows rounded dimensions, square feet, and amount",
-        "Each entry has a delete button",
-        "List updates in real-time when entries are added or removed"
+        "Rate field is not visible in the door entries table",
+        "Rate is not shown in the PDF quotation",
+        "Only coating amounts are displayed, not the rate used to calculate them"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/DoorEntryList.tsx",
-          "operation": "create",
-          "description": "Create a component that renders a list of all door entries using the DoorEntryDisplay component for each entry. Include a delete button for each entry that calls the backend deleteEntry function with the entry's ID. Handle loading and error states. Refresh the list automatically after add or delete operations. Use shadcn/ui Button component for delete actions."
+          "path": "frontend/src/components/DoorEntryDisplay.tsx",
+          "operation": "modify",
+          "description": "Remove all rate (₹/sq.ft) displays from the component. Show only the final calculated amounts for each coating type without exposing the rates used in calculations."
+        },
+        {
+          "path": "frontend/src/utils/pdfGenerator.ts",
+          "operation": "modify",
+          "description": "Update PDF generation logic to exclude rate columns from the quotation table. Display only Sr No, Size, coating amount columns, and Sq.Ft. Ensure no rate information appears anywhere in the generated PDF."
         }
       ]
     },
     {
-      "id": "REQ-11",
-      "summary": "Display grand totals for square feet and amount with automatic updates",
+      "id": "REQ-34",
+      "summary": "Update totals section to show Total Sq.Ft and separate totals per coating type only",
       "acceptanceCriteria": [
-        "Grand total square feet displays sum of all door entries",
-        "Grand total amount displays sum of all amounts",
-        "Totals update automatically when entries are added or removed",
-        "Totals are visually distinct from individual entries"
+        "Totals section displays Total Square Feet",
+        "Separate total amounts shown for each coating type (4 coating totals)",
+        "Grand Total amount is not displayed",
+        "Total Quantity field is not displayed",
+        "Backend provides separate totals per coating type"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/GrandTotals.tsx",
-          "operation": "create",
-          "description": "Create a component that fetches and displays grand totals by calling backend getGrandTotalSquareFeet and getGrandTotalAmount functions. Format Total Square Feet to 2 decimal places and Total Amount as an integer. Use prominent styling with shadcn/ui Card component to visually distinguish totals from individual entries. Accept a refresh trigger prop to re-fetch totals when entries change."
+          "operation": "modify",
+          "description": "Replace current totals display with new structure showing: Total Square Feet, and separate total amounts for Single Coating, Double Coating, Double Coating + Sagwan Patti, and Laminate. Remove Grand Total and Total Quantity displays. Update to use backend methods getTotalSquareFeet() and getCoatingTotals()."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add or update query hooks to fetch Total Square Feet and separate coating totals from the backend. Create useGetTotalSquareFeet and useGetCoatingTotals hooks that call the respective backend methods."
+        },
+        {
+          "path": "frontend/src/utils/pdfGenerator.ts",
+          "operation": "modify",
+          "description": "Update PDF totals section to match the UI structure: display Total Square Feet and separate totals for each of the 4 coating types. Remove Grand Total and Total Quantity from the PDF output."
         }
       ]
     },
     {
-      "id": "REQ-12",
-      "summary": "Design professional interface with wood-inspired color scheme and optimized layout",
+      "id": "REQ-36",
+      "summary": "Ensure consistent table layout and totals structure between UI preview and PDF",
       "acceptanceCriteria": [
-        "Color scheme uses warm, professional tones appropriate for construction industry",
-        "Layout clearly separates input, list, and totals sections",
-        "Typography is legible and optimized for numeric data",
-        "Interface conveys professionalism suitable for business use"
+        "PDF displays the same table structure with Sr No | Size | coating columns | Sq.Ft",
+        "PDF totals section matches the UI totals section (Total Sq.Ft + coating totals)",
+        "Formatting and data presentation are identical between UI and PDF"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/utils/pdfGenerator.ts",
           "operation": "modify",
-          "description": "Update CSS custom properties to implement a warm, wood-inspired color palette using browns, natural tans, and forest greens. Ensure typography is clear and optimized for numeric data display. Maintain professional appearance suitable for door manufacturers and carpenters."
-        },
+          "description": "Ensure the PDF table structure exactly matches the UI table with columns: Sr No | Size | Single Coating | Double Coating | Double Coating + Sagwan Patti | Laminate | Sq.Ft. Ensure totals section matches UI with Total Square Feet and 4 separate coating totals. Maintain consistent formatting (Indian Rupee symbol, comma separators) between UI and PDF."
+        }
+      ]
+    },
+    {
+      "id": "REQ-37",
+      "summary": "Update confirmation message to show count of unique door sizes after quotation generation",
+      "acceptanceCriteria": [
+        "Message shows actual count of unique door sizes",
+        "Message format is 'Quotation generated for 1 door size.' for single size",
+        "Message format is 'Quotation generated for X door sizes.' for multiple sizes",
+        "Message appears after successful PDF generation"
+      ],
+      "file_operations": [
         {
-          "path": "frontend/tailwind.config.js",
+          "path": "frontend/src/components/QuotationActions.tsx",
           "operation": "modify",
-          "description": "Extend Tailwind theme with custom color palette for construction industry: warm browns, natural tans, and forest greens. Configure typography scale optimized for numeric data entry and calculation review."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Create main application layout with three distinct sections: input form at top (using DoorEntryForm component), door entry list in middle (using DoorEntryList component), and grand totals prominently displayed at bottom (using GrandTotals component). Implement state management to coordinate data flow between components and trigger re-fetches when entries are added or deleted. Apply wood-inspired styling and ensure clean visual separation between sections."
+          "description": "Update the success message after PDF generation to display 'Quotation generated for X door size(s).' where X is the count of unique door sizes (not total entries). Use proper singular/plural form based on the count."
         }
       ]
     }
