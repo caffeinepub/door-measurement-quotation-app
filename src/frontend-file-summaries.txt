@@ -1,0 +1,10 @@
+{
+  "frontend/src/App.tsx": "Main application component with header, three-section layout (form, list, totals), and footer with proper state management for coordinating data refresh across components.",
+  "frontend/src/components/DoorEntryForm.tsx": "Form component with three numeric inputs (height, width, rate) that validates input and calls backend addDoorEntry mutation with loading states and toast notifications.",
+  "frontend/src/components/DoorEntryDisplay.tsx": "Display component for a single door entry showing rounded size, square feet, and amount with a delete button.",
+  "frontend/src/components/DoorEntryList.tsx": "List component that fetches and displays all door entries with loading/error states and handles entry deletion.",
+  "frontend/src/components/GrandTotals.tsx": "Prominent totals display component showing aggregated square feet and amount with distinctive styling.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including fetching entries, grand totals, adding entries, and deleting entries with proper cache invalidation.",
+  "frontend/src/index.css": "Global styles with warm wood-inspired OKLCH color palette (browns, tans, forest greens) for both light and dark modes, optimized for numeric data display.",
+  "frontend/tailwind.config.js": "Tailwind configuration with extended color system, custom fonts (Inter, JetBrains Mono), and professional design tokens for construction industry aesthetic."
+}

@@ -1,0 +1,265 @@
+{
+  "kind": "build_request",
+  "title": "Door Measurement & Quotation Calculator",
+  "projectName": "Door Quotation",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Create backend data model for door entry with fields: height (decimal), width (decimal), rate per sq.ft (decimal, default 185), rounded height (integer), rounded width (integer), square feet (decimal rounded to 2 places), and amount (integer). Store multiple door entries in stable storage.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Door Height (in inches, decimal allowed e.g. 78.25)",
+          "Door Width (in inches, decimal allowed e.g. 30.25)",
+          "Rate per Sq.Ft (default 185)",
+          "Multiple Entries: Add multiple door entries to a list"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend accepts decimal values for height and width",
+        "Default rate of 185 is applied when not specified",
+        "All door entries are persisted in stable storage",
+        "Calculated fields (rounded dimensions, sq.ft, amount) are stored with each entry"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement height rounding logic in backend: if height <= 72 return 72, if height <= 75 return 75, if height <= 78 return 78, if height <= 80 return 80, else return 84.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Height rounding rules: if height <= 72 → 72, if height <= 75 → 75, if height <= 78 → 78, if height <= 80 → 80, else → 84"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Height 70 rounds to 72",
+        "Height 72 rounds to 72",
+        "Height 73 rounds to 75",
+        "Height 78.25 rounds to 80",
+        "Height 81 rounds to 84"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement width rounding logic in backend: if width <= 30 return 30, if width <= 32 return 32, if width <= 34 return 34, if width <= 36 return 36, if width <= 38 return 38, if width <= 40 return 40, if width <= 42 return 42, else return 48.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Width rounding rules: if width <= 30 → 30, if width <= 32 → 32, if width <= 34 → 34, if width <= 36 → 36, if width <= 38 → 38, if width <= 40 → 40, if width <= 42 → 42, else → 48"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Width 28 rounds to 30",
+        "Width 30.25 rounds to 32",
+        "Width 36 rounds to 36",
+        "Width 42.5 rounds to 48"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Implement calculation logic in backend: Square Feet = (Rounded Height × Rounded Width) / 144 rounded to 2 decimal places, Amount = Square Feet × Rate rounded to nearest integer.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Square Feet = (Rounded Height × Rounded Width) / 144",
+          "Amount = Square Feet × Rate",
+          "Round Sq.Ft to 2 decimals",
+          "Round Amount to nearest integer"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Square feet calculation uses rounded dimensions divided by 144",
+        "Square feet is rounded to exactly 2 decimal places",
+        "Amount is calculated as square feet multiplied by rate",
+        "Amount is rounded to nearest integer (e.g., 525.7 becomes 526)"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Create backend function to add a new door entry that accepts height, width, and rate, applies rounding logic, calculates square feet and amount, and returns the complete door entry with all calculated fields.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Add multiple door entries to a list"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Function accepts decimal height and width inputs",
+        "Function applies height and width rounding rules",
+        "Function calculates and returns square feet and amount",
+        "New entry is added to persistent storage"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Create backend functions to retrieve all door entries, calculate grand total square feet (sum of all entries' square feet), and calculate grand total amount (sum of all entries' amounts).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Grand Total: Calculate and display total square feet, Calculate and display"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend returns list of all door entries",
+        "Grand total square feet is sum of all individual square feet",
+        "Grand total amount is sum of all individual amounts",
+        "Totals update automatically when entries are added or removed"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Create backend function to delete a door entry by ID and recalculate totals.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Add multiple door entries to a list"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Individual door entries can be removed",
+        "Grand totals update after deletion"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Create input form with three fields: Door Height (decimal input with placeholder '78.25'), Door Width (decimal input with placeholder '30.25'), and Rate per Sq.Ft (decimal input with default value 185). Include an 'Add Door' button to submit the form.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Door Height (in inches, decimal allowed e.g. 78.25)",
+          "Door Width (in inches, decimal allowed e.g. 30.25)",
+          "Rate per Sq.Ft (default 185)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Height input accepts decimal values",
+        "Width input accepts decimal values",
+        "Rate input has default value of 185",
+        "Form validates that all fields have valid numeric values before submission",
+        "Add Door button triggers entry creation"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Display output section for each door entry showing: Final Rounded Size in format 'Height × Width' (e.g., '80 × 32'), Square Feet with 2 decimal places, and Amount as integer.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Output Section: Final Rounded Size (Height × Width), Square Feet, Amount"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Rounded size displays as 'height × width' format",
+        "Square feet shows exactly 2 decimal places",
+        "Amount displays as integer with no decimal places",
+        "Output updates immediately after adding entry"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Display list of all door entries with each entry showing its rounded size, square feet, and amount. Include a delete button for each entry.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Show each door's size, sq.ft, and amount",
+          "Add multiple door entries to a list"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All door entries are displayed in a list",
+        "Each entry shows rounded dimensions, square feet, and amount",
+        "Each entry has a delete button",
+        "List updates in real-time when entries are added or removed"
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Display grand total section showing Total Square Feet (sum of all entries) and Total Amount (sum of all amounts). Update totals automatically when entries change.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "Grand Total: Calculate and display total square feet, Calculate and display"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Grand total square feet displays sum of all door entries",
+        "Grand total amount displays sum of all amounts",
+        "Totals update automatically when entries are added or removed",
+        "Totals are visually distinct from individual entries"
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Design a professional, clean interface suitable for door manufacturers and carpenters with warm wood-inspired tones (browns, natural tans, and forest greens). Use clear typography optimized for quick data entry and calculation review. Organize the layout with input form at top, door entry list in middle, and grand totals prominently displayed at bottom.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "This app is for door manufacturers and carpenters"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Color scheme uses warm, professional tones appropriate for construction industry",
+        "Layout clearly separates input, list, and totals sections",
+        "Typography is legible and optimized for numeric data",
+        "Interface conveys professionalism suitable for business use"
+      ]
+    }
+  ],
+  "constraints": [
+    "Use React with TypeScript for frontend (not Flutter)",
+    "Use Motoko for backend (not Dart)",
+    "Backend must use single-actor architecture with all logic in main.mo",
+    "All state must be stored in backend stable storage",
+    "No external database or mobile-specific features"
+  ],
+  "nonGoals": [
+    "Native Android mobile application",
+    "Flutter or Dart implementation",
+    "Offline mode or local storage",
+    "Export to PDF or spreadsheet",
+    "User authentication or multi-user support",
+    "Door design visualization or 3D rendering",
+    "Integration with inventory or ordering systems"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

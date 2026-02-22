@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Android mobile application using Flutter and Dart for door manufacturers and carpenters to calculate rounded door sizes, square feet, and quotations with custom rounding logic",
+  "architectural_notes": [
+    "Flutter/Dart Android mobile application",
+    "Custom rounding logic: height rounds to 72/75/78/80/84, width rounds to 30/32/34/36/38/40/42/48",
+    "Calculation formula: Sq.Ft = (Rounded Height × Rounded Width) / 144, Amount = Sq.Ft × Rate",
+    "Decimal precision: Sq.Ft rounded to 2 decimals, Amount rounded to nearest integer"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-input-form-with-three-fields-door-height-decimal-input-with-placeholder-78-25-door-width-decimal-input-with-placeholder-30-25-and-rate-per-sq-ft-decimal-input-with-default-value-185-include-an-add-door-button-to-submit-the-form",
+      "title": "Create input form with three fields: Door Height (decimal input with placeholder '78.25'), Door Width (decimal input with placeholder '30.25'), and Rate per Sq.Ft (decimal input with default value 185). Include an 'Add Door' button to submit the form.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-output-section-for-each-door-entry-showing-final-rounded-size-in-format-height-width-e-g-80-32-square-feet-with-2-decimal-places-and-amount-as-integer",
+      "title": "Display output section for each door entry showing: Final Rounded Size in format 'Height × Width' (e.g., '80 × 32'), Square Feet with 2 decimal places, and Amount as integer.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-list-of-all-door-entries-with-each-entry-showing-its-rounded-size-square-feet-and-amount-include-a-delete-button-for-each-entry",
+      "title": "Display list of all door entries with each entry showing its rounded size, square feet, and amount. Include a delete button for each entry.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-grand-total-section-showing-total-square-feet-sum-of-all-entries-and-total-amount-sum-of-all-amounts-update-totals-automatically-when-entries-change",
+      "title": "Display grand total section showing Total Square Feet (sum of all entries) and Total Amount (sum of all amounts). Update totals automatically when entries change.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-design-a-professional-clean-interface-suitable-for-door-manufacturers-and-carpenters-with-warm-wood-inspired-tones-browns-natural-tans-and-forest-greens-use-clear-typography-optimized-for-quick-data-entry-and-calculation-review-organize-the-layout-with-input-form-at-top-door-entry-list-in-middle-and-grand-totals-prominently-displayed-at-bottom",
+      "title": "Design a professional, clean interface suitable for door manufacturers and carpenters with warm wood-inspired tones (browns, natural tans, and forest greens). Use clear typography optimized for quick data entry and calculation review. Organize the layout with input form at top, door entry list in middle, and grand totals prominently displayed at bottom.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Input fields for door height, width (decimal allowed), and rate per sq.ft with default 185",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Rounding logic for height (72/75/78/80/84) and width (30/32/34/36/38/40/42/48)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Calculate square feet from rounded dimensions, amount from rate, with proper decimal rounding",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Display output section showing final rounded size, square feet, and amount",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Support multiple door entries in a list with individual size, sq.ft, and amount",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Grand total calculation displaying total square feet and total amount",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Create backend data model for door entry with fields: height (decimal), width (decimal), rate per sq.ft (decimal, default 185), rounded height (integer), rounded width (integer), square feet (decimal rounded to 2 places), and amount (integer). Store multiple door entries in stable storage.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Implement height rounding logic in backend: if height <= 72 return 72, if height <= 75 return 75, if height <= 78 return 78, if height <= 80 return 80, else return 84.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Implement width rounding logic in backend: if width <= 30 return 30, if width <= 32 return 32, if width <= 34 return 34, if width <= 36 return 36, if width <= 38 return 38, if width <= 40 return 40, if width <= 42 return 42, else return 48.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Implement calculation logic in backend: Square Feet = (Rounded Height × Rounded Width) / 144 rounded to 2 decimal places, Amount = Square Feet × Rate rounded to nearest integer.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Create backend function to add a new door entry that accepts height, width, and rate, applies rounding logic, calculates square feet and amount, and returns the complete door entry with all calculated fields.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Create backend functions to retrieve all door entries, calculate grand total square feet (sum of all entries' square feet), and calculate grand total amount (sum of all entries' amounts).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Create backend function to delete a door entry by ID and recalculate totals.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Door Measurement & Quotation App",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

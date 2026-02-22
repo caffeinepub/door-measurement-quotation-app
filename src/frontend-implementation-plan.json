@@ -1,0 +1,103 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Door Measurement & Quotation Calculator - Frontend Implementation",
+  "requirements": [
+    {
+      "id": "REQ-8",
+      "summary": "Create input form for door measurements with height, width, and rate fields",
+      "acceptanceCriteria": [
+        "Height input accepts decimal values",
+        "Width input accepts decimal values",
+        "Rate input has default value of 185",
+        "Form validates that all fields have valid numeric values before submission",
+        "Add Door button triggers entry creation"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/DoorEntryForm.tsx",
+          "operation": "create",
+          "description": "Create a form component with three numeric input fields: Door Height (decimal, placeholder '78.25'), Door Width (decimal, placeholder '30.25'), and Rate per Sq.Ft (decimal, default 185). Include validation to ensure all fields contain valid numeric values. Add an 'Add Door' button that calls the backend addDoorEntry function with the form values. Use shadcn/ui Input and Button components for consistent styling. Clear form fields after successful submission."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Display output for each door entry showing rounded size, square feet, and amount",
+      "acceptanceCriteria": [
+        "Rounded size displays as 'height × width' format",
+        "Square feet shows exactly 2 decimal places",
+        "Amount displays as integer with no decimal places",
+        "Output updates immediately after adding entry"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/DoorEntryDisplay.tsx",
+          "operation": "create",
+          "description": "Create a component that displays a single door entry showing Final Rounded Size in 'height × width' format (e.g., '80 × 32'), Square Feet formatted to exactly 2 decimal places, and Amount as an integer with no decimal places. Accept a DoorEntry prop matching the backend interface type. Use shadcn/ui Card component for clean presentation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Display list of all door entries with delete functionality",
+      "acceptanceCriteria": [
+        "All door entries are displayed in a list",
+        "Each entry shows rounded dimensions, square feet, and amount",
+        "Each entry has a delete button",
+        "List updates in real-time when entries are added or removed"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/DoorEntryList.tsx",
+          "operation": "create",
+          "description": "Create a component that renders a list of all door entries using the DoorEntryDisplay component for each entry. Include a delete button for each entry that calls the backend deleteEntry function with the entry's ID. Handle loading and error states. Refresh the list automatically after add or delete operations. Use shadcn/ui Button component for delete actions."
+        }
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "summary": "Display grand totals for square feet and amount with automatic updates",
+      "acceptanceCriteria": [
+        "Grand total square feet displays sum of all door entries",
+        "Grand total amount displays sum of all amounts",
+        "Totals update automatically when entries are added or removed",
+        "Totals are visually distinct from individual entries"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/GrandTotals.tsx",
+          "operation": "create",
+          "description": "Create a component that fetches and displays grand totals by calling backend getGrandTotalSquareFeet and getGrandTotalAmount functions. Format Total Square Feet to 2 decimal places and Total Amount as an integer. Use prominent styling with shadcn/ui Card component to visually distinguish totals from individual entries. Accept a refresh trigger prop to re-fetch totals when entries change."
+        }
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "summary": "Design professional interface with wood-inspired color scheme and optimized layout",
+      "acceptanceCriteria": [
+        "Color scheme uses warm, professional tones appropriate for construction industry",
+        "Layout clearly separates input, list, and totals sections",
+        "Typography is legible and optimized for numeric data",
+        "Interface conveys professionalism suitable for business use"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Update CSS custom properties to implement a warm, wood-inspired color palette using browns, natural tans, and forest greens. Ensure typography is clear and optimized for numeric data display. Maintain professional appearance suitable for door manufacturers and carpenters."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Extend Tailwind theme with custom color palette for construction industry: warm browns, natural tans, and forest greens. Configure typography scale optimized for numeric data entry and calculation review."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Create main application layout with three distinct sections: input form at top (using DoorEntryForm component), door entry list in middle (using DoorEntryList component), and grand totals prominently displayed at bottom (using GrandTotals component). Implement state management to coordinate data flow between components and trigger re-fetches when entries are added or deleted. Apply wood-inspired styling and ensure clean visual separation between sections."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "backend/main.mo": "Motoko actor implementing door entry management with CRUD operations, rounding logic for height/width dimensions, square footage calculation, and amount computation based on rate per square foot.",
+  "feature_evidence.json": "Feature evidence report mapping implemented features (input form, display components, list view, grand totals, and UI design) to their corresponding files, components, and test IDs.",
+  "frontend-file-summaries.txt": "JSON summary of frontend files describing the main app structure, form/display/list components, React Query hooks, and styling with wood-inspired color palette.",
+  "frontend/index.css": "Tailwind CSS base styles defining OKLCH color variables for light and dark modes with neutral grayscale palette and chart colors.",
+  "frontend/index.html": "HTML entry point with viewport meta tag, app title, root div, and module script reference to main.tsx.",
+  "frontend/src/App.tsx": "Main React component orchestrating layout with header, three-section content (form, list, totals), footer, and refresh coordination via state trigger passed to child components.",
+  "frontend/src/components/DoorEntryDisplay.tsx": "Card component displaying a single door entry with rounded size, square feet, amount, and delete button with loading state.",
+  "frontend/src/components/DoorEntryForm.tsx": "Form component with three numeric inputs (height, width, rate with default 185) that validates, submits to backend via mutation, shows loading state, and displays toast notifications.",
+  "frontend/src/components/DoorEntryList.tsx": "List component fetching and rendering all door entries with loading/error states, empty state message, and delete functionality with toast feedback.",
+  "frontend/src/components/GrandTotals.tsx": "React component that displays grand totals (total square feet and total amount) for all door entries using a card layout with loading and error states.",
+  "frontend/src/hooks/useActor.ts": "Custom React hook that manages the backend actor instance based on Internet Identity authentication state, creating anonymous or authenticated actors and invalidating queries when identity changes.",
+  "frontend/src/hooks/useInternetIdentity.ts": "React context provider and hook for Internet Identity authentication, managing login state, identity persistence, and delegation validation with configurable AuthClient options.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for fetching door entries and grand totals, plus mutations for adding and deleting door entries with automatic cache invalidation.",
+  "frontend/src/index.css": "Tailwind CSS configuration with custom wood-inspired color palette for light and dark modes using OKLCH color space, plus typography optimizations for numeric data.",
+  "frontend/src/main.tsx": "Application entry point that sets up React Query client and Internet Identity provider, then renders the root App component.",
+  "frontend/tailwind.config.js": "Tailwind configuration defining custom color system using OKLCH, typography with Inter and JetBrains Mono fonts, animations, and container settings with typography and animation plugins.",
+  "project_state.json": "Project metadata describing a door calculation application with custom rounding logic for dimensions, square footage calculations, and feature tracking for input forms, entry lists, and grand totals display."
+}
