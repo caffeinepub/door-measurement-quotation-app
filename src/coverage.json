@@ -1,67 +1,81 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-23T05:25:53.055Z",
+  "generatedAt": "2026-02-23T06:27:41.461Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 5,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Debug and fix the 'Error loading door entries. Please try again.' error displayed in the DoorEntryList component by investigating the useQuery hook for fetching door entries and ensuring proper error handling and retry logic",
-        "status": "implemented",
+        "id": "REQ-4",
+        "summary": "Update frontend/src/components/DoorEntryList.tsx to calculate and display all four coating type amounts for every door row: Single Coating (sqFt × ₹185), Double Coating (sqFt × ₹220), Double + Sagwan Patti (sqFt × ₹270), and Laminate (sqFt × ₹450). Remove conditional logic that causes '-' placeholders. Ensure each coating column always shows the calculated rupee amount with proper formatting (₹ symbol, comma separators, two decimals).",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/DoorEntryList.tsx",
-          "frontend/src/hooks/useActor.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
           "frontend/src/components/DoorEntryList.tsx"
-        ]
+        ],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-2",
-        "summary": "Debug and fix the 'Error loading totals. Please try again.' error displayed in the GrandTotals component by investigating the useQuery hook for calculating totals and ensuring proper error handling",
+        "id": "REQ-5",
+        "summary": "Update frontend/src/components/GrandTotals.tsx to calculate and display correct totals for all coating types. For each coating type, compute the sum of (door sqFt × coating rate) across all doors: Single Coating total = sum of (each door's sqFt × 185), Double Coating total = sum of (each door's sqFt × 220), Double + Sagwan Patti total = sum of (each door's sqFt × 270), Laminate total = sum of (each door's sqFt × 450). Format all totals with ₹ symbol, comma separators, and two decimals.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
           "frontend/src/components/GrandTotals.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
           "frontend/src/components/GrandTotals.tsx"
         ]
       },
       {
-        "id": "REQ-3",
-        "summary": "Verify backend actor availability and ensure the getAllTypes and getTotalSquareFeet methods are functioning correctly and accessible from the frontend queries",
+        "id": "REQ-6",
+        "summary": "Update frontend/src/utils/pdfGenerator.ts to ensure PDF export calculates and displays all four coating type amounts for every door entry. Apply the same calculation logic: sqFt × rate for each coating type (185, 220, 270, 450). Ensure totals section in PDF shows correct sums for all coating types with proper rupee formatting.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/hooks/useInternetIdentity.ts",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/utils/pdfGenerator.ts"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/utils/pdfGenerator.ts"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Update frontend/src/utils/whatsappShare.ts to ensure WhatsApp share summary includes all four coating type calculations and totals. The shared message must display calculated amounts for Single Coating, Double Coating, Double + Sagwan Patti, and Laminate with proper rupee formatting.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/whatsappShare.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/whatsappShare.ts"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Review and update frontend/src/utils/coatingRates.ts if needed to ensure it correctly exports the coating rates (Single: 185, Double: 220, Double + Sagwan Patti: 270, Laminate: 450) and provides utility functions that support calculating all coating types simultaneously without requiring a selected coating type.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/coatingRates.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/coatingRates.ts"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/App.tsx",
-    "frontend/src/components/DoorEntryList.tsx",
     "frontend/src/components/GrandTotals.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/components/QuotationActions.tsx",
+    "frontend/src/utils/coatingRates.ts",
+    "frontend/src/utils/pdfGenerator.ts",
+    "frontend/src/utils/whatsappShare.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

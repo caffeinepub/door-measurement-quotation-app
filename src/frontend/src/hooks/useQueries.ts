@@ -11,7 +11,7 @@ export function useGetAllDoorEntries(refreshTrigger?: number) {
       if (!actor) {
         throw new Error("Backend actor not available");
       }
-      return actor.getAllTypes();
+      return await actor.getAll();
     },
     enabled: !!actor && !isFetching,
     retry: 3,
@@ -28,7 +28,7 @@ export function useGetTotalSquareFeet() {
       if (!actor) {
         throw new Error("Backend actor not available");
       }
-      return actor.getTotalSquareFeet();
+      return await actor.getTotals();
     },
     enabled: !!actor && !isFetching,
     retry: 3,
@@ -43,7 +43,7 @@ export function useAddDoorEntry() {
   return useMutation({
     mutationFn: async (input: AddDoorInput) => {
       if (!actor) throw new Error("Actor not initialized");
-      return actor.addDoor(input);
+      return await actor.addDoor(input);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["doorEntries"] });
@@ -59,7 +59,7 @@ export function useDeleteDoorEntry() {
   return useMutation({
     mutationFn: async (id: bigint) => {
       if (!actor) throw new Error("Actor not initialized");
-      return actor.deleteDoor(id);
+      return await actor.deleteDoor(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["doorEntries"] });
@@ -75,7 +75,7 @@ export function useDeleteAllDoorEntries() {
   return useMutation({
     mutationFn: async () => {
       if (!actor) throw new Error("Actor not initialized");
-      const entries = await actor.getAllTypes();
+      const entries = await actor.getAll();
       await Promise.all(entries.map((entry) => actor.deleteDoor(entry.id)));
     },
     onSuccess: () => {

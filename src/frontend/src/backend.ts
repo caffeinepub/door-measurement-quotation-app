@@ -124,8 +124,8 @@ export enum CoatingType {
 export interface backendInterface {
     addDoor(input: AddDoorInput): Promise<CreateDoorType>;
     deleteDoor(id: bigint): Promise<void>;
-    getAllTypes(): Promise<Array<DoorEntry>>;
-    getTotalSquareFeet(): Promise<ComputeTotals>;
+    getAll(): Promise<Array<DoorEntry>>;
+    getTotals(): Promise<ComputeTotals>;
 }
 import type { AddDoorInput as _AddDoorInput, CoatingType as _CoatingType, CreateDoorType as _CreateDoorType, DoorEntry as _DoorEntry } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -158,31 +158,31 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllTypes(): Promise<Array<DoorEntry>> {
+    async getAll(): Promise<Array<DoorEntry>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getAllTypes();
+                const result = await this.actor.getAll();
                 return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getAllTypes();
+            const result = await this.actor.getAll();
             return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getTotalSquareFeet(): Promise<ComputeTotals> {
+    async getTotals(): Promise<ComputeTotals> {
         if (this.processError) {
             try {
-                const result = await this.actor.getTotalSquareFeet();
+                const result = await this.actor.getTotals();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getTotalSquareFeet();
+            const result = await this.actor.getTotals();
             return result;
         }
     }

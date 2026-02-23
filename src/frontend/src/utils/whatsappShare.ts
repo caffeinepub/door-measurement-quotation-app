@@ -1,9 +1,94 @@
+import type { DoorEntry } from "../backend";
+import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from "./coatingRates";
+import { decimalToFractionDisplay } from "./fractionParser";
+
+interface DoorGroup {
+  heightEntered: number;
+  widthEntered: number;
+  heightRounded: number;
+  widthRounded: number;
+  squareFeet: number;
+}
+
+function groupDoorsBySize(entries: DoorEntry[]): DoorGroup[] {
+  const groupedMap = new Map<string, DoorGroup>();
+
+  entries.forEach((entry) => {
+    const key = `${entry.heightRounded}x${entry.widthRounded}`;
+
+    if (!groupedMap.has(key)) {
+      groupedMap.set(key, {
+        heightEntered: entry.heightEntered,
+        widthEntered: entry.widthEntered,
+        heightRounded: Number(entry.heightRounded),
+        widthRounded: Number(entry.widthRounded),
+        squareFeet: entry.squareFeet,
+      });
+    }
+  });
+
+  return Array.from(groupedMap.values());
+}
+
 export async function shareViaWhatsApp(
   file: File,
   customerName: string,
-  customerMobile: string
+  customerMobile: string,
+  entries: DoorEntry[]
 ): Promise<boolean> {
-  const message = `Door Quotation for ${customerName}\nMobile: ${customerMobile}\n\nNote: Calculations use rounded dimensions while displaying actual entered dimensions.`;
+  // Group doors by size
+  const groupedDoors = groupDoorsBySize(entries);
+
+  // Calculate totals
+  let totalSquareFeet = 0;
+  let singleCoatingTotal = 0;
+  let doubleCoatingTotal = 0;
+  let doubleSagwanTotal = 0;
+  let laminateTotal = 0;
+
+  groupedDoors.forEach((group) => {
+    totalSquareFeet += group.squareFeet;
+    singleCoatingTotal += group.squareFeet * SINGLE_COATING_RATE;
+    doubleCoatingTotal += group.squareFeet * DOUBLE_COATING_RATE;
+    doubleSagwanTotal += group.squareFeet * DOUBLE_SAGWAN_RATE;
+    laminateTotal += group.squareFeet * LAMINATE_RATE;
+  });
+
+  // Format door details
+  const doorDetails = groupedDoors
+    .map((group, index) => {
+      const heightDisplay = decimalToFractionDisplay(group.heightEntered);
+      const widthDisplay = decimalToFractionDisplay(group.widthEntered);
+      const singleAmount = Math.round(group.squareFeet * SINGLE_COATING_RATE);
+      const doubleAmount = Math.round(group.squareFeet * DOUBLE_COATING_RATE);
+      const doubleSagwanAmount = Math.round(group.squareFeet * DOUBLE_SAGWAN_RATE);
+      const laminateAmount = Math.round(group.squareFeet * LAMINATE_RATE);
+
+      return `${index + 1}. ${group.heightRounded} ${heightDisplay}" × ${group.widthRounded} ${widthDisplay}" (${group.squareFeet.toFixed(2)} sq.ft)
+   Single: ₹${singleAmount.toLocaleString("en-IN")}
+   Double: ₹${doubleAmount.toLocaleString("en-IN")}
+   D+Sagwan: ₹${doubleSagwanAmount.toLocaleString("en-IN")}
+   Laminate: ₹${laminateAmount.toLocaleString("en-IN")}`;
+    })
+    .join("\n\n");
+
+  const message = `🚪 *Door Quotation*
+
+*Customer:* ${customerName}
+*Mobile:* ${customerMobile}
+
+*Door Details:*
+${doorDetails}
+
+━━━━━━━━━━━━━━━━━━━━
+*TOTALS (${totalSquareFeet.toFixed(2)} sq.ft)*
+
+Single Coating: ₹${Math.round(singleCoatingTotal).toLocaleString("en-IN")}
+Double Coating: ₹${Math.round(doubleCoatingTotal).toLocaleString("en-IN")}
+Double + Sagwan: ₹${Math.round(doubleSagwanTotal).toLocaleString("en-IN")}
+Laminate: ₹${Math.round(laminateTotal).toLocaleString("en-IN")}
+
+_Note: Calculations use rounded dimensions per carpenter standards._`;
 
   // Check if Web Share API is available and supports files
   if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {

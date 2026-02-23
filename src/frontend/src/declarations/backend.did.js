@@ -42,8 +42,8 @@ export const ComputeTotals = IDL.Record({
 export const idlService = IDL.Service({
   'addDoor' : IDL.Func([AddDoorInput], [CreateDoorType], []),
   'deleteDoor' : IDL.Func([IDL.Nat], [], []),
-  'getAllTypes' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
-  'getTotalSquareFeet' : IDL.Func([], [ComputeTotals], ['query']),
+  'getAll' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
+  'getTotals' : IDL.Func([], [ComputeTotals], ['query']),
 });
 
 export const idlInitArgs = [];
@@ -83,8 +83,8 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'addDoor' : IDL.Func([AddDoorInput], [CreateDoorType], []),
     'deleteDoor' : IDL.Func([IDL.Nat], [], []),
-    'getAllTypes' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
-    'getTotalSquareFeet' : IDL.Func([], [ComputeTotals], ['query']),
+    'getAll' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
+    'getTotals' : IDL.Func([], [ComputeTotals], ['query']),
   });
 };
 

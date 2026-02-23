@@ -13,7 +13,7 @@ function App() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const formResetRef = useRef<(() => void) | undefined>(undefined);
 
-  const handleClearCustomerInfo = () => {
+  const handleClearAll = () => {
     setCustomerName("");
     setCustomerMobile("");
     if (formResetRef.current) {
@@ -54,8 +54,7 @@ function App() {
         <QuotationActions
           customerName={customerName}
           customerMobile={customerMobile}
-          refreshTrigger={refreshTrigger}
-          onClearCustomerInfo={handleClearCustomerInfo}
+          onClearAll={handleClearAll}
         />
       </main>
 

@@ -1,489 +1,413 @@
-import { DoorEntry } from "../backend";
+import type { DoorEntry } from "../backend";
 import { decimalToFractionDisplay } from "./fractionParser";
 import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from "./coatingRates";
 
-function formatCurrency(amount: number): string {
-  return `₹${amount.toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
-
-function getCoatingLabel(coatingType: string): string {
-  switch (coatingType) {
-    case "single":
-      return "Single Coating";
-    case "double":
-      return "Double Coating";
-    case "doubleSagwan":
-      return "Double Coating + Sagwan Patti";
-    case "laminate":
-      return "Laminate";
-    default:
-      return coatingType;
-  }
-}
-
-function getCoatingRate(coatingType: string): number {
-  switch (coatingType) {
-    case "single":
-      return SINGLE_COATING_RATE;
-    case "double":
-      return DOUBLE_COATING_RATE;
-    case "doubleSagwan":
-      return DOUBLE_SAGWAN_RATE;
-    case "laminate":
-      return LAMINATE_RATE;
-    default:
-      return 0;
-  }
-}
-
-interface GroupedEntry {
+interface DoorGroup {
   heightEntered: number;
   widthEntered: number;
-  heightRounded: bigint;
-  widthRounded: bigint;
+  heightRounded: number;
+  widthRounded: number;
   squareFeet: number;
-  entries: {
-    coatingType: string;
-    amount: number;
-  }[];
 }
 
 export function generateQuotationHTML(
-  doorEntries: DoorEntry[],
+  entries: DoorEntry[],
   customerName: string,
   customerMobile: string
 ): string {
-  // Group entries by size
-  const groupedMap = new Map<string, GroupedEntry>();
+  // Group entries by size (heightRounded x widthRounded)
+  const groupedMap = new Map<string, DoorGroup>();
 
-  doorEntries.forEach((entry) => {
-    const key = `${entry.heightEntered}-${entry.widthEntered}`;
+  entries.forEach((entry) => {
+    const key = `${entry.heightRounded}x${entry.widthRounded}`;
+
     if (!groupedMap.has(key)) {
       groupedMap.set(key, {
         heightEntered: entry.heightEntered,
         widthEntered: entry.widthEntered,
-        heightRounded: entry.heightRounded,
-        widthRounded: entry.widthRounded,
+        heightRounded: Number(entry.heightRounded),
+        widthRounded: Number(entry.widthRounded),
         squareFeet: entry.squareFeet,
-        entries: [],
       });
     }
-
-    const group = groupedMap.get(key)!;
-    const rate = getCoatingRate(entry.coatingType);
-    const amount = entry.squareFeet * rate;
-
-    group.entries.push({
-      coatingType: entry.coatingType,
-      amount,
-    });
   });
 
-  const grouped = Array.from(groupedMap.values());
+  // Calculate coating type totals - ALL coating types for ALL doors
+  let singleCoatingTotal = 0;
+  let doubleCoatingTotal = 0;
+  let doubleSagwanTotal = 0;
+  let laminateTotal = 0;
 
-  // Calculate totals
-  const totals = {
-    squareFeet: 0,
-    single: 0,
-    double: 0,
-    doubleSagwan: 0,
-    laminate: 0,
-  };
-
-  grouped.forEach((group) => {
-    totals.squareFeet += group.squareFeet;
-    group.entries.forEach((entry) => {
-      switch (entry.coatingType) {
-        case "single":
-          totals.single += entry.amount;
-          break;
-        case "double":
-          totals.double += entry.amount;
-          break;
-        case "doubleSagwan":
-          totals.doubleSagwan += entry.amount;
-          break;
-        case "laminate":
-          totals.laminate += entry.amount;
-          break;
-      }
-    });
+  Array.from(groupedMap.values()).forEach((group) => {
+    singleCoatingTotal += group.squareFeet * SINGLE_COATING_RATE;
+    doubleCoatingTotal += group.squareFeet * DOUBLE_COATING_RATE;
+    doubleSagwanTotal += group.squareFeet * DOUBLE_SAGWAN_RATE;
+    laminateTotal += group.squareFeet * LAMINATE_RATE;
   });
 
-  // Generate table rows
-  const tableRows = grouped
+  // Generate table rows - calculate ALL coating types for each door
+  const tableRows = Array.from(groupedMap.values())
     .map((group) => {
       const heightDisplay = decimalToFractionDisplay(group.heightEntered);
       const widthDisplay = decimalToFractionDisplay(group.widthEntered);
 
-      const singleEntry = group.entries.find((e) => e.coatingType === "single");
-      const doubleEntry = group.entries.find((e) => e.coatingType === "double");
-      const doubleSagwanEntry = group.entries.find(
-        (e) => e.coatingType === "doubleSagwan"
-      );
-      const laminateEntry = group.entries.find(
-        (e) => e.coatingType === "laminate"
-      );
+      // Calculate all coating amounts for this door
+      const singleAmount = Math.round(group.squareFeet * SINGLE_COATING_RATE);
+      const doubleAmount = Math.round(group.squareFeet * DOUBLE_COATING_RATE);
+      const doubleSagwanAmount = Math.round(group.squareFeet * DOUBLE_SAGWAN_RATE);
+      const laminateAmount = Math.round(group.squareFeet * LAMINATE_RATE);
 
       return `
         <tr>
-          <td>${heightDisplay}" × ${widthDisplay}"</td>
-          <td class="center">${group.squareFeet.toFixed(2)}</td>
-          <td class="right">${
-            singleEntry ? formatCurrency(singleEntry.amount) : "-"
-          }</td>
-          <td class="right">${
-            doubleEntry ? formatCurrency(doubleEntry.amount) : "-"
-          }</td>
-          <td class="right">${
-            doubleSagwanEntry ? formatCurrency(doubleSagwanEntry.amount) : "-"
-          }</td>
-          <td class="right">${
-            laminateEntry ? formatCurrency(laminateEntry.amount) : "-"
-          }</td>
+          <td>${group.heightRounded} ${heightDisplay}" × ${group.widthRounded} ${widthDisplay}"</td>
+          <td>${group.squareFeet.toFixed(2)}</td>
+          <td>₹${singleAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td>₹${doubleAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td>₹${doubleSagwanAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td>₹${laminateAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
         </tr>
       `;
     })
     .join("");
+
+  // Calculate totals for the footer row
+  const totalSquareFeet = Array.from(groupedMap.values()).reduce(
+    (sum, group) => sum + group.squareFeet,
+    0
+  );
+
+  // Generate coating type summary - ALWAYS show all coating types
+  const coatingSummary = `
+    <div class="summary-item">
+      <span class="summary-label">Single Coating (@ ₹${SINGLE_COATING_RATE.toFixed(2)}/sq.ft):</span>
+      <span class="summary-amount">₹${Math.round(singleCoatingTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Double Coating (@ ₹${DOUBLE_COATING_RATE.toFixed(2)}/sq.ft):</span>
+      <span class="summary-amount">₹${Math.round(doubleCoatingTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Double Coating + Sagwan Patti (@ ₹${DOUBLE_SAGWAN_RATE.toFixed(2)}/sq.ft):</span>
+      <span class="summary-amount">₹${Math.round(doubleSagwanTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Laminate (@ ₹${LAMINATE_RATE.toFixed(2)}/sq.ft):</span>
+      <span class="summary-amount">₹${Math.round(laminateTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
+  `;
+
+  const currentDate = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
 
   return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <title>Door Quotation - ${customerName}</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+      <title>Door Quotation</title>
       <style>
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
         }
-        
+
+        @page {
+          size: A4;
+          margin: 10mm;
+        }
+
         body {
-          font-family: Arial, sans-serif;
-          padding: 10px;
-          font-size: 11px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           line-height: 1.4;
+          color: #1a1a1a;
+          background: white;
+          padding: 12px;
+          font-size: 14px;
         }
-        
-        @media screen and (min-width: 640px) {
-          body {
-            padding: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-            font-size: 14px;
-          }
+
+        .container {
+          max-width: 100%;
+          margin: 0 auto;
         }
-        
-        @media print {
-          body { 
-            margin: 0;
-            padding: 10px;
-            font-size: 10px;
-          }
-          @page { 
-            margin: 0.5cm;
-            size: A4;
-          }
-          .no-print {
-            display: none !important;
-          }
-        }
-        
+
         .header {
           text-align: center;
-          margin-bottom: 15px;
-          border-bottom: 2px solid #333;
-          padding-bottom: 10px;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 2px solid #2c1810;
         }
-        
-        .header h1 {
-          margin: 0 0 5px 0;
-          color: #333;
-          font-size: 1.5em;
+
+        h1 {
+          font-size: 22px;
+          color: #2c1810;
+          margin-bottom: 6px;
+          font-weight: 700;
         }
-        
-        .header p {
-          font-size: 0.9em;
+
+        .date {
+          font-size: 12px;
+          color: #666;
         }
-        
+
         .customer-info {
-          margin-bottom: 15px;
           background: #f5f5f5;
-          padding: 10px;
-          border-radius: 5px;
+          padding: 12px;
+          border-radius: 6px;
+          margin-bottom: 16px;
+          font-size: 13px;
         }
-        
+
         .customer-info p {
-          margin: 3px 0;
-          font-size: 1em;
+          margin: 4px 0;
         }
-        
-        .table-container {
+
+        .customer-info strong {
+          color: #2c1810;
+          font-weight: 600;
+        }
+
+        .table-wrapper {
           overflow-x: auto;
-          margin-bottom: 15px;
           -webkit-overflow-scrolling: touch;
+          margin-bottom: 16px;
         }
-        
+
         table {
           width: 100%;
           border-collapse: collapse;
-          min-width: 100%;
-          font-size: 0.85em;
+          font-size: 11px;
+          min-width: 600px;
         }
-        
-        @media screen and (min-width: 640px) {
-          table {
-            font-size: 1em;
-          }
-        }
-        
-        th {
-          background-color: #333;
-          color: white;
-          padding: 6px 4px;
+
+        th, td {
+          padding: 8px 6px;
           text-align: left;
           border: 1px solid #ddd;
-          font-size: 0.9em;
-          white-space: nowrap;
         }
-        
-        @media screen and (min-width: 640px) {
-          th {
-            padding: 12px 8px;
-            font-size: 1em;
-          }
+
+        th {
+          background: #2c1810;
+          color: white;
+          font-weight: 600;
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
         }
-        
+
         td {
-          padding: 6px 4px;
-          border: 1px solid #ddd;
-          font-size: 0.9em;
+          background: white;
         }
-        
-        @media screen and (min-width: 640px) {
-          td {
-            padding: 10px 8px;
-            font-size: 1em;
-          }
+
+        tr:nth-child(even) td {
+          background: #f9f9f9;
         }
-        
-        th.center, td.center {
-          text-align: center;
+
+        .total-row {
+          font-weight: 700;
+          background: #f0e6d2 !important;
         }
-        
-        th.right, td.right {
-          text-align: right;
+
+        .total-row td {
+          background: #f0e6d2 !important;
+          border-top: 2px solid #2c1810;
         }
-        
-        tfoot td {
-          font-weight: bold;
-          background-color: #f0f0f0;
-          padding: 8px 4px;
-          border: 1px solid #ddd;
-        }
-        
-        @media screen and (min-width: 640px) {
-          tfoot td {
-            padding: 12px 8px;
-          }
-        }
-        
-        .summary {
+
+        .coating-summary {
           background: #f5f5f5;
           padding: 12px;
-          border-radius: 5px;
-          margin-bottom: 15px;
+          border-radius: 6px;
+          margin-bottom: 16px;
         }
-        
-        @media screen and (min-width: 640px) {
-          .summary {
-            padding: 20px;
-          }
-        }
-        
-        .summary h3 {
-          margin-top: 0;
+
+        .coating-summary h2 {
+          font-size: 16px;
+          color: #2c1810;
           margin-bottom: 10px;
-          color: #333;
-          font-size: 1.2em;
+          font-weight: 600;
         }
-        
+
+        .summary-divider {
+          height: 1px;
+          background: #ddd;
+          margin: 8px 0 10px 0;
+        }
+
         .summary-item {
           display: flex;
           justify-content: space-between;
           padding: 6px 0;
-          border-bottom: 1px solid #ddd;
-          font-size: 0.95em;
+          font-size: 13px;
         }
-        
-        @media screen and (min-width: 640px) {
-          .summary-item {
-            padding: 8px 0;
-            font-size: 1em;
-          }
+
+        .summary-label {
+          color: #333;
+          font-weight: 500;
         }
-        
-        .summary-item:last-child {
-          border-bottom: none;
-          font-weight: bold;
-          font-size: 1.05em;
-          margin-top: 8px;
-          padding-top: 12px;
-          border-top: 2px solid #333;
+
+        .summary-amount {
+          color: #2c1810;
+          font-weight: 700;
         }
-        
+
         .note {
-          margin-top: 15px;
+          background: #fff9e6;
+          border-left: 3px solid #f59e0b;
           padding: 10px;
-          background: #fff3cd;
-          border-left: 4px solid #ffc107;
-          font-size: 0.85em;
+          margin-bottom: 16px;
+          font-size: 11px;
           line-height: 1.5;
         }
-        
-        @media screen and (min-width: 640px) {
-          .note {
-            margin-top: 30px;
-            padding: 15px;
-            font-size: 0.9em;
-          }
+
+        .note strong {
+          color: #92400e;
+          display: block;
+          margin-bottom: 4px;
         }
-        
+
         .footer {
-          margin-top: 20px;
           text-align: center;
-          font-size: 0.8em;
-          color: #666;
+          padding-top: 16px;
           border-top: 1px solid #ddd;
-          padding-top: 10px;
+          font-size: 11px;
+          color: #666;
         }
-        
-        @media screen and (min-width: 640px) {
-          .footer {
-            margin-top: 40px;
-            font-size: 0.85em;
-            padding-top: 20px;
-          }
+
+        .footer p {
+          margin: 4px 0;
         }
-        
+
         @media print {
-          .header h1 {
-            font-size: 18px;
-          }
-          table {
-            font-size: 9px;
-          }
-          th, td {
-            padding: 4px 2px;
-          }
-          .summary {
-            padding: 8px;
-          }
-          .summary h3 {
+          body {
+            padding: 0;
             font-size: 12px;
           }
-          .summary-item {
-            font-size: 9px;
-            padding: 4px 0;
+
+          .container {
+            max-width: 100%;
           }
+
+          table {
+            font-size: 10px;
+            min-width: auto;
+          }
+
+          th, td {
+            padding: 6px 4px;
+          }
+
           .note {
-            padding: 6px;
-            font-size: 8px;
+            font-size: 10px;
           }
+
+          @page {
+            margin: 8mm;
+          }
+        }
+
+        @media (max-width: 640px) {
+          body {
+            font-size: 13px;
+            padding: 8px;
+          }
+
+          h1 {
+            font-size: 20px;
+          }
+
+          .customer-info {
+            font-size: 12px;
+            padding: 10px;
+          }
+
+          table {
+            font-size: 10px;
+          }
+
+          th {
+            font-size: 9px;
+            padding: 6px 4px;
+          }
+
+          td {
+            padding: 6px 4px;
+          }
+
+          .coating-summary h2 {
+            font-size: 14px;
+          }
+
+          .summary-item {
+            font-size: 12px;
+          }
+
+          .note {
+            font-size: 10px;
+            padding: 8px;
+          }
+
           .footer {
-            font-size: 8px;
-            margin-top: 15px;
+            font-size: 10px;
           }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <h1>Door Quotation</h1>
-        <p>Date: ${new Date().toLocaleDateString("en-IN")}</p>
-      </div>
+      <div class="container">
+        <div class="header">
+          <h1>Door Quotation</h1>
+          <p class="date">Date: ${currentDate}</p>
+        </div>
 
-      <div class="customer-info">
-        <p><strong>Customer Name:</strong> ${customerName}</p>
-        <p><strong>Mobile:</strong> ${customerMobile}</p>
-      </div>
+        <div class="customer-info">
+          <p><strong>Customer Name:</strong> ${customerName}</p>
+          <p><strong>Mobile:</strong> ${customerMobile}</p>
+        </div>
 
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Door Size</th>
-              <th class="center">Sq.Ft</th>
-              <th class="right">Single Coating</th>
-              <th class="right">Double Coating</th>
-              <th class="right">Double + Sagwan</th>
-              <th class="right">Laminate</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tableRows}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>Total</td>
-              <td class="center">${totals.squareFeet.toFixed(2)}</td>
-              <td class="right">${totals.single > 0 ? formatCurrency(totals.single) : "-"}</td>
-              <td class="right">${totals.double > 0 ? formatCurrency(totals.double) : "-"}</td>
-              <td class="right">${totals.doubleSagwan > 0 ? formatCurrency(totals.doubleSagwan) : "-"}</td>
-              <td class="right">${totals.laminate > 0 ? formatCurrency(totals.laminate) : "-"}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Door Size</th>
+                <th>Sq.Ft</th>
+                <th>Single Coating</th>
+                <th>Double Coating</th>
+                <th>Double + Sagwan</th>
+                <th>Laminate</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+              <tr class="total-row">
+                <td><strong>Total</strong></td>
+                <td><strong>${totalSquareFeet.toFixed(2)}</strong></td>
+                <td><strong>₹${Math.round(singleCoatingTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+                <td><strong>₹${Math.round(doubleCoatingTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+                <td><strong>₹${Math.round(doubleSagwanTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+                <td><strong>₹${Math.round(laminateTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <div class="summary">
-        <h3>Coating Type Summary</h3>
-        ${
-          totals.single > 0
-            ? `<div class="summary-item">
-          <span>Single Coating (@ ${formatCurrency(SINGLE_COATING_RATE)}/sq.ft):</span>
-          <span>${formatCurrency(totals.single)}</span>
-        </div>`
-            : ""
-        }
-        ${
-          totals.double > 0
-            ? `<div class="summary-item">
-          <span>Double Coating (@ ${formatCurrency(DOUBLE_COATING_RATE)}/sq.ft):</span>
-          <span>${formatCurrency(totals.double)}</span>
-        </div>`
-            : ""
-        }
-        ${
-          totals.doubleSagwan > 0
-            ? `<div class="summary-item">
-          <span>Double Coating + Sagwan Patti (@ ${formatCurrency(DOUBLE_SAGWAN_RATE)}/sq.ft):</span>
-          <span>${formatCurrency(totals.doubleSagwan)}</span>
-        </div>`
-            : ""
-        }
-        ${
-          totals.laminate > 0
-            ? `<div class="summary-item">
-          <span>Laminate (@ ${formatCurrency(LAMINATE_RATE)}/sq.ft):</span>
-          <span>${formatCurrency(totals.laminate)}</span>
-        </div>`
-            : ""
-        }
-      </div>
+        <div class="coating-summary">
+          <h2>Coating Type Summary</h2>
+          <div class="summary-divider"></div>
+          ${coatingSummary}
+        </div>
 
-      <div class="note">
-        <strong>Note:</strong> All calculations are based on rounded dimensions according to standard carpenter sizing rules. Actual entered dimensions are displayed in the table for reference.
-      </div>
+        <div class="note">
+          <strong>Note:</strong> All calculations are based on rounded dimensions according to standard carpenter sizing rules. Actual entered dimensions are displayed in the table for reference.
+        </div>
 
-      <div class="footer">
-        <p>Thank you for your business!</p>
-        <p>Generated by Door Quotation System</p>
+        <div class="footer">
+          <p>Thank you for your business!</p>
+          <p>Generated by Door Quotation System</p>
+        </div>
       </div>
     </body>
     </html>

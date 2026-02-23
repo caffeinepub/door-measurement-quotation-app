@@ -42,6 +42,6 @@ export enum CoatingType {
 export interface backendInterface {
     addDoor(input: AddDoorInput): Promise<CreateDoorType>;
     deleteDoor(id: bigint): Promise<void>;
-    getAllTypes(): Promise<Array<DoorEntry>>;
-    getTotalSquareFeet(): Promise<ComputeTotals>;
+    getAll(): Promise<Array<DoorEntry>>;
+    getTotals(): Promise<ComputeTotals>;
 }

@@ -1,69 +1,115 @@
 {
   "kind": "build_request",
-  "title": "Fix door entries and totals loading errors",
+  "title": "Fix coating calculation bug - calculate all coating types for every door",
+  "projectName": "Door Measurement & Quotation",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Debug and fix the 'Error loading door entries. Please try again.' error displayed in the DoorEntryList component by investigating the useQuery hook for fetching door entries and ensuring proper error handling and retry logic",
+      "id": "REQ-4",
+      "text": "Update frontend/src/components/DoorEntryList.tsx to calculate and display all four coating type amounts for every door row: Single Coating (sqFt × ₹185), Double Coating (sqFt × ₹220), Double + Sagwan Patti (sqFt × ₹270), and Laminate (sqFt × ₹450). Remove conditional logic that causes '-' placeholders. Ensure each coating column always shows the calculated rupee amount with proper formatting (₹ symbol, comma separators, two decimals).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-4"
         ],
         "quotes": [
-          "Error loading door entries. Please try again."
+          "For every door entry, calculate: Single Coating = sqFt * 185, Double Coating = sqFt * 220, Double + Sagwan Patti = sqFt * 270, Laminate = sqFt * 450",
+          "Do NOT depend on a selected coating type. All coating columns must always calculate and display values."
         ]
       },
       "acceptanceCriteria": [
-        "Door entries load successfully without showing error messages",
-        "If backend query fails, provide meaningful error feedback with retry capability",
-        "Loading states are properly handled with appropriate UI indicators"
+        "Every door row in the table displays calculated amounts for all four coating types",
+        "No '-' placeholders appear in any coating column",
+        "All amounts are formatted with ₹ symbol, comma separators, and two decimal places",
+        "Zero values display as ₹0.00, never as '-'"
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Debug and fix the 'Error loading totals. Please try again.' error displayed in the GrandTotals component by investigating the useQuery hook for calculating totals and ensuring proper error handling",
+      "id": "REQ-5",
+      "text": "Update frontend/src/components/GrandTotals.tsx to calculate and display correct totals for all coating types. For each coating type, compute the sum of (door sqFt × coating rate) across all doors: Single Coating total = sum of (each door's sqFt × 185), Double Coating total = sum of (each door's sqFt × 220), Double + Sagwan Patti total = sum of (each door's sqFt × 270), Laminate total = sum of (each door's sqFt × 450). Format all totals with ₹ symbol, comma separators, and two decimals.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-4"
         ],
         "quotes": [
-          "Error loading totals. Please try again."
+          "Totals and summary must correctly reflect all coating types",
+          "Ensure totals are computed as: sum(all door sq.ft * respective rate)"
         ]
       },
       "acceptanceCriteria": [
-        "Grand totals calculate and display correctly without error messages",
-        "Error handling provides clear feedback if backend calculation fails",
-        "Totals update automatically when door entries change"
+        "Total row shows correct summed amounts for all four coating types",
+        "Coating Type Summary section displays correct totals for each coating type",
+        "All totals reflect sum of (sqFt × rate) across all doors",
+        "Totals formatted with ₹ symbol, comma separators, two decimals"
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Verify backend actor availability and ensure the getAllTypes and getTotalSquareFeet methods are functioning correctly and accessible from the frontend queries",
-      "target": "both",
+      "id": "REQ-6",
+      "text": "Update frontend/src/utils/pdfGenerator.ts to ensure PDF export calculates and displays all four coating type amounts for every door entry. Apply the same calculation logic: sqFt × rate for each coating type (185, 220, 270, 450). Ensure totals section in PDF shows correct sums for all coating types with proper rupee formatting.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-4"
+        ],
+        "quotes": [
+          "This fix must reflect correctly in: Web view, PDF export, Print view, WhatsApp share summary"
         ]
       },
       "acceptanceCriteria": [
-        "Backend actor methods respond successfully to frontend queries",
-        "Network connectivity issues are handled gracefully",
-        "Authentication state is properly managed for backend calls"
+        "Generated PDF displays all four coating amounts for each door",
+        "PDF totals section shows correct sums for all coating types",
+        "PDF formatting matches web view with ₹ symbol and proper number formatting"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Update frontend/src/utils/whatsappShare.ts to ensure WhatsApp share summary includes all four coating type calculations and totals. The shared message must display calculated amounts for Single Coating, Double Coating, Double + Sagwan Patti, and Laminate with proper rupee formatting.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "This fix must reflect correctly in: Web view, PDF export, Print view, WhatsApp share summary"
+        ]
+      },
+      "acceptanceCriteria": [
+        "WhatsApp shared message includes all four coating type amounts for each door",
+        "WhatsApp message shows correct totals for all coating types",
+        "Formatting is clear and readable with ₹ symbol"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Review and update frontend/src/utils/coatingRates.ts if needed to ensure it correctly exports the coating rates (Single: 185, Double: 220, Double + Sagwan Patti: 270, Laminate: 450) and provides utility functions that support calculating all coating types simultaneously without requiring a selected coating type.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Update logic in these files if needed: frontend/src/utils/coatingRates.ts"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Coating rates are correctly defined and exportable",
+        "Utility functions support calculating all coating types at once"
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend schema or main.mo structure",
-    "Preserve existing useQueries.ts query invalidation logic",
-    "Maintain current authentication flow with Internet Identity"
+    "Do not change fraction handling logic in frontend/src/utils/fractionParser.ts",
+    "Do not modify rounding logic in frontend/src/utils/dimensionRounding.ts",
+    "Preserve existing UI layout and component structure",
+    "Do not change square feet calculation formula in frontend/src/utils/squareFeetCalculator.ts"
   ],
   "nonGoals": [
-    "Redesigning the error message UI styling",
-    "Adding new features beyond fixing the loading errors",
-    "Changing the door entry or totals calculation logic"
+    "Adding new coating types beyond the existing four",
+    "Changing coating rate values",
+    "Modifying door dimension input or validation logic",
+    "Redesigning the UI or table layout",
+    "Adding user preference for which coating types to display"
   ],
   "imageRequirements": {
     "required": [],

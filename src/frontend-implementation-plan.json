@@ -1,78 +1,86 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix door entries and totals loading errors",
+  "title": "Fix coating calculation bug - calculate all coating types for every door",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Debug and fix door entries loading error in DoorEntryList component",
+      "id": "REQ-4",
+      "summary": "Update DoorEntryList.tsx to calculate and display all four coating type amounts for every door row without conditional logic",
       "acceptanceCriteria": [
-        "Door entries load successfully without showing error messages",
-        "If backend query fails, provide meaningful error feedback with retry capability",
-        "Loading states are properly handled with appropriate UI indicators"
+        "Every door row in the table displays calculated amounts for all four coating types",
+        "No '-' placeholders appear in any coating column",
+        "All amounts are formatted with ₹ symbol, comma separators, and two decimal places",
+        "Zero values display as ₹0.00, never as '-'"
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Review and fix the useGetAllDoorEntries query hook to ensure proper error handling, enabled state management based on actor availability, and appropriate retry logic. Add logging to diagnose query failures and verify the actor is available before executing queries."
-        },
         {
           "path": "frontend/src/components/DoorEntryList.tsx",
           "operation": "modify",
-          "description": "Enhance error handling in DoorEntryList to display more specific error messages distinguishing between actor unavailability, network errors, and backend failures. Add retry button functionality and improve loading state UI. Ensure the component properly handles the pending, error, and success states from the useGetAllDoorEntries query."
-        },
-        {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Add error handling and validation to ensure the backend actor is properly initialized and available. Include checks for authentication state and canister availability. Add debugging logs to track actor initialization issues."
+          "description": "Remove conditional logic that displays '-' for non-selected coating types. For each grouped door entry, calculate all four coating amounts using: singleCoating = sqFt × 185, doubleCoating = sqFt × 220, doubleSagwan = sqFt × 270, laminate = sqFt × 450. Format all amounts with formatRupees utility ensuring ₹ symbol, comma separators, and two decimal places. Update the table cell rendering to always show calculated values instead of checking the door's coatingType property."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Debug and fix totals loading error in GrandTotals component",
+      "id": "REQ-5",
+      "summary": "Update GrandTotals.tsx to calculate and display correct totals for all coating types by summing door calculations",
       "acceptanceCriteria": [
-        "Grand totals calculate and display correctly without error messages",
-        "Error handling provides clear feedback if backend calculation fails",
-        "Totals update automatically when door entries change"
+        "Total row shows correct summed amounts for all four coating types",
+        "Coating Type Summary section displays correct totals for each coating type",
+        "All totals reflect sum of (sqFt × rate) across all doors",
+        "Totals formatted with ₹ symbol, comma separators, two decimals"
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Review and fix the useGetTotalSquareFeet query hook to ensure proper error handling, enabled state management based on actor availability, and appropriate retry logic. Verify the query is properly invalidated when door entries change. Add logging to diagnose calculation failures."
-        },
         {
           "path": "frontend/src/components/GrandTotals.tsx",
           "operation": "modify",
-          "description": "Enhance error handling in GrandTotals to display more specific error messages and retry functionality. Improve loading state UI and ensure proper handling of pending, error, and success states from the useGetTotalSquareFeet query. Verify the component properly responds to door entry changes."
+          "description": "Replace the current totals calculation logic that relies on backend getTotals. Instead, calculate frontend totals by iterating through all door entries and computing: singleCoatingTotal = sum of (door.squareFeet × 185), doubleCoatingTotal = sum of (door.squareFeet × 220), doubleSagwanTotal = sum of (door.squareFeet × 270), laminateTotal = sum of (door.squareFeet × 450). Ensure all totals are formatted with formatRupees for proper ₹ symbol, comma separators, and two decimal places. Update both the totals row and the Coating Type Summary section to display these calculated values."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Verify backend actor availability and ensure getAllTypes and getTotalSquareFeet methods are accessible",
+      "id": "REQ-6",
+      "summary": "Update pdfGenerator.ts to ensure PDF export calculates and displays all four coating type amounts for every door entry",
       "acceptanceCriteria": [
-        "Backend actor methods respond successfully to frontend queries",
-        "Network connectivity issues are handled gracefully",
-        "Authentication state is properly managed for backend calls"
+        "Generated PDF displays all four coating amounts for each door",
+        "PDF totals section shows correct sums for all coating types",
+        "PDF formatting matches web view with ₹ symbol and proper number formatting"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
+          "path": "frontend/src/utils/pdfGenerator.ts",
           "operation": "modify",
-          "description": "Add comprehensive error handling for actor initialization failures including authentication issues, canister unavailability, and network errors. Implement retry logic and provide clear error states to dependent components. Add validation to verify the actor interface matches the expected backend methods (getAllTypes, getTotalSquareFeet)."
-        },
+          "description": "Update the generateQuotationHTML function to calculate all four coating amounts for each door group in the PDF. For each grouped door entry, compute: singleCoating = sqFt × 185, doubleCoating = sqFt × 220, doubleSagwan = sqFt × 270, laminate = sqFt × 450. Remove any conditional logic that checks door.coatingType before calculating amounts. Update the totals section to sum all coating type amounts across all doors using the same formula. Ensure all amounts are formatted with ₹ symbol, comma separators, and two decimal places in the HTML template."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Update whatsappShare.ts to ensure WhatsApp share summary includes all four coating type calculations and totals",
+      "acceptanceCriteria": [
+        "WhatsApp shared message includes all four coating type amounts for each door",
+        "WhatsApp message shows correct totals for all coating types",
+        "Formatting is clear and readable with ₹ symbol"
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "path": "frontend/src/utils/whatsappShare.ts",
           "operation": "modify",
-          "description": "Enhance authentication state management to ensure proper identity initialization and persistence. Add error handling for authentication failures and provide clear feedback when authentication is required for backend operations. Verify the AuthClient is properly configured for the canister environment."
-        },
+          "description": "Update the shareViaWhatsApp function to generate a message that includes all four coating type calculations for each door. For each door size group, calculate and include in the message: Single Coating = sqFt × 185, Double Coating = sqFt × 220, Double + Sagwan Patti = sqFt × 270, Laminate = sqFt × 450. Update the totals section to sum all coating amounts across all doors. Format all amounts with ₹ symbol for clarity. Ensure the message structure is readable with proper line breaks and formatting."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Review and update coatingRates.ts to ensure it correctly exports coating rates and supports calculating all coating types simultaneously",
+      "acceptanceCriteria": [
+        "Coating rates are correctly defined and exportable",
+        "Utility functions support calculating all coating types at once"
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/utils/coatingRates.ts",
           "operation": "modify",
-          "description": "Add defensive checks to ensure queries are only enabled when the actor is available and authenticated. Implement proper error boundaries for network failures and backend unavailability. Add retry configuration with exponential backoff for transient failures. Ensure query invalidation properly triggers refetches when the actor state changes."
+          "description": "Verify that coating rates are correctly defined (single: 185, double: 220, doubleSagwan: 270, laminate: 450). Add a new utility function calculateAllCoatingAmounts(squareFeet: number) that returns an object with all four coating amounts calculated simultaneously: { singleCoating: squareFeet × 185, doubleCoating: squareFeet × 220, doubleSagwan: squareFeet × 270, laminate: squareFeet × 450 }. Export this function to support calculating all coating types without requiring a selected coating type parameter."
         }
       ]
     }

@@ -2,8 +2,10 @@ import Map "mo:core/Map";
 import Array "mo:core/Array";
 import Nat "mo:core/Nat";
 import Float "mo:core/Float";
-import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
+import Runtime "mo:core/Runtime";
+
+
 
 actor {
   public type CoatingType = {
@@ -67,23 +69,21 @@ actor {
 
   func calculateSquareFeet(height : Nat, width : Nat) : Float {
     let product = height.toFloat() * width.toFloat();
-    let squareFeet = product / 144.0;
-
-    // Round to 2 decimal places.
-    let resultX100 = squareFeet * 100.0;
+    let result = product / 144.0;
+    let resultX100 = result * 100.0;
     let rounded = resultX100.toInt();
     rounded.toFloat() / 100.0;
   };
 
-  public query ({ caller }) func getAllTypes() : async [DoorEntry] {
+  public query ({ caller }) func getAll() : async [DoorEntry] {
     entries.values().toArray();
   };
 
-  public query ({ caller }) func getTotalSquareFeet() : async ComputeTotals {
-    var singleCoating = 0.0;
-    var doubleCoating = 0.0;
-    var doubleSagwan = 0.0;
-    var laminate = 0.0;
+  public query ({ caller }) func getTotals() : async ComputeTotals {
+    var singleCoating : Float = 0.0;
+    var doubleCoating : Float = 0.0;
+    var doubleSagwan : Float = 0.0;
+    var laminate : Float = 0.0;
 
     for (entry in entries.values()) {
       switch (entry.coatingType) {

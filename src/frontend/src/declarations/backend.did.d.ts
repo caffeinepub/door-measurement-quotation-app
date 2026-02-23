@@ -41,8 +41,8 @@ export interface DoorEntry {
 export interface _SERVICE {
   'addDoor' : ActorMethod<[AddDoorInput], CreateDoorType>,
   'deleteDoor' : ActorMethod<[bigint], undefined>,
-  'getAllTypes' : ActorMethod<[], Array<DoorEntry>>,
-  'getTotalSquareFeet' : ActorMethod<[], ComputeTotals>,
+  'getAll' : ActorMethod<[], Array<DoorEntry>>,
+  'getTotals' : ActorMethod<[], ComputeTotals>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
