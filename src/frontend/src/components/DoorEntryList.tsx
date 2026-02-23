@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { useGetAllTypes, useDeleteDoor } from '../hooks/useQueries';
+import { useGetAllDoorEntries, useDeleteDoorEntry } from '../hooks/useQueries';
 import { Loader2, Package, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { DoorEntry } from '../backend';
-import { CoatingType } from '../backend';
 import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from '../utils/coatingRates';
 import { decimalToFractionDisplay } from '../utils/fractionParser';
 
@@ -52,8 +51,8 @@ function groupDoorsBySize(entries: DoorEntry[]): GroupedDoor[] {
 }
 
 export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListProps) {
-  const { data: entries, isLoading, error } = useGetAllTypes(refreshTrigger);
-  const deleteDoorMutation = useDeleteDoor();
+  const { data: entries, isLoading, error } = useGetAllDoorEntries(refreshTrigger);
+  const deleteDoorMutation = useDeleteDoorEntry();
   const [deletingKey, setDeletingKey] = useState<string | null>(null);
 
   const handleDelete = async (group: GroupedDoor) => {
@@ -74,6 +73,33 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
     }
   };
 
+  const groupedDoors = entries ? groupDoorsBySize(entries) : [];
+
+  // Calculate totals dynamically
+  const totals = useMemo(() => {
+    let totalSingleCoating = 0;
+    let totalDoubleCoating = 0;
+    let totalDoubleSagwan = 0;
+    let totalLaminate = 0;
+    let totalSquareFeet = 0;
+
+    groupedDoors.forEach((group) => {
+      totalSingleCoating += calculateCoatingAmount(group.squareFeet, SINGLE_COATING_RATE);
+      totalDoubleCoating += calculateCoatingAmount(group.squareFeet, DOUBLE_COATING_RATE);
+      totalDoubleSagwan += calculateCoatingAmount(group.squareFeet, DOUBLE_SAGWAN_RATE);
+      totalLaminate += calculateCoatingAmount(group.squareFeet, LAMINATE_RATE);
+      totalSquareFeet += group.squareFeet;
+    });
+
+    return {
+      singleCoating: totalSingleCoating,
+      doubleCoating: totalDoubleCoating,
+      doubleSagwan: totalDoubleSagwan,
+      laminate: totalLaminate,
+      squareFeet: totalSquareFeet,
+    };
+  }, [groupedDoors]);
+
   if (isLoading) {
     return (
       <Card className="shadow-md">
@@ -93,8 +119,6 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
       </Card>
     );
   }
-
-  const groupedDoors = entries ? groupDoorsBySize(entries) : [];
 
   return (
     <Card className="shadow-md">
@@ -176,6 +200,29 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
                   );
                 })}
               </TableBody>
+              <TableFooter>
+                <TableRow className="bg-amber-50 dark:bg-amber-950/20 border-t-2 border-amber-900/20">
+                  <TableCell colSpan={2} className="font-bold text-base">
+                    TOTAL
+                  </TableCell>
+                  <TableCell className="text-right font-bold text-base">
+                    ₹{formatCurrency(totals.singleCoating)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold text-base">
+                    ₹{formatCurrency(totals.doubleCoating)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold text-base">
+                    ₹{formatCurrency(totals.doubleSagwan)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold text-base">
+                    ₹{formatCurrency(totals.laminate)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold text-base">
+                    {totals.squareFeet.toFixed(2)}
+                  </TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableFooter>
             </Table>
           </div>
         ) : (

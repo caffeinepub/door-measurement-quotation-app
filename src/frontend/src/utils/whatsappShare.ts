@@ -1,40 +1,45 @@
-export async function shareViaWhatsApp(pdfBlob: Blob, customerName: string): Promise<void> {
-  const fileName = `Door_Quotation_${customerName || 'Customer'}_${
-    new Date().toISOString().split('T')[0]
-  }.html`;
+export async function shareViaWhatsApp(
+  file: File,
+  customerName: string,
+  customerMobile: string
+): Promise<boolean> {
+  const message = `Door Quotation for ${customerName}\nMobile: ${customerMobile}\n\nNote: Calculations use rounded dimensions while displaying actual entered dimensions.`;
 
   // Check if Web Share API is available and supports files
-  if (navigator.share && navigator.canShare) {
-    const file = new File([pdfBlob], fileName, { type: 'text/html' });
-
-    if (navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          title: 'Door Quotation',
-          text: `Door quotation for ${customerName || 'customer'}. Calculation done as per standard rounded size, display shows actual size.`,
-          files: [file],
-        });
-        return;
-      } catch (error) {
-        // User cancelled or error occurred, fall through to alternative method
-        if ((error as Error).name !== 'AbortError') {
-          console.error('Web Share API error:', error);
-        }
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        title: `Door Quotation - ${customerName}`,
+        text: message,
+        files: [file],
+      });
+      return true;
+    } catch (error: any) {
+      // User cancelled the share or an error occurred
+      if (error.name === "AbortError") {
+        console.log("Share cancelled by user");
+        return false;
       }
+      console.error("Error sharing via Web Share API:", error);
+      // Fall through to fallback method
     }
   }
 
-  // Fallback: Open WhatsApp Web with a message
-  const message = encodeURIComponent(
-    `Door Quotation for ${customerName || 'customer'}\n\nCalculation done as per standard rounded size, display shows actual size.\n\nGenerated on ${new Date().toLocaleDateString()}\n\nNote: The quotation document has been generated. Please save it as PDF using your browser's print function (Print > Save as PDF) and attach it to this message.`
-  );
+  // Fallback: Open WhatsApp Web with pre-filled message
+  const encodedMessage = encodeURIComponent(message);
+  const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
 
-  // For mobile devices, use WhatsApp app URL scheme
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const whatsappUrl = isMobile
-    ? `whatsapp://send?text=${message}`
-    : `https://web.whatsapp.com/send?text=${message}`;
+  // Open WhatsApp in a new window
+  const whatsappWindow = window.open(whatsappUrl, "_blank");
 
-  // Open WhatsApp
-  window.open(whatsappUrl, '_blank');
+  if (whatsappWindow) {
+    // Show instructions to the user
+    alert(
+      "WhatsApp opened in a new window. Please manually attach the quotation file after the message is pre-filled.\n\nNote: On mobile devices, use the 'Share via WhatsApp' button for automatic file attachment."
+    );
+    return true;
+  } else {
+    alert("Please allow pop-ups to share via WhatsApp");
+    return false;
+  }
 }

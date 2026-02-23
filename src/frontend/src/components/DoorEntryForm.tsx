@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, RotateCcw } from 'lucide-react';
-import { useAddDoor } from '../hooks/useQueries';
+import { useAddDoorEntry } from '../hooks/useQueries';
 import { toast } from 'sonner';
 import { CoatingType } from '../backend';
 import { parseDimensionInput } from '../utils/fractionParser';
@@ -19,7 +19,7 @@ export function DoorEntryForm({ onEntryAdded, resetRef }: DoorEntryFormProps) {
   const [height, setHeight] = useState('');
   const [width, setWidth] = useState('');
 
-  const addDoorMutation = useAddDoor();
+  const addDoorMutation = useAddDoorEntry();
 
   const resetForm = () => {
     setHeight('');

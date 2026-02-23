@@ -1,16 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "A project that handles customer quotations with features for generating and printing them",
+  "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Generate & print functionality is not working"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-app-tsx-to-reset-customer-data-state-after-quotation-generation-coordinating-with-the-existing-door-entries-clearing-behavior",
-      "title": "Update App.tsx to reset customer data state after quotation generation, coordinating with the existing door entries clearing behavior",
+      "id": "feature-debug-and-fix-the-pdf-generation-functionality-in-the-quotationactions-component-to-ensure-quotations-can-be-successfully-generated",
+      "title": "Debug and fix the PDF generation functionality in the QuotationActions component to ensure quotations can be successfully generated",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-whatsapp-sharing-functionality-to-ensure-the-generated-pdf-can-be-shared-successfully-on-both-mobile-and-desktop-devices",
+      "title": "Fix the WhatsApp sharing functionality to ensure the generated PDF can be shared successfully on both mobile and desktop devices",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-error-handling-and-user-feedback-to-the-quotationactions-component-to-display-specific-error-messages-when-pdf-generation-or-sharing-fails",
+      "title": "Add error handling and user feedback to the QuotationActions component to display specific error messages when PDF generation or sharing fails",
+      "reqIds": [
+        "REQ-3"
       ],
       "version": 1
     }
@@ -18,20 +36,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Clear customer name and mobile number fields after generating and printing quotation",
+      "summary": "Fix generate & print functionality",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Clear the customer name and mobile number input fields in the CustomerInfoForm component after the quotation PDF is successfully generated and printed",
-      "reqIds": [
-        "REQ-1"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Clear customer info after quotation generation",
+  "projectName": "Door Quotation",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -1,52 +1,77 @@
 {
   "kind": "build_request",
-  "title": "Clear customer info after quotation generation",
-  "priority": "normal",
+  "title": "Fix generate & print functionality",
+  "projectName": "Door Quotation",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Clear the customer name and mobile number input fields in the CustomerInfoForm component after the quotation PDF is successfully generated and printed",
+      "text": "Debug and fix the PDF generation functionality in the QuotationActions component to ensure quotations can be successfully generated",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-cannot-generate"
         ],
         "quotes": [
-          "Clear customer name and mobile number after generate & print quotation"
+          "Cannot generate & print"
         ]
       },
       "acceptanceCriteria": [
-        "Customer name field is reset to empty after PDF generation",
-        "Mobile number field is reset to empty after PDF generation",
-        "Fields are only cleared after successful quotation generation, not on failure",
-        "The clearing happens automatically without requiring user action"
+        "PDF generation completes without errors",
+        "Generated PDF contains all door entries with correct calculations",
+        "Customer information is properly included in the PDF",
+        "Coating type totals are accurately displayed in the PDF"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update App.tsx to reset customer data state after quotation generation, coordinating with the existing door entries clearing behavior",
+      "text": "Fix the WhatsApp sharing functionality to ensure the generated PDF can be shared successfully on both mobile and desktop devices",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-cannot-generate"
+        ],
+        "quotes": [
+          "Cannot generate & print"
         ]
       },
       "acceptanceCriteria": [
-        "Customer data state in App.tsx is reset after successful quotation generation",
-        "Customer data clearing is coordinated with the existing door entries clearing mechanism",
-        "The CustomerInfoForm reflects the cleared state immediately"
+        "WhatsApp sharing works on mobile devices using Web Share API",
+        "WhatsApp sharing works on desktop with fallback to opening WhatsApp web",
+        "PDF attachment is correctly included in the share",
+        "Error handling provides clear feedback if sharing fails"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add error handling and user feedback to the QuotationActions component to display specific error messages when PDF generation or sharing fails",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-cannot-generate"
+        ],
+        "quotes": [
+          "Cannot generate & print"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Users see a clear error message if PDF generation fails",
+        "Users see a specific message if WhatsApp sharing is unavailable",
+        "Error messages are displayed in a user-friendly toast or modal",
+        "Success confirmation is shown after successful PDF generation and sharing"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the backend/main.mo file",
-    "Maintain the existing quotation generation flow in QuotationActions.tsx",
-    "Preserve the current PDF generation functionality"
+    "Maintain the existing UI layout and design of QuotationActions component",
+    "Preserve the current PDF format and content structure from pdfGenerator.ts",
+    "Keep the existing WhatsApp sharing flow with Web Share API and fallback"
   ],
   "nonGoals": [
-    "Clearing customer data on any action other than successful quotation generation",
-    "Adding confirmation dialogs before clearing",
-    "Storing customer history or previous customer data"
+    "Changing the PDF content or layout design",
+    "Adding alternative sharing methods beyond WhatsApp",
+    "Modifying the door entry calculation logic",
+    "Changing backend data structures or APIs"
   ],
   "imageRequirements": {
     "required": [],

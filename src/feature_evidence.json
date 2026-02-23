@@ -2,10 +2,30 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-app-tsx-to-reset-customer-data-state-after-quotation-generation-coordinating-with-the-existing-door-entries-clearing-behavior",
-      "featureTitle": "Update App.tsx to reset customer data state after quotation generation, coordinating with the existing door entries clearing behavior",
+      "featureId": "feature-debug-and-fix-the-pdf-generation-functionality-in-the-quotationactions-component-to-ensure-quotations-can-be-successfully-generated",
+      "featureTitle": "Debug and fix the PDF generation functionality in the QuotationActions component to ensure quotations can be successfully generated",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/components/QuotationActions.tsx",
+        "frontend/src/utils/pdfGenerator.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-whatsapp-sharing-functionality-to-ensure-the-generated-pdf-can-be-shared-successfully-on-both-mobile-and-desktop-devices",
+      "featureTitle": "Fix the WhatsApp sharing functionality to ensure the generated PDF can be shared successfully on both mobile and desktop devices",
+      "files": [
+        "frontend/src/components/QuotationActions.tsx",
+        "frontend/src/utils/whatsappShare.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -16,6 +36,24 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-error-handling-and-user-feedback-to-the-quotationactions-component-to-display-specific-error-messages-when-pdf-generation-or-sharing-fails",
+      "featureTitle": "Add error handling and user feedback to the QuotationActions component to display specific error messages when PDF generation or sharing fails",
+      "files": [
+        "frontend/src/components/QuotationActions.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

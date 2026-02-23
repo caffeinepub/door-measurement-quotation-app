@@ -1,43 +1,66 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Clear customer info after quotation generation",
+  "title": "Fix generate & print functionality",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Clear customer name and mobile number input fields after successful quotation PDF generation",
+      "summary": "Debug and fix the PDF generation functionality in the QuotationActions component to ensure quotations can be successfully generated",
       "acceptanceCriteria": [
-        "Customer name field is reset to empty after PDF generation",
-        "Mobile number field is reset to empty after PDF generation",
-        "Fields are only cleared after successful quotation generation, not on failure",
-        "The clearing happens automatically without requiring user action"
+        "PDF generation completes without errors",
+        "Generated PDF contains all door entries with correct calculations",
+        "Customer information is properly included in the PDF",
+        "Coating type totals are accurately displayed in the PDF"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/CustomerInfoForm.tsx",
+          "path": "frontend/src/utils/pdfGenerator.ts",
           "operation": "modify",
-          "description": "Add a useEffect hook that listens to a resetTrigger prop to clear the customer name and mobile number input fields. When the resetTrigger changes, reset both controlled input values to empty strings. This ensures the form fields are cleared automatically after successful quotation generation without requiring user interaction."
+          "description": "Debug and fix PDF generation logic to ensure proper HTML structure, correct data binding for door entries, customer information, and coating totals. Add error handling for missing or invalid data. Ensure all calculations from coatingRates.ts are correctly applied. Verify the generated HTML renders properly as a PDF."
+        },
+        {
+          "path": "frontend/src/components/QuotationActions.tsx",
+          "operation": "modify",
+          "description": "Fix the PDF generation flow by adding proper error handling around pdfGenerator.ts calls. Ensure customer data and door entries are correctly passed to the PDF generator. Add validation to check that required data (customer info, door entries) exists before attempting PDF generation. Implement try-catch blocks to capture and handle PDF generation errors."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Update App.tsx to reset customer data state after quotation generation, coordinating with existing door entries clearing",
+      "summary": "Fix the WhatsApp sharing functionality to ensure the generated PDF can be shared successfully on both mobile and desktop devices",
       "acceptanceCriteria": [
-        "Customer data state in App.tsx is reset after successful quotation generation",
-        "Customer data clearing is coordinated with the existing door entries clearing mechanism",
-        "The CustomerInfoForm reflects the cleared state immediately"
+        "WhatsApp sharing works on mobile devices using Web Share API",
+        "WhatsApp sharing works on desktop with fallback to opening WhatsApp web",
+        "PDF attachment is correctly included in the share",
+        "Error handling provides clear feedback if sharing fails"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/utils/whatsappShare.ts",
           "operation": "modify",
-          "description": "Add a customer info reset trigger mechanism that coordinates with the existing door entries clearing flow. Pass a resetTrigger prop to CustomerInfoForm that increments after successful quotation generation in QuotationActions. Also reset the customerData state object (name and mobile) to empty strings when the quotation is successfully generated, ensuring the parent state and child component are synchronized."
+          "description": "Debug and fix WhatsApp sharing logic to ensure the Web Share API is properly detected and used on mobile devices. Fix the desktop fallback to correctly open WhatsApp web with the pre-filled message. Ensure the PDF blob is correctly attached to the share payload. Add proper error detection for share cancellation vs. actual failures. Implement browser capability checks before attempting share operations."
         },
         {
           "path": "frontend/src/components/QuotationActions.tsx",
           "operation": "modify",
-          "description": "After successful PDF generation in the handleGeneratePDF function, call a new onQuotationGenerated callback prop provided by App.tsx. This callback will trigger both the existing door entries clearing and the new customer info clearing mechanisms. Ensure this callback is only invoked after PDF generation succeeds, not on failure scenarios."
+          "description": "Fix the integration between PDF generation and WhatsApp sharing by ensuring the PDF blob is correctly passed to whatsappShare.ts. Add proper sequencing to ensure PDF generation completes before attempting to share. Implement error handling for both generation and sharing failures with specific error messages for each step."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add error handling and user feedback to the QuotationActions component to display specific error messages when PDF generation or sharing fails",
+      "acceptanceCriteria": [
+        "Users see a clear error message if PDF generation fails",
+        "Users see a specific message if WhatsApp sharing is unavailable",
+        "Error messages are displayed in a user-friendly toast or modal",
+        "Success confirmation is shown after successful PDF generation and sharing"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/QuotationActions.tsx",
+          "operation": "modify",
+          "description": "Add comprehensive error handling and user feedback using toast notifications or modals. Implement specific error messages for different failure scenarios: missing customer info, missing door entries, PDF generation errors, Web Share API unavailability, sharing cancellation, and network errors. Add success confirmation messages after successful PDF generation and WhatsApp sharing. Ensure error messages are user-friendly and actionable."
         }
       ]
     }
