@@ -9,13 +9,20 @@ export function useGetAllDoorEntries(refreshTrigger?: number) {
     queryKey: ["doorEntries", refreshTrigger],
     queryFn: async () => {
       if (!actor) {
-        throw new Error("Backend actor not available");
+        return [];
       }
-      return await actor.getAll();
+      try {
+        const result = await actor.getAll();
+        return result || [];
+      } catch (error) {
+        console.error("Error fetching door entries:", error);
+        throw error;
+      }
     },
     enabled: !!actor && !isFetching,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    staleTime: 0,
   });
 }
 
@@ -26,13 +33,32 @@ export function useGetTotalSquareFeet() {
     queryKey: ["totalSquareFeet"],
     queryFn: async () => {
       if (!actor) {
-        throw new Error("Backend actor not available");
+        return {
+          singleCoating: 0,
+          doubleCoating: 0,
+          doubleSagwan: 0,
+          laminate: 0,
+          grandTotal: 0,
+        };
       }
-      return await actor.getTotals();
+      try {
+        const result = await actor.getTotals();
+        return result || {
+          singleCoating: 0,
+          doubleCoating: 0,
+          doubleSagwan: 0,
+          laminate: 0,
+          grandTotal: 0,
+        };
+      } catch (error) {
+        console.error("Error fetching totals:", error);
+        throw error;
+      }
     },
     enabled: !!actor && !isFetching,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    staleTime: 0,
   });
 }
 

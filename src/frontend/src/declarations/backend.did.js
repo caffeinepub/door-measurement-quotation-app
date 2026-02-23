@@ -43,6 +43,7 @@ export const idlService = IDL.Service({
   'addDoor' : IDL.Func([AddDoorInput], [CreateDoorType], []),
   'deleteDoor' : IDL.Func([IDL.Nat], [], []),
   'getAll' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
+  'getEntry' : IDL.Func([IDL.Nat], [DoorEntry], []),
   'getTotals' : IDL.Func([], [ComputeTotals], ['query']),
 });
 
@@ -84,6 +85,7 @@ export const idlFactory = ({ IDL }) => {
     'addDoor' : IDL.Func([AddDoorInput], [CreateDoorType], []),
     'deleteDoor' : IDL.Func([IDL.Nat], [], []),
     'getAll' : IDL.Func([], [IDL.Vec(DoorEntry)], ['query']),
+    'getEntry' : IDL.Func([IDL.Nat], [DoorEntry], []),
     'getTotals' : IDL.Func([], [ComputeTotals], ['query']),
   });
 };

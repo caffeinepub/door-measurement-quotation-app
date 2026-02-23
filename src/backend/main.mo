@@ -1,12 +1,12 @@
-import Map "mo:core/Map";
-import Array "mo:core/Array";
 import Nat "mo:core/Nat";
 import Float "mo:core/Float";
+import Array "mo:core/Array";
 import Iter "mo:core/Iter";
+import Map "mo:core/Map";
 import Runtime "mo:core/Runtime";
+import Migration "migration";
 
-
-
+(with migration = Migration.run)
 actor {
   public type CoatingType = {
     #single;
@@ -113,6 +113,15 @@ actor {
       case (?_) {
         entries.remove(id);
       };
+    };
+  };
+
+  public shared ({ caller }) func getEntry(id : Nat) : async DoorEntry {
+    switch (entries.get(id)) {
+      case (null) {
+        Runtime.trap("Entry with id " # id.toText() # " does not exist");
+      };
+      case (?entry) { entry };
     };
   };
 };

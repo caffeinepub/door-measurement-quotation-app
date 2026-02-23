@@ -1,65 +1,48 @@
+import Array "mo:core/Array";
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 
 module {
-  type OldCoatingType = {
-    singleCoating : Bool;
-    doubleCoating : Bool;
-    doubleSagwan : Bool;
-    laminate : Bool;
+  type CoatingType = {
+    #single;
+    #double;
+    #doubleSagwan;
+    #laminate;
   };
 
-  type OldDoorType = {
+  type DoorEntry = {
     id : Nat;
-    height : Float;
-    width : Float;
-    roundedHeight : Nat;
-    roundedWidth : Nat;
-    coatings : OldCoatingType;
+    heightEntered : Float;
+    widthEntered : Float;
+    heightRounded : Nat;
+    widthRounded : Nat;
+    coatingType : CoatingType;
     squareFeet : Float;
   };
 
   type OldActor = {
+    entries : Map.Map<Nat, DoorEntry>;
     nextId : Nat;
-    typesMap : Map.Map<Nat, OldDoorType>;
-  };
-
-  type NewCoatingType = {
-    singleCoating : Bool;
-    doubleCoating : Bool;
-    doubleSagwan : Bool;
-    laminate : Bool;
-  };
-
-  type NewDoorType = {
-    id : Nat;
-    enteredHeight : Text;
-    enteredWidth : Text;
-    roundedHeight : Nat;
-    roundedWidth : Nat;
-    coatings : NewCoatingType;
-    squareFeet : Float;
   };
 
   type NewActor = {
+    entries : Map.Map<Nat, DoorEntry>;
     nextId : Nat;
-    typesMap : Map.Map<Nat, NewDoorType>;
   };
 
   public func run(old : OldActor) : NewActor {
-    let newTypesMap = old.typesMap.map<Nat, OldDoorType, NewDoorType>(
-      func(_id, oldDoor) {
-        {
-          id = oldDoor.id;
-          enteredHeight = oldDoor.height.toText();
-          enteredWidth = oldDoor.width.toText();
-          roundedHeight = oldDoor.roundedHeight;
-          roundedWidth = oldDoor.roundedWidth;
-          coatings = oldDoor.coatings;
-          squareFeet = oldDoor.squareFeet;
+    let newEntries = Map.empty<Nat, DoorEntry>();
+    for (i in old.entries.keys()) {
+      switch (old.entries.get(i)) {
+        case (null) {};
+        case (?entry) {
+          newEntries.add(i, entry);
         };
-      }
-    );
-    { old with typesMap = newTypesMap };
+      };
+    };
+    {
+      entries = newEntries;
+      nextId = old.nextId;
+    };
   };
 };

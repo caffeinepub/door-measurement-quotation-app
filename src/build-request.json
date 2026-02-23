@@ -1,115 +1,156 @@
 {
   "kind": "build_request",
-  "title": "Remove rounded dimensions from PDF display, show only actual entered dimensions",
-  "projectName": "Door Quotation",
-  "priority": "normal",
+  "title": "Fix duplicate door size entries being merged/overwritten",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update pdfGenerator.ts to display only actual entered door dimensions (with fractions like 1/8, 5/8) in the PDF table. Remove any display of rounded height or rounded width values.",
-      "target": "frontend",
+      "text": "Update backend main.mo to store door entries using unique IDs instead of keying by size. Change the data structure from a HashMap keyed by size to an array-based storage where each entry has a unique identifier (e.g., Nat incrementing ID). Ensure addDoor generates a new unique ID for each entry regardless of dimensions.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-6"
         ],
         "quotes": [
-          "Show door size exactly as entered by the user (including fractions like 1/8, 5/8, etc.)",
-          "Remove any display of rounded height or rounded width"
+          "Use a unique ID (UUID / timestamp / incremental id) for each door entry.",
+          "Do NOT use size as a key in state, map, reducer, or backend storage.",
+          "Store door entries as an ARRAY of objects, not a keyed object."
         ]
       },
       "acceptanceCriteria": [
-        "PDF table shows entered dimensions exactly as user typed them",
-        "No rounded dimensions appear in the PDF door size column",
-        "Fractions (1/8, 5/8, etc.) are preserved in display"
+        "Each door entry has a unique ID field",
+        "Door entries are stored in an array, not keyed by size",
+        "Multiple entries with identical dimensions can coexist",
+        "addDoor method generates and assigns unique IDs automatically"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Remove or replace the note 'All calculations are based on rounded dimensions...' in the PDF. Either remove it completely, or replace with 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'",
+      "text": "Update frontend DoorEntryForm.tsx to ensure each door entry created includes a unique identifier. When creating entries for all four coating types, each must receive its own unique ID. Remove any logic that uses size as a key or identifier.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-6"
         ],
         "quotes": [
-          "Remove or update this note: ❌ 'All calculations are based on rounded dimensions...'",
-          "Replace with: 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'"
+          "Use a unique ID (UUID / timestamp / incremental id) for each door entry.",
+          "Same size + same coating must still show as separate rows."
         ]
       },
       "acceptanceCriteria": [
-        "Original rounding note is removed or replaced",
-        "If replaced, new note states 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'"
+        "Each door entry submission generates a unique ID",
+        "Multiple entries with same dimensions are allowed",
+        "No size-based keying in form logic"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Update QuotationActions.tsx to ensure WhatsApp share displays only actual entered dimensions (not rounded dimensions) in the shared message.",
+      "text": "Update frontend DoorEntryList.tsx to display door entries as individual rows without grouping by size. Remove any grouping, merging, or size-based indexing logic. Display all entries sequentially with incrementing Sr No for each row, treating each entry as unique regardless of dimensions.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-6"
         ],
         "quotes": [
-          "Rounded dimensions must be used ONLY internally for calculation and must NOT appear anywhere",
-          "WhatsApp share"
+          "Each entry must be treated as a UNIQUE row.",
+          "No auto-merge, no overwrite, no grouping by size.",
+          "Sr No must increment for every entry.",
+          "Same size + same coating must still show as separate rows."
         ]
       },
       "acceptanceCriteria": [
-        "WhatsApp share message shows entered dimensions with fractions",
-        "No rounded dimensions appear in WhatsApp message"
+        "All door entries display as separate rows",
+        "No grouping by size occurs",
+        "Sr No increments sequentially for every entry",
+        "Entries with identical dimensions appear as distinct rows"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update DoorEntryList.tsx to display only actual entered dimensions in the web view table. Remove any display of rounded dimensions while keeping them for internal calculation.",
+      "text": "Update frontend hooks/useQueries.ts (or equivalent door entry management hooks) to handle door entries as an array of unique objects. Remove any size-based keying in query result processing or state management. Ensure mutations and cache updates treat each entry independently by ID.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-6"
         ],
         "quotes": [
-          "Web view",
-          "all must show ONLY actual entered dimensions",
-          "Rounded values: Can remain in logic for sq.ft calculation"
+          "Store door entries as an ARRAY of objects, not a keyed object.",
+          "Do NOT use size as a key in state, map, reducer, or backend storage."
         ]
       },
       "acceptanceCriteria": [
-        "Web view table shows entered dimensions with fractions",
-        "No rounded dimensions visible in the UI",
-        "Square feet calculations still use rounded values internally"
+        "Door entries are managed as an array in frontend state",
+        "No size-based keying in React Query hooks",
+        "Each entry is identified by unique ID for updates/deletes"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Verify print view consistency to ensure printed output shows only actual entered dimensions (not rounded dimensions).",
+      "text": "Update GrandTotals.tsx to calculate totals by iterating through all door entries in the array and summing amounts and square feet across all rows. Ensure the calculation includes every entry even if dimensions are identical.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-6"
         ],
         "quotes": [
-          "Print view",
-          "all must show ONLY actual entered dimensions"
+          "Totals must be calculated by summing ALL rows, even if size is same.",
+          "Totals must reflect sum of all rows."
         ]
       },
       "acceptanceCriteria": [
-        "Print view shows entered dimensions with fractions",
-        "Print output matches PDF output for dimension display"
+        "Totals sum all entries including duplicates",
+        "Grand total square feet includes all rows",
+        "Amount calculations account for every entry"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Update pdfGenerator.ts to list all door entries as separate line items in the PDF output without grouping by size. Each entry must appear as an individual row with its own dimensions, square feet, coating type, and amount.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "PDF, Print, and WhatsApp share must list all entries separately."
+        ]
+      },
+      "acceptanceCriteria": [
+        "PDF shows all entries as individual rows",
+        "No grouping by size in PDF output",
+        "Each entry displays complete information"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Update whatsappShare.ts to format all door entries as separate line items in the WhatsApp message without grouping by size. Each entry must be listed individually with its dimensions, square feet, coating type, and amount.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "PDF, Print, and WhatsApp share must list all entries separately."
+        ]
+      },
+      "acceptanceCriteria": [
+        "WhatsApp message lists all entries separately",
+        "No grouping by size in message formatting",
+        "Each entry includes complete details"
       ]
     }
   ],
   "constraints": [
-    "Do not change rounding logic in dimensionRounding.ts",
-    "Do not modify square feet calculation logic",
-    "Do not change coating rates",
-    "Do not modify totals calculation",
-    "Rounded dimensions must still be used internally for square feet calculation"
+    "Do not change existing dimension rounding rules",
+    "Do not modify coating rates",
+    "Do not alter UI layout or styling",
+    "Preserve all calculation logic for square feet and amounts"
   ],
   "nonGoals": [
-    "Changing the dimension rounding algorithm",
-    "Modifying coating rate values",
-    "Altering square feet calculation formula",
-    "Changing total calculation logic"
+    "Auto-increasing quantity for duplicate sizes",
+    "Grouping or consolidating entries with same dimensions",
+    "Changes to dimension input parsing",
+    "Modifications to theme or visual design"
   ],
   "imageRequirements": {
     "required": [],

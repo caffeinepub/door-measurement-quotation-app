@@ -45,7 +45,7 @@ export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
     return null;
   }
 
-  // Calculate totals by iterating through all door entries
+  // Calculate totals by iterating through all door entries (no grouping)
   let totalSquareFeet = 0;
   let singleCoatingTotal = 0;
   let doubleCoatingTotal = 0;
@@ -60,62 +60,56 @@ export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
     laminateTotal += entry.squareFeet * LAMINATE_RATE;
   });
 
-  // Round the totals
-  const singleCoatingAmount = Math.round(singleCoatingTotal);
-  const doubleCoatingAmount = Math.round(doubleCoatingTotal);
-  const doubleSagwanAmount = Math.round(doubleSagwanTotal);
-  const laminateAmount = Math.round(laminateTotal);
-
   return (
     <Card className="border-2 border-primary/30 bg-primary/10 shadow-lg">
-      <CardContent className="pt-6">
-        <div className="space-y-4">
-          <div className="text-center pb-4 border-b border-primary/20">
-            <h3 className="text-lg font-semibold text-muted-foreground">Total Square Feet</h3>
-            <p className="text-4xl font-bold text-primary mt-2">
-              {totalSquareFeet.toFixed(2)} sq.ft
+      <CardContent className="py-8">
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-primary mb-2">Grand Totals</h2>
+            <p className="text-sm text-muted-foreground">
+              Total Square Feet: <span className="font-bold text-lg">{totalSquareFeet.toFixed(2)}</span>
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="bg-card p-4 rounded-lg border border-border shadow-sm">
-              <p className="text-sm text-muted-foreground font-medium">Single Coating</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {totalSquareFeet.toFixed(2)} sq.ft @ ₹{SINGLE_COATING_RATE}/sq.ft
-              </p>
-              <p className="text-2xl font-bold text-foreground mt-2">
-                ₹{formatCurrency(singleCoatingAmount)}
-              </p>
+            <div className="bg-background rounded-lg p-4 shadow-sm border border-border">
+              <div className="text-sm text-muted-foreground mb-1">Single Coating</div>
+              <div className="text-xl font-bold text-foreground">
+                ₹{formatCurrency(Math.round(singleCoatingTotal))}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                @ ₹{SINGLE_COATING_RATE.toFixed(2)}/sq.ft
+              </div>
             </div>
 
-            <div className="bg-card p-4 rounded-lg border border-border shadow-sm">
-              <p className="text-sm text-muted-foreground font-medium">Double Coating</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {totalSquareFeet.toFixed(2)} sq.ft @ ₹{DOUBLE_COATING_RATE}/sq.ft
-              </p>
-              <p className="text-2xl font-bold text-foreground mt-2">
-                ₹{formatCurrency(doubleCoatingAmount)}
-              </p>
+            <div className="bg-background rounded-lg p-4 shadow-sm border border-border">
+              <div className="text-sm text-muted-foreground mb-1">Double Coating</div>
+              <div className="text-xl font-bold text-foreground">
+                ₹{formatCurrency(Math.round(doubleCoatingTotal))}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                @ ₹{DOUBLE_COATING_RATE.toFixed(2)}/sq.ft
+              </div>
             </div>
 
-            <div className="bg-card p-4 rounded-lg border border-border shadow-sm">
-              <p className="text-sm text-muted-foreground font-medium">Double Coating + Sagwan Patti</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {totalSquareFeet.toFixed(2)} sq.ft @ ₹{DOUBLE_SAGWAN_RATE}/sq.ft
-              </p>
-              <p className="text-2xl font-bold text-foreground mt-2">
-                ₹{formatCurrency(doubleSagwanAmount)}
-              </p>
+            <div className="bg-background rounded-lg p-4 shadow-sm border border-border">
+              <div className="text-sm text-muted-foreground mb-1">Double + Sagwan Patti</div>
+              <div className="text-xl font-bold text-foreground">
+                ₹{formatCurrency(Math.round(doubleSagwanTotal))}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                @ ₹{DOUBLE_SAGWAN_RATE.toFixed(2)}/sq.ft
+              </div>
             </div>
 
-            <div className="bg-card p-4 rounded-lg border border-border shadow-sm">
-              <p className="text-sm text-muted-foreground font-medium">Laminate</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {totalSquareFeet.toFixed(2)} sq.ft @ ₹{LAMINATE_RATE}/sq.ft
-              </p>
-              <p className="text-2xl font-bold text-foreground mt-2">
-                ₹{formatCurrency(laminateAmount)}
-              </p>
+            <div className="bg-background rounded-lg p-4 shadow-sm border border-border">
+              <div className="text-sm text-muted-foreground mb-1">Laminate</div>
+              <div className="text-xl font-bold text-foreground">
+                ₹{formatCurrency(Math.round(laminateTotal))}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                @ ₹{LAMINATE_RATE.toFixed(2)}/sq.ft
+              </div>
             </div>
           </div>
         </div>

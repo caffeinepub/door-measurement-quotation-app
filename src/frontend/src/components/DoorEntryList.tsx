@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -14,13 +14,6 @@ interface DoorEntryListProps {
   onEntryDeleted: () => void;
 }
 
-interface GroupedDoor {
-  heightEntered: number;
-  widthEntered: number;
-  entries: DoorEntry[];
-  squareFeet: number;
-}
-
 function formatCurrency(amount: number): string {
   return amount.toLocaleString('en-IN');
 }
@@ -29,47 +22,22 @@ function calculateCoatingAmount(squareFeet: number, rate: number): number {
   return Math.round(squareFeet * rate);
 }
 
-function groupDoorsBySize(entries: DoorEntry[]): GroupedDoor[] {
-  const groups = new Map<string, GroupedDoor>();
-
-  for (const entry of entries) {
-    const key = `${entry.heightEntered}-${entry.widthEntered}`;
-    
-    if (!groups.has(key)) {
-      groups.set(key, {
-        heightEntered: entry.heightEntered,
-        widthEntered: entry.widthEntered,
-        entries: [],
-        squareFeet: entry.squareFeet,
-      });
-    }
-    
-    groups.get(key)!.entries.push(entry);
-  }
-
-  return Array.from(groups.values());
-}
-
 export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListProps) {
   const { data: entries, isLoading, error, refetch } = useGetAllDoorEntries(refreshTrigger);
   const deleteDoorMutation = useDeleteDoorEntry();
-  const [deletingKey, setDeletingKey] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<bigint | null>(null);
 
-  const handleDelete = async (group: GroupedDoor) => {
-    const key = `${group.heightEntered}-${group.widthEntered}`;
-    setDeletingKey(key);
+  const handleDelete = async (entry: DoorEntry) => {
+    setDeletingId(entry.id);
     try {
-      // Delete all entries for this door size
-      for (const entry of group.entries) {
-        await deleteDoorMutation.mutateAsync(entry.id);
-      }
-      toast.success('Door size deleted successfully');
+      await deleteDoorMutation.mutateAsync(entry.id);
+      toast.success('Door entry deleted successfully');
       onEntryDeleted();
     } catch (error) {
-      toast.error('Failed to delete door size');
+      toast.error('Failed to delete door entry');
       console.error('Error deleting door:', error);
     } finally {
-      setDeletingKey(null);
+      setDeletingId(null);
     }
   };
 
@@ -77,32 +45,31 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
     refetch();
   };
 
-  const groupedDoors = entries ? groupDoorsBySize(entries) : [];
-
-  // Calculate totals dynamically
-  const totals = useMemo(() => {
-    let totalSingleCoating = 0;
-    let totalDoubleCoating = 0;
-    let totalDoubleSagwan = 0;
-    let totalLaminate = 0;
-    let totalSquareFeet = 0;
-
-    groupedDoors.forEach((group) => {
-      totalSingleCoating += calculateCoatingAmount(group.squareFeet, SINGLE_COATING_RATE);
-      totalDoubleCoating += calculateCoatingAmount(group.squareFeet, DOUBLE_COATING_RATE);
-      totalDoubleSagwan += calculateCoatingAmount(group.squareFeet, DOUBLE_SAGWAN_RATE);
-      totalLaminate += calculateCoatingAmount(group.squareFeet, LAMINATE_RATE);
-      totalSquareFeet += group.squareFeet;
-    });
-
-    return {
-      singleCoating: totalSingleCoating,
-      doubleCoating: totalDoubleCoating,
-      doubleSagwan: totalDoubleSagwan,
-      laminate: totalLaminate,
-      squareFeet: totalSquareFeet,
-    };
-  }, [groupedDoors]);
+  // Calculate totals from all entries (no grouping)
+  const totals = entries
+    ? entries.reduce(
+        (acc, entry) => ({
+          singleCoating: acc.singleCoating + calculateCoatingAmount(entry.squareFeet, SINGLE_COATING_RATE),
+          doubleCoating: acc.doubleCoating + calculateCoatingAmount(entry.squareFeet, DOUBLE_COATING_RATE),
+          doubleSagwan: acc.doubleSagwan + calculateCoatingAmount(entry.squareFeet, DOUBLE_SAGWAN_RATE),
+          laminate: acc.laminate + calculateCoatingAmount(entry.squareFeet, LAMINATE_RATE),
+          squareFeet: acc.squareFeet + entry.squareFeet,
+        }),
+        {
+          singleCoating: 0,
+          doubleCoating: 0,
+          doubleSagwan: 0,
+          laminate: 0,
+          squareFeet: 0,
+        }
+      )
+    : {
+        singleCoating: 0,
+        doubleCoating: 0,
+        doubleSagwan: 0,
+        laminate: 0,
+        squareFeet: 0,
+      };
 
   if (isLoading) {
     return (
@@ -135,13 +102,13 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
       <CardHeader>
         <CardTitle className="text-xl">Door Entries</CardTitle>
         <CardDescription>
-          {groupedDoors.length > 0
-            ? `${groupedDoors.length} door ${groupedDoors.length === 1 ? 'size' : 'sizes'} added`
+          {entries && entries.length > 0
+            ? `${entries.length} door ${entries.length === 1 ? 'entry' : 'entries'} added`
             : 'No door entries yet'}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {groupedDoors.length > 0 ? (
+        {entries && entries.length > 0 ? (
           <div className="overflow-x-auto -mx-2 sm:mx-0">
             <Table className="min-w-full">
               <TableHeader>
@@ -157,49 +124,48 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {groupedDoors.map((group, index) => {
-                  const heightDisplay = decimalToFractionDisplay(group.heightEntered);
-                  const widthDisplay = decimalToFractionDisplay(group.widthEntered);
-                  const key = `${group.heightEntered}-${group.widthEntered}`;
+                {entries.map((entry, index) => {
+                  const heightDisplay = decimalToFractionDisplay(entry.heightEntered);
+                  const widthDisplay = decimalToFractionDisplay(entry.widthEntered);
                   
                   return (
-                    <TableRow key={key}>
+                    <TableRow key={entry.id.toString()}>
                       <TableCell className="font-medium px-1 sm:px-4 text-xs sm:text-sm">{index + 1}</TableCell>
                       <TableCell className="font-semibold px-1 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
                         {heightDisplay} × {widthDisplay}"
                       </TableCell>
                       <TableCell className="text-right px-1 sm:px-4 text-xs sm:text-sm">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, SINGLE_COATING_RATE))}
+                          ₹{formatCurrency(calculateCoatingAmount(entry.squareFeet, SINGLE_COATING_RATE))}
                         </span>
                       </TableCell>
                       <TableCell className="text-right px-1 sm:px-4 text-xs sm:text-sm">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, DOUBLE_COATING_RATE))}
+                          ₹{formatCurrency(calculateCoatingAmount(entry.squareFeet, DOUBLE_COATING_RATE))}
                         </span>
                       </TableCell>
                       <TableCell className="text-right px-1 sm:px-4 text-xs sm:text-sm">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, DOUBLE_SAGWAN_RATE))}
+                          ₹{formatCurrency(calculateCoatingAmount(entry.squareFeet, DOUBLE_SAGWAN_RATE))}
                         </span>
                       </TableCell>
                       <TableCell className="text-right px-1 sm:px-4 text-xs sm:text-sm">
                         <span className="font-semibold">
-                          ₹{formatCurrency(calculateCoatingAmount(group.squareFeet, LAMINATE_RATE))}
+                          ₹{formatCurrency(calculateCoatingAmount(entry.squareFeet, LAMINATE_RATE))}
                         </span>
                       </TableCell>
                       <TableCell className="text-right font-medium px-1 sm:px-4 text-xs sm:text-sm">
-                        {group.squareFeet.toFixed(2)}
+                        {entry.squareFeet.toFixed(2)}
                       </TableCell>
                       <TableCell className="px-1 sm:px-4">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(group)}
-                          disabled={deletingKey === key}
+                          onClick={() => handleDelete(entry)}
+                          disabled={deletingId === entry.id}
                           className="h-6 w-6 sm:h-8 sm:w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
-                          {deletingKey === key ? (
+                          {deletingId === entry.id ? (
                             <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                           ) : (
                             <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />

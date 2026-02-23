@@ -1,14 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Display only actual entered dimensions (with fractions) in all user-facing outputs, while keeping rounded dimensions for internal calculations only.
+**Goal:** Fix duplicate door size entries being merged or overwritten by implementing unique ID-based storage.
 
 **Planned changes:**
-- Update PDF generation to show entered dimensions exactly as typed (including fractions like 1/8, 5/8)
-- Remove or replace the "All calculations are based on rounded dimensions..." note in PDF with "Calculations are done as per standard carpenter rules. Entered sizes are shown for reference."
-- Update WhatsApp share message to display entered dimensions instead of rounded dimensions
-- Update web view table to show entered dimensions with fractions
-- Verify print view shows entered dimensions consistently with PDF output
-- Keep rounded dimensions for internal square feet calculations only
+- Replace size-based HashMap storage with array-based storage using unique IDs in backend
+- Generate unique IDs for each door entry regardless of dimensions
+- Remove all size-based keying logic from frontend form, list display, and state management
+- Display all door entries as individual rows without grouping by size
+- Update totals calculation to sum all entries including those with identical dimensions
+- Update PDF and WhatsApp outputs to list all entries separately without grouping
 
-**User-visible outcome:** Users will see their exact entered door dimensions (including fractions) in the PDF, web view, print view, and WhatsApp messages, while calculations continue to work correctly using rounded values internally.
+**User-visible outcome:** Users can add multiple door entries with identical dimensions and coating types, and each will appear as a separate row in the list, totals, PDF, and WhatsApp outputs.

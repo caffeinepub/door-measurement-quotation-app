@@ -2,65 +2,43 @@ import type { DoorEntry } from "../backend";
 import { decimalToFractionDisplay } from "./fractionParser";
 import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from "./coatingRates";
 
-interface DoorGroup {
-  heightEntered: number;
-  widthEntered: number;
-  heightRounded: number;
-  widthRounded: number;
-  squareFeet: number;
-}
-
 export function generateQuotationHTML(
   entries: DoorEntry[],
   customerName: string,
   customerMobile: string
 ): string {
-  // Group entries by size (heightRounded x widthRounded)
-  const groupedMap = new Map<string, DoorGroup>();
-
-  entries.forEach((entry) => {
-    const key = `${entry.heightRounded}x${entry.widthRounded}`;
-
-    if (!groupedMap.has(key)) {
-      groupedMap.set(key, {
-        heightEntered: entry.heightEntered,
-        widthEntered: entry.widthEntered,
-        heightRounded: Number(entry.heightRounded),
-        widthRounded: Number(entry.widthRounded),
-        squareFeet: entry.squareFeet,
-      });
-    }
-  });
-
-  // Calculate coating type totals - ALL coating types for ALL doors
+  // Calculate coating type totals - ALL coating types for ALL door entries
   let singleCoatingTotal = 0;
   let doubleCoatingTotal = 0;
   let doubleSagwanTotal = 0;
   let laminateTotal = 0;
+  let totalSquareFeet = 0;
 
-  Array.from(groupedMap.values()).forEach((group) => {
-    singleCoatingTotal += group.squareFeet * SINGLE_COATING_RATE;
-    doubleCoatingTotal += group.squareFeet * DOUBLE_COATING_RATE;
-    doubleSagwanTotal += group.squareFeet * DOUBLE_SAGWAN_RATE;
-    laminateTotal += group.squareFeet * LAMINATE_RATE;
+  entries.forEach((entry) => {
+    singleCoatingTotal += entry.squareFeet * SINGLE_COATING_RATE;
+    doubleCoatingTotal += entry.squareFeet * DOUBLE_COATING_RATE;
+    doubleSagwanTotal += entry.squareFeet * DOUBLE_SAGWAN_RATE;
+    laminateTotal += entry.squareFeet * LAMINATE_RATE;
+    totalSquareFeet += entry.squareFeet;
   });
 
-  // Generate table rows - calculate ALL coating types for each door
-  const tableRows = Array.from(groupedMap.values())
-    .map((group) => {
-      const heightDisplay = decimalToFractionDisplay(group.heightEntered);
-      const widthDisplay = decimalToFractionDisplay(group.widthEntered);
+  // Generate table rows - each entry as a separate row
+  const tableRows = entries
+    .map((entry, index) => {
+      const heightDisplay = decimalToFractionDisplay(entry.heightEntered);
+      const widthDisplay = decimalToFractionDisplay(entry.widthEntered);
 
-      // Calculate all coating amounts for this door
-      const singleAmount = Math.round(group.squareFeet * SINGLE_COATING_RATE);
-      const doubleAmount = Math.round(group.squareFeet * DOUBLE_COATING_RATE);
-      const doubleSagwanAmount = Math.round(group.squareFeet * DOUBLE_SAGWAN_RATE);
-      const laminateAmount = Math.round(group.squareFeet * LAMINATE_RATE);
+      // Calculate all coating amounts for this door entry
+      const singleAmount = Math.round(entry.squareFeet * SINGLE_COATING_RATE);
+      const doubleAmount = Math.round(entry.squareFeet * DOUBLE_COATING_RATE);
+      const doubleSagwanAmount = Math.round(entry.squareFeet * DOUBLE_SAGWAN_RATE);
+      const laminateAmount = Math.round(entry.squareFeet * LAMINATE_RATE);
 
       return `
         <tr>
+          <td>${index + 1}</td>
           <td>${heightDisplay}" × ${widthDisplay}"</td>
-          <td>${group.squareFeet.toFixed(2)}</td>
+          <td>${entry.squareFeet.toFixed(2)}</td>
           <td>₹${singleAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           <td>₹${doubleAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           <td>₹${doubleSagwanAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
@@ -69,12 +47,6 @@ export function generateQuotationHTML(
       `;
     })
     .join("");
-
-  // Calculate totals for the footer row
-  const totalSquareFeet = Array.from(groupedMap.values()).reduce(
-    (sum, group) => sum + group.squareFeet,
-    0
-  );
 
   // Generate coating type summary - ALWAYS show all coating types
   const coatingSummary = `
@@ -372,6 +344,7 @@ export function generateQuotationHTML(
           <table>
             <thead>
               <tr>
+                <th>Sr</th>
                 <th>Door Size</th>
                 <th>Sq.Ft</th>
                 <th>Single Coating</th>
@@ -383,7 +356,7 @@ export function generateQuotationHTML(
             <tbody>
               ${tableRows}
               <tr class="total-row">
-                <td><strong>Total</strong></td>
+                <td colspan="2"><strong>Total</strong></td>
                 <td><strong>${totalSquareFeet.toFixed(2)}</strong></td>
                 <td><strong>₹${Math.round(singleCoatingTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
                 <td><strong>₹${Math.round(doubleCoatingTotal).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>

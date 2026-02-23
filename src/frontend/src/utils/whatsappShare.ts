@@ -2,69 +2,38 @@ import type { DoorEntry } from "../backend";
 import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from "./coatingRates";
 import { decimalToFractionDisplay } from "./fractionParser";
 
-interface DoorGroup {
-  heightEntered: number;
-  widthEntered: number;
-  heightRounded: number;
-  widthRounded: number;
-  squareFeet: number;
-}
-
-function groupDoorsBySize(entries: DoorEntry[]): DoorGroup[] {
-  const groupedMap = new Map<string, DoorGroup>();
-
-  entries.forEach((entry) => {
-    const key = `${entry.heightRounded}x${entry.widthRounded}`;
-
-    if (!groupedMap.has(key)) {
-      groupedMap.set(key, {
-        heightEntered: entry.heightEntered,
-        widthEntered: entry.widthEntered,
-        heightRounded: Number(entry.heightRounded),
-        widthRounded: Number(entry.widthRounded),
-        squareFeet: entry.squareFeet,
-      });
-    }
-  });
-
-  return Array.from(groupedMap.values());
-}
-
 export async function shareViaWhatsApp(
   file: File,
   customerName: string,
   customerMobile: string,
   entries: DoorEntry[]
 ): Promise<boolean> {
-  // Group doors by size
-  const groupedDoors = groupDoorsBySize(entries);
-
-  // Calculate totals
+  // Calculate totals from all entries (no grouping)
   let totalSquareFeet = 0;
   let singleCoatingTotal = 0;
   let doubleCoatingTotal = 0;
   let doubleSagwanTotal = 0;
   let laminateTotal = 0;
 
-  groupedDoors.forEach((group) => {
-    totalSquareFeet += group.squareFeet;
-    singleCoatingTotal += group.squareFeet * SINGLE_COATING_RATE;
-    doubleCoatingTotal += group.squareFeet * DOUBLE_COATING_RATE;
-    doubleSagwanTotal += group.squareFeet * DOUBLE_SAGWAN_RATE;
-    laminateTotal += group.squareFeet * LAMINATE_RATE;
+  entries.forEach((entry) => {
+    totalSquareFeet += entry.squareFeet;
+    singleCoatingTotal += entry.squareFeet * SINGLE_COATING_RATE;
+    doubleCoatingTotal += entry.squareFeet * DOUBLE_COATING_RATE;
+    doubleSagwanTotal += entry.squareFeet * DOUBLE_SAGWAN_RATE;
+    laminateTotal += entry.squareFeet * LAMINATE_RATE;
   });
 
-  // Format door details
-  const doorDetails = groupedDoors
-    .map((group, index) => {
-      const heightDisplay = decimalToFractionDisplay(group.heightEntered);
-      const widthDisplay = decimalToFractionDisplay(group.widthEntered);
-      const singleAmount = Math.round(group.squareFeet * SINGLE_COATING_RATE);
-      const doubleAmount = Math.round(group.squareFeet * DOUBLE_COATING_RATE);
-      const doubleSagwanAmount = Math.round(group.squareFeet * DOUBLE_SAGWAN_RATE);
-      const laminateAmount = Math.round(group.squareFeet * LAMINATE_RATE);
+  // Format door details - each entry as a separate line item
+  const doorDetails = entries
+    .map((entry, index) => {
+      const heightDisplay = decimalToFractionDisplay(entry.heightEntered);
+      const widthDisplay = decimalToFractionDisplay(entry.widthEntered);
+      const singleAmount = Math.round(entry.squareFeet * SINGLE_COATING_RATE);
+      const doubleAmount = Math.round(entry.squareFeet * DOUBLE_COATING_RATE);
+      const doubleSagwanAmount = Math.round(entry.squareFeet * DOUBLE_SAGWAN_RATE);
+      const laminateAmount = Math.round(entry.squareFeet * LAMINATE_RATE);
 
-      return `${index + 1}. ${heightDisplay}" × ${widthDisplay}" (${group.squareFeet.toFixed(2)} sq.ft)
+      return `${index + 1}. ${heightDisplay}" × ${widthDisplay}" (${entry.squareFeet.toFixed(2)} sq.ft)
    Single: ₹${singleAmount.toLocaleString("en-IN")}
    Double: ₹${doubleAmount.toLocaleString("en-IN")}
    D+Sagwan: ₹${doubleSagwanAmount.toLocaleString("en-IN")}

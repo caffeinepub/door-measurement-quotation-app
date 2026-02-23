@@ -2,46 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-pdfgenerator-ts-to-display-only-actual-entered-door-dimensions-with-fractions-like-1-8-5-8-in-the-pdf-table-remove-any-display-of-rounded-height-or-rounded-width-values",
-      "featureTitle": "Update pdfGenerator.ts to display only actual entered door dimensions (with fractions like 1/8, 5/8) in the PDF table. Remove any display of rounded height or rounded width values.",
+      "featureId": "feature-update-frontend-doorentrylist-tsx-to-display-door-entries-as-individual-rows-without-grouping-by-size-remove-any-grouping-merging-or-size-based-indexing-logic-display-all-entries-sequentially-with-incrementing-sr-no-for-each-row-treating-each-entry-as-unique-regardless-of-dimensions",
+      "featureTitle": "Update frontend DoorEntryList.tsx to display door entries as individual rows without grouping by size. Remove any grouping, merging, or size-based indexing logic. Display all entries sequentially with incrementing Sr No for each row, treating each entry as unique regardless of dimensions.",
       "files": [
-        "frontend/src/utils/pdfGenerator.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-remove-or-replace-the-note-all-calculations-are-based-on-rounded-dimensions-in-the-pdf-either-remove-it-completely-or-replace-with-calculations-are-done-as-per-standard-carpenter-rules-entered-sizes-are-shown-for-reference",
-      "featureTitle": "Remove or replace the note 'All calculations are based on rounded dimensions...' in the PDF. Either remove it completely, or replace with 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'",
-      "files": [
-        "frontend/src/utils/pdfGenerator.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-quotationactions-tsx-to-ensure-whatsapp-share-displays-only-actual-entered-dimensions-not-rounded-dimensions-in-the-shared-message",
-      "featureTitle": "Update QuotationActions.tsx to ensure WhatsApp share displays only actual entered dimensions (not rounded dimensions) in the shared message.",
-      "files": [
-        "frontend/src/utils/whatsappShare.ts"
+        "frontend/src/components/DoorEntryList.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -56,8 +20,26 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-verify-print-view-consistency-to-ensure-printed-output-shows-only-actual-entered-dimensions-not-rounded-dimensions",
-      "featureTitle": "Verify print view consistency to ensure printed output shows only actual entered dimensions (not rounded dimensions).",
+      "featureId": "feature-update-grandtotals-tsx-to-calculate-totals-by-iterating-through-all-door-entries-in-the-array-and-summing-amounts-and-square-feet-across-all-rows-ensure-the-calculation-includes-every-entry-even-if-dimensions-are-identical",
+      "featureTitle": "Update GrandTotals.tsx to calculate totals by iterating through all door entries in the array and summing amounts and square feet across all rows. Ensure the calculation includes every entry even if dimensions are identical.",
+      "files": [
+        "frontend/src/components/GrandTotals.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-pdfgenerator-ts-to-list-all-door-entries-as-separate-line-items-in-the-pdf-output-without-grouping-by-size-each-entry-must-appear-as-an-individual-row-with-its-own-dimensions-square-feet-coating-type-and-amount",
+      "featureTitle": "Update pdfGenerator.ts to list all door entries as separate line items in the PDF output without grouping by size. Each entry must appear as an individual row with its own dimensions, square feet, coating type, and amount.",
       "files": [
         "frontend/src/utils/pdfGenerator.ts"
       ],
@@ -69,7 +51,25 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-whatsappshare-ts-to-format-all-door-entries-as-separate-line-items-in-the-whatsapp-message-without-grouping-by-size-each-entry-must-be-listed-individually-with-its-dimensions-square-feet-coating-type-and-amount",
+      "featureTitle": "Update whatsappShare.ts to format all door entries as separate line items in the WhatsApp message without grouping by size. Each entry must be listed individually with its dimensions, square feet, coating type, and amount.",
+      "files": [
+        "frontend/src/utils/whatsappShare.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
       ],
       "confidence": "high"
     }

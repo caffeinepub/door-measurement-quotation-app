@@ -125,6 +125,7 @@ export interface backendInterface {
     addDoor(input: AddDoorInput): Promise<CreateDoorType>;
     deleteDoor(id: bigint): Promise<void>;
     getAll(): Promise<Array<DoorEntry>>;
+    getEntry(id: bigint): Promise<DoorEntry>;
     getTotals(): Promise<ComputeTotals>;
 }
 import type { AddDoorInput as _AddDoorInput, CoatingType as _CoatingType, CreateDoorType as _CreateDoorType, DoorEntry as _DoorEntry } from "./declarations/backend.did.d.ts";
@@ -170,6 +171,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getAll();
             return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getEntry(arg0: bigint): Promise<DoorEntry> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getEntry(arg0);
+                return from_candid_DoorEntry_n7(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getEntry(arg0);
+            return from_candid_DoorEntry_n7(this._uploadFile, this._downloadFile, result);
         }
     }
     async getTotals(): Promise<ComputeTotals> {

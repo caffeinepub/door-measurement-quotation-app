@@ -43,5 +43,6 @@ export interface backendInterface {
     addDoor(input: AddDoorInput): Promise<CreateDoorType>;
     deleteDoor(id: bigint): Promise<void>;
     getAll(): Promise<Array<DoorEntry>>;
+    getEntry(id: bigint): Promise<DoorEntry>;
     getTotals(): Promise<ComputeTotals>;
 }

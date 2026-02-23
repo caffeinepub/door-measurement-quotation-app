@@ -1,60 +1,65 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-23T12:01:26.757Z",
+  "generatedAt": "2026-02-23T16:38:21.632Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
+    "total": 7,
     "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update pdfGenerator.ts to display only actual entered door dimensions (with fractions like 1/8, 5/8) in the PDF table. Remove any display of rounded height or rounded width values.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/pdfGenerator.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/pdfGenerator.ts"
-        ]
+        "summary": "Update backend main.mo to store door entries using unique IDs instead of keying by size. Change the data structure from a HashMap keyed by size to an array-based storage where each entry has a unique identifier (e.g., Nat incrementing ID). Ensure addDoor generates a new unique ID for each entry regardless of dimensions.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Remove or replace the note 'All calculations are based on rounded dimensions...' in the PDF. Either remove it completely, or replace with 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'",
-        "status": "implemented",
+        "summary": "Update frontend DoorEntryForm.tsx to ensure each door entry created includes a unique identifier. When creating entries for all four coating types, each must receive its own unique ID. Remove any logic that uses size as a key or identifier.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/utils/pdfGenerator.ts"
+          "frontend/src/components/DoorEntryForm.tsx"
         ],
-        "matchedFiles": [
-          "frontend/src/utils/pdfGenerator.ts"
-        ]
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Update QuotationActions.tsx to ensure WhatsApp share displays only actual entered dimensions (not rounded dimensions) in the shared message.",
+        "summary": "Update frontend DoorEntryList.tsx to display door entries as individual rows without grouping by size. Remove any grouping, merging, or size-based indexing logic. Display all entries sequentially with incrementing Sr No for each row, treating each entry as unique regardless of dimensions.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/whatsappShare.ts"
+          "frontend/src/components/DoorEntryList.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/whatsappShare.ts"
+          "frontend/src/components/DoorEntryList.tsx"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Update DoorEntryList.tsx to display only actual entered dimensions in the web view table. Remove any display of rounded dimensions while keeping them for internal calculation.",
+        "summary": "Update frontend hooks/useQueries.ts (or equivalent door entry management hooks) to handle door entries as an array of unique objects. Remove any size-based keying in query result processing or state management. Ensure mutations and cache updates treat each entry independently by ID.",
         "status": "missing",
         "plannedFiles": [
-          "frontend/src/components/DoorEntryList.tsx"
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": []
       },
       {
         "id": "REQ-5",
-        "summary": "Verify print view consistency to ensure printed output shows only actual entered dimensions (not rounded dimensions).",
+        "summary": "Update GrandTotals.tsx to calculate totals by iterating through all door entries in the array and summing amounts and square feet across all rows. Ensure the calculation includes every entry even if dimensions are identical.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/GrandTotals.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/GrandTotals.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Update pdfGenerator.ts to list all door entries as separate line items in the PDF output without grouping by size. Each entry must appear as an individual row with its own dimensions, square feet, coating type, and amount.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/utils/pdfGenerator.ts"
@@ -62,14 +67,33 @@
         "matchedFiles": [
           "frontend/src/utils/pdfGenerator.ts"
         ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Update whatsappShare.ts to format all door entries as separate line items in the WhatsApp message without grouping by size. Each entry must be listed individually with its dimensions, square feet, coating type, and amount.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/whatsappShare.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/whatsappShare.ts"
+        ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/DoorEntryList.tsx",
+    "frontend/src/components/GrandTotals.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/utils/pdfGenerator.ts",
     "frontend/src/utils/whatsappShare.ts",
     "project_state.json",
