@@ -59,7 +59,7 @@ export function generateQuotationHTML(
 
       return `
         <tr>
-          <td>${group.heightRounded} ${heightDisplay}" × ${group.widthRounded} ${widthDisplay}"</td>
+          <td>${heightDisplay}" × ${widthDisplay}"</td>
           <td>${group.squareFeet.toFixed(2)}</td>
           <td>₹${singleAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           <td>₹${doubleAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
@@ -401,7 +401,7 @@ export function generateQuotationHTML(
         </div>
 
         <div class="note">
-          <strong>Note:</strong> All calculations are based on rounded dimensions according to standard carpenter sizing rules. Actual entered dimensions are displayed in the table for reference.
+          <strong>Note:</strong> Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.
         </div>
 
         <div class="footer">

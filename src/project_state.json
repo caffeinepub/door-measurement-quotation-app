@@ -1,60 +1,60 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Door Measurement & Quotation app",
+  "summary": "Door Quotation app - managing door dimensions, coating quotes, and PDF generation",
   "architectural_notes": [
-    "All coating types (Single, Double, Double + Sagwan Patti, Laminate) must be calculated independently for every door entry",
-    "Coating calculations: Single=sqFt*185, Double=sqFt*220, Double+Sagwan=sqFt*270, Laminate=sqFt*450",
-    "Display format: ₹ with commas, two decimals, show ₹0.00 for zero values (never show '-')",
-    "Calculations must work consistently across web view, PDF export, print view, and WhatsApp share"
+    "PDF output displays only actual entered dimensions (with fractions); rounded values used internally for calculations only",
+    "Dimension display consistency across web view, PDF, print, and WhatsApp share",
+    "Rounding logic preserved for sq.ft calculation but hidden from all user-facing outputs"
   ],
   "known_issues": [],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-frontend-src-components-grandtotals-tsx-to-calculate-and-display-correct-totals-for-all-coating-types-for-each-coating-type-compute-the-sum-of-door-sqft-coating-rate-across-all-doors-single-coating-total-sum-of-each-door-s-sqft-185-double-coating-total-sum-of-each-door-s-sqft-220-double-sagwan-patti-total-sum-of-each-door-s-sqft-270-laminate-total-sum-of-each-door-s-sqft-450-format-all-totals-with-symbol-comma-separators-and-two-decimals",
-      "title": "Update frontend/src/components/GrandTotals.tsx to calculate and display correct totals for all coating types. For each coating type, compute the sum of (door sqFt × coating rate) across all doors: Single Coating total = sum of (each door's sqFt × 185), Double Coating total = sum of (each door's sqFt × 220), Double + Sagwan Patti total = sum of (each door's sqFt × 270), Laminate total = sum of (each door's sqFt × 450). Format all totals with ₹ symbol, comma separators, and two decimals.",
+      "id": "feature-update-pdfgenerator-ts-to-display-only-actual-entered-door-dimensions-with-fractions-like-1-8-5-8-in-the-pdf-table-remove-any-display-of-rounded-height-or-rounded-width-values",
+      "title": "Update pdfGenerator.ts to display only actual entered door dimensions (with fractions like 1/8, 5/8) in the PDF table. Remove any display of rounded height or rounded width values.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-or-replace-the-note-all-calculations-are-based-on-rounded-dimensions-in-the-pdf-either-remove-it-completely-or-replace-with-calculations-are-done-as-per-standard-carpenter-rules-entered-sizes-are-shown-for-reference",
+      "title": "Remove or replace the note 'All calculations are based on rounded dimensions...' in the PDF. Either remove it completely, or replace with 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-quotationactions-tsx-to-ensure-whatsapp-share-displays-only-actual-entered-dimensions-not-rounded-dimensions-in-the-shared-message",
+      "title": "Update QuotationActions.tsx to ensure WhatsApp share displays only actual entered dimensions (not rounded dimensions) in the shared message.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-print-view-consistency-to-ensure-printed-output-shows-only-actual-entered-dimensions-not-rounded-dimensions",
+      "title": "Verify print view consistency to ensure printed output shows only actual entered dimensions (not rounded dimensions).",
       "reqIds": [
         "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-frontend-src-utils-pdfgenerator-ts-to-ensure-pdf-export-calculates-and-displays-all-four-coating-type-amounts-for-every-door-entry-apply-the-same-calculation-logic-sqft-rate-for-each-coating-type-185-220-270-450-ensure-totals-section-in-pdf-shows-correct-sums-for-all-coating-types-with-proper-rupee-formatting",
-      "title": "Update frontend/src/utils/pdfGenerator.ts to ensure PDF export calculates and displays all four coating type amounts for every door entry. Apply the same calculation logic: sqFt × rate for each coating type (185, 220, 270, 450). Ensure totals section in PDF shows correct sums for all coating types with proper rupee formatting.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-frontend-src-utils-whatsappshare-ts-to-ensure-whatsapp-share-summary-includes-all-four-coating-type-calculations-and-totals-the-shared-message-must-display-calculated-amounts-for-single-coating-double-coating-double-sagwan-patti-and-laminate-with-proper-rupee-formatting",
-      "title": "Update frontend/src/utils/whatsappShare.ts to ensure WhatsApp share summary includes all four coating type calculations and totals. The shared message must display calculated amounts for Single Coating, Double Coating, Double + Sagwan Patti, and Laminate with proper rupee formatting.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-review-and-update-frontend-src-utils-coatingrates-ts-if-needed-to-ensure-it-correctly-exports-the-coating-rates-single-185-double-220-double-sagwan-patti-270-laminate-450-and-provides-utility-functions-that-support-calculating-all-coating-types-simultaneously-without-requiring-a-selected-coating-type",
-      "title": "Review and update frontend/src/utils/coatingRates.ts if needed to ensure it correctly exports the coating rates (Single: 185, Double: 220, Double + Sagwan Patti: 270, Laminate: 450) and provides utility functions that support calculating all coating types simultaneously without requiring a selected coating type.",
-      "reqIds": [
-        "REQ-8"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Update frontend/src/components/DoorEntryList.tsx to calculate and display all four coating type amounts for every door row: Single Coating (sqFt × ₹185), Double Coating (sqFt × ₹220), Double + Sagwan Patti (sqFt × ₹270), and Laminate (sqFt × ₹450). Remove conditional logic that causes '-' placeholders. Ensure each coating column always shows the calculated rupee amount with proper formatting (₹ symbol, comma separators, two decimals).",
+      "id": "AR-4",
+      "summary": "Update DoorEntryList.tsx to display only actual entered dimensions in the web view table. Remove any display of rounded dimensions while keeping them for internal calculation.",
       "reqIds": [
         "REQ-4"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Door Measurement & Quotation",
+  "gameProjectType": "none",
+  "projectName": "Door Quotation",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -2,26 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-frontend-src-components-grandtotals-tsx-to-calculate-and-display-correct-totals-for-all-coating-types-for-each-coating-type-compute-the-sum-of-door-sqft-coating-rate-across-all-doors-single-coating-total-sum-of-each-door-s-sqft-185-double-coating-total-sum-of-each-door-s-sqft-220-double-sagwan-patti-total-sum-of-each-door-s-sqft-270-laminate-total-sum-of-each-door-s-sqft-450-format-all-totals-with-symbol-comma-separators-and-two-decimals",
-      "featureTitle": "Update frontend/src/components/GrandTotals.tsx to calculate and display correct totals for all coating types. For each coating type, compute the sum of (door sqFt × coating rate) across all doors: Single Coating total = sum of (each door's sqFt × 185), Double Coating total = sum of (each door's sqFt × 220), Double + Sagwan Patti total = sum of (each door's sqFt × 270), Laminate total = sum of (each door's sqFt × 450). Format all totals with ₹ symbol, comma separators, and two decimals.",
-      "files": [
-        "frontend/src/components/GrandTotals.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-frontend-src-utils-pdfgenerator-ts-to-ensure-pdf-export-calculates-and-displays-all-four-coating-type-amounts-for-every-door-entry-apply-the-same-calculation-logic-sqft-rate-for-each-coating-type-185-220-270-450-ensure-totals-section-in-pdf-shows-correct-sums-for-all-coating-types-with-proper-rupee-formatting",
-      "featureTitle": "Update frontend/src/utils/pdfGenerator.ts to ensure PDF export calculates and displays all four coating type amounts for every door entry. Apply the same calculation logic: sqFt × rate for each coating type (185, 220, 270, 450). Ensure totals section in PDF shows correct sums for all coating types with proper rupee formatting.",
+      "featureId": "feature-update-pdfgenerator-ts-to-display-only-actual-entered-door-dimensions-with-fractions-like-1-8-5-8-in-the-pdf-table-remove-any-display-of-rounded-height-or-rounded-width-values",
+      "featureTitle": "Update pdfGenerator.ts to display only actual entered door dimensions (with fractions like 1/8, 5/8) in the PDF table. Remove any display of rounded height or rounded width values.",
       "files": [
         "frontend/src/utils/pdfGenerator.ts"
       ],
@@ -33,13 +15,31 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-6"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-frontend-src-utils-whatsappshare-ts-to-ensure-whatsapp-share-summary-includes-all-four-coating-type-calculations-and-totals-the-shared-message-must-display-calculated-amounts-for-single-coating-double-coating-double-sagwan-patti-and-laminate-with-proper-rupee-formatting",
-      "featureTitle": "Update frontend/src/utils/whatsappShare.ts to ensure WhatsApp share summary includes all four coating type calculations and totals. The shared message must display calculated amounts for Single Coating, Double Coating, Double + Sagwan Patti, and Laminate with proper rupee formatting.",
+      "featureId": "feature-remove-or-replace-the-note-all-calculations-are-based-on-rounded-dimensions-in-the-pdf-either-remove-it-completely-or-replace-with-calculations-are-done-as-per-standard-carpenter-rules-entered-sizes-are-shown-for-reference",
+      "featureTitle": "Remove or replace the note 'All calculations are based on rounded dimensions...' in the PDF. Either remove it completely, or replace with 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'",
+      "files": [
+        "frontend/src/utils/pdfGenerator.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-quotationactions-tsx-to-ensure-whatsapp-share-displays-only-actual-entered-dimensions-not-rounded-dimensions-in-the-shared-message",
+      "featureTitle": "Update QuotationActions.tsx to ensure WhatsApp share displays only actual entered dimensions (not rounded dimensions) in the shared message.",
       "files": [
         "frontend/src/utils/whatsappShare.ts"
       ],
@@ -51,15 +51,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-7"
+        "REQ-3"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-review-and-update-frontend-src-utils-coatingrates-ts-if-needed-to-ensure-it-correctly-exports-the-coating-rates-single-185-double-220-double-sagwan-patti-270-laminate-450-and-provides-utility-functions-that-support-calculating-all-coating-types-simultaneously-without-requiring-a-selected-coating-type",
-      "featureTitle": "Review and update frontend/src/utils/coatingRates.ts if needed to ensure it correctly exports the coating rates (Single: 185, Double: 220, Double + Sagwan Patti: 270, Laminate: 450) and provides utility functions that support calculating all coating types simultaneously without requiring a selected coating type.",
+      "featureId": "feature-verify-print-view-consistency-to-ensure-printed-output-shows-only-actual-entered-dimensions-not-rounded-dimensions",
+      "featureTitle": "Verify print view consistency to ensure printed output shows only actual entered dimensions (not rounded dimensions).",
       "files": [
-        "frontend/src/utils/coatingRates.ts"
+        "frontend/src/utils/pdfGenerator.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -69,7 +69,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-8"
+        "REQ-5"
       ],
       "confidence": "high"
     }

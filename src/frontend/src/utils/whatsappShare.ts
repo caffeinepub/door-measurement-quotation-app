@@ -64,7 +64,7 @@ export async function shareViaWhatsApp(
       const doubleSagwanAmount = Math.round(group.squareFeet * DOUBLE_SAGWAN_RATE);
       const laminateAmount = Math.round(group.squareFeet * LAMINATE_RATE);
 
-      return `${index + 1}. ${group.heightRounded} ${heightDisplay}" × ${group.widthRounded} ${widthDisplay}" (${group.squareFeet.toFixed(2)} sq.ft)
+      return `${index + 1}. ${heightDisplay}" × ${widthDisplay}" (${group.squareFeet.toFixed(2)} sq.ft)
    Single: ₹${singleAmount.toLocaleString("en-IN")}
    Double: ₹${doubleAmount.toLocaleString("en-IN")}
    D+Sagwan: ₹${doubleSagwanAmount.toLocaleString("en-IN")}
@@ -88,7 +88,7 @@ Double Coating: ₹${Math.round(doubleCoatingTotal).toLocaleString("en-IN")}
 Double + Sagwan: ₹${Math.round(doubleSagwanTotal).toLocaleString("en-IN")}
 Laminate: ₹${Math.round(laminateTotal).toLocaleString("en-IN")}
 
-_Note: Calculations use rounded dimensions per carpenter standards._`;
+_Note: Calculations are done as per standard carpenter rules._`;
 
   // Check if Web Share API is available and supports files
   if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {

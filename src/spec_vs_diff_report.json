@@ -1,26 +1,26 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-23T06:27:41.459Z",
-  "summary": "The diff shows comprehensive implementation of all four coating type calculations across all affected files. All requirements appear to be addressed: DoorEntryList.tsx is not shown in the diff (possibly not modified or truncated), but GrandTotals.tsx, pdfGenerator.ts, whatsappShare.ts, and coatingRates.ts all demonstrate the required changes to calculate and display all four coating types for every door with proper formatting.",
+  "generatedAt": "2026-02-23T12:01:26.755Z",
+  "summary": "The diff shows comprehensive implementation of all requirements. pdfGenerator.ts and whatsappShare.ts were updated to display entered dimensions with fractions using decimalToFractionDisplay(). The note about rounding was updated to 'Calculations are done as per standard carpenter rules.' However, no evidence of changes to DoorEntryList.tsx is present in the diff, leaving REQ-4 unverified. REQ-5 (print view verification) cannot be confirmed without test evidence or explicit print-related code changes.",
   "missing_requirements": [
     {
       "id": "REQ-4",
-      "requirement": "Update frontend/src/components/DoorEntryList.tsx to calculate and display all four coating type amounts for every door row with proper formatting (₹ symbol, comma separators, two decimals)",
-      "reason": "DoorEntryList.tsx does not appear in the modified files list or diff content. The file summary indicates it displays entries grouped by size but provides no evidence of the coating calculation changes.",
-      "evidence": [
-        "frontend/src/components/DoorEntryList.tsx is listed in frontend-file-summaries.txt but not in MODIFIED FILES"
-      ]
+      "requirement": "Update DoorEntryList.tsx to display only actual entered dimensions in the web view table. Remove any display of rounded dimensions while keeping them for internal calculation.",
+      "reason": "DoorEntryList.tsx is mentioned in frontend-file-summaries.txt as 'Displays door entries table grouped by size' but the file does not appear in the modified files list. No evidence of changes to web view dimension display logic.",
+      "evidence": []
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Verify print view consistency to ensure printed output shows only actual entered dimensions (not rounded dimensions).",
+      "reason": "No explicit evidence of print view testing or verification. While pdfGenerator.ts was updated (which likely handles print), there is no test evidence or explicit print-specific code changes demonstrating verification was performed.",
+      "evidence": []
     }
   ],
   "hallucinated_features": [],
   "confidence": 0.75,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/GrandTotals.tsx",
-    "frontend/src/components/QuotationActions.tsx",
-    "frontend/src/utils/coatingRates.ts",
     "frontend/src/utils/pdfGenerator.ts",
     "frontend/src/utils/whatsappShare.ts",
     "project_state.json"

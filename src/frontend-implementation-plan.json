@@ -1,86 +1,82 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix coating calculation bug - calculate all coating types for every door",
+  "title": "Remove rounded dimensions from PDF display, show only actual entered dimensions",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Update DoorEntryList.tsx to calculate and display all four coating type amounts for every door row without conditional logic",
+      "id": "REQ-1",
+      "summary": "Update pdfGenerator.ts to display only actual entered door dimensions with fractions in the PDF table, removing all rounded dimension displays",
       "acceptanceCriteria": [
-        "Every door row in the table displays calculated amounts for all four coating types",
-        "No '-' placeholders appear in any coating column",
-        "All amounts are formatted with ₹ symbol, comma separators, and two decimal places",
-        "Zero values display as ₹0.00, never as '-'"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/DoorEntryList.tsx",
-          "operation": "modify",
-          "description": "Remove conditional logic that displays '-' for non-selected coating types. For each grouped door entry, calculate all four coating amounts using: singleCoating = sqFt × 185, doubleCoating = sqFt × 220, doubleSagwan = sqFt × 270, laminate = sqFt × 450. Format all amounts with formatRupees utility ensuring ₹ symbol, comma separators, and two decimal places. Update the table cell rendering to always show calculated values instead of checking the door's coatingType property."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Update GrandTotals.tsx to calculate and display correct totals for all coating types by summing door calculations",
-      "acceptanceCriteria": [
-        "Total row shows correct summed amounts for all four coating types",
-        "Coating Type Summary section displays correct totals for each coating type",
-        "All totals reflect sum of (sqFt × rate) across all doors",
-        "Totals formatted with ₹ symbol, comma separators, two decimals"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/GrandTotals.tsx",
-          "operation": "modify",
-          "description": "Replace the current totals calculation logic that relies on backend getTotals. Instead, calculate frontend totals by iterating through all door entries and computing: singleCoatingTotal = sum of (door.squareFeet × 185), doubleCoatingTotal = sum of (door.squareFeet × 220), doubleSagwanTotal = sum of (door.squareFeet × 270), laminateTotal = sum of (door.squareFeet × 450). Ensure all totals are formatted with formatRupees for proper ₹ symbol, comma separators, and two decimal places. Update both the totals row and the Coating Type Summary section to display these calculated values."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Update pdfGenerator.ts to ensure PDF export calculates and displays all four coating type amounts for every door entry",
-      "acceptanceCriteria": [
-        "Generated PDF displays all four coating amounts for each door",
-        "PDF totals section shows correct sums for all coating types",
-        "PDF formatting matches web view with ₹ symbol and proper number formatting"
+        "PDF table shows entered dimensions exactly as user typed them",
+        "No rounded dimensions appear in the PDF door size column",
+        "Fractions (1/8, 5/8, etc.) are preserved in display"
       ],
       "file_operations": [
         {
           "path": "frontend/src/utils/pdfGenerator.ts",
           "operation": "modify",
-          "description": "Update the generateQuotationHTML function to calculate all four coating amounts for each door group in the PDF. For each grouped door entry, compute: singleCoating = sqFt × 185, doubleCoating = sqFt × 220, doubleSagwan = sqFt × 270, laminate = sqFt × 450. Remove any conditional logic that checks door.coatingType before calculating amounts. Update the totals section to sum all coating type amounts across all doors using the same formula. Ensure all amounts are formatted with ₹ symbol, comma separators, and two decimal places in the HTML template."
+          "description": "Update generateQuotationHTML to use heightEntered and widthEntered instead of heightRounded and widthRounded when displaying door dimensions in the PDF table. Use the fractionParser utility to format entered dimensions with proper fraction display (e.g., 78 2/8 instead of 78.25). Ensure the door size column shows only the entered values with fractions preserved."
         }
       ]
     },
     {
-      "id": "REQ-7",
-      "summary": "Update whatsappShare.ts to ensure WhatsApp share summary includes all four coating type calculations and totals",
+      "id": "REQ-2",
+      "summary": "Remove or replace the rounding note in the PDF with a carpenter rules note",
       "acceptanceCriteria": [
-        "WhatsApp shared message includes all four coating type amounts for each door",
-        "WhatsApp message shows correct totals for all coating types",
-        "Formatting is clear and readable with ₹ symbol"
+        "Original rounding note is removed or replaced",
+        "If replaced, new note states 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.'"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/pdfGenerator.ts",
+          "operation": "modify",
+          "description": "Locate the note text 'All calculations are based on rounded dimensions...' in the HTML generation. Replace it with 'Calculations are done as per standard carpenter rules. Entered sizes are shown for reference.' or remove the note section entirely based on user preference."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Update WhatsApp share to display only actual entered dimensions with fractions in the shared message",
+      "acceptanceCriteria": [
+        "WhatsApp share message shows entered dimensions with fractions",
+        "No rounded dimensions appear in WhatsApp message"
       ],
       "file_operations": [
         {
           "path": "frontend/src/utils/whatsappShare.ts",
           "operation": "modify",
-          "description": "Update the shareViaWhatsApp function to generate a message that includes all four coating type calculations for each door. For each door size group, calculate and include in the message: Single Coating = sqFt × 185, Double Coating = sqFt × 220, Double + Sagwan Patti = sqFt × 270, Laminate = sqFt × 450. Update the totals section to sum all coating amounts across all doors. Format all amounts with ₹ symbol for clarity. Ensure the message structure is readable with proper line breaks and formatting."
+          "description": "Update generateWhatsAppMessage to use heightEntered and widthEntered instead of heightRounded and widthRounded when formatting door dimensions. Use the fractionParser utility to format entered dimensions with proper fraction display. Ensure the WhatsApp message shows only entered values with fractions preserved."
         }
       ]
     },
     {
-      "id": "REQ-8",
-      "summary": "Review and update coatingRates.ts to ensure it correctly exports coating rates and supports calculating all coating types simultaneously",
+      "id": "REQ-4",
+      "summary": "Update DoorEntryList.tsx to display only actual entered dimensions in the web view table while keeping rounded values for internal calculation",
       "acceptanceCriteria": [
-        "Coating rates are correctly defined and exportable",
-        "Utility functions support calculating all coating types at once"
+        "Web view table shows entered dimensions with fractions",
+        "No rounded dimensions visible in the UI",
+        "Square feet calculations still use rounded values internally"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/coatingRates.ts",
+          "path": "frontend/src/components/DoorEntryList.tsx",
           "operation": "modify",
-          "description": "Verify that coating rates are correctly defined (single: 185, double: 220, doubleSagwan: 270, laminate: 450). Add a new utility function calculateAllCoatingAmounts(squareFeet: number) that returns an object with all four coating amounts calculated simultaneously: { singleCoating: squareFeet × 185, doubleCoating: squareFeet × 220, doubleSagwan: squareFeet × 270, laminate: squareFeet × 450 }. Export this function to support calculating all coating types without requiring a selected coating type parameter."
+          "description": "Update the table rendering to display heightEntered and widthEntered instead of heightRounded and widthRounded in the door size column. Use the fractionParser utility to format entered dimensions with proper fraction display. Keep the squareFeet calculation logic unchanged as it already uses rounded values internally."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Verify print view consistency to ensure printed output shows only actual entered dimensions",
+      "acceptanceCriteria": [
+        "Print view shows entered dimensions with fractions",
+        "Print output matches PDF output for dimension display"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/pdfGenerator.ts",
+          "operation": "modify",
+          "description": "Verify that the HTML generation for print view (if separate from PDF view) uses heightEntered and widthEntered with fraction formatting. Ensure print styles and PDF generation share the same dimension display logic so printed output matches PDF output for dimension display."
         }
       ]
     }
