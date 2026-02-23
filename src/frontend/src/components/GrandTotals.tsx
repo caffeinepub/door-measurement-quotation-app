@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useGetTotalSquareFeet } from '../hooks/useQueries';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { SINGLE_COATING_RATE, DOUBLE_COATING_RATE, DOUBLE_SAGWAN_RATE, LAMINATE_RATE } from '../utils/coatingRates';
 
 interface GrandTotalsProps {
@@ -12,7 +13,7 @@ function formatCurrency(amount: number): string {
 }
 
 export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
-  const { data: totals, isLoading, error } = useGetTotalSquareFeet();
+  const { data: totals, isLoading, error, refetch } = useGetTotalSquareFeet();
 
   if (isLoading) {
     return (
@@ -27,8 +28,14 @@ export function GrandTotals({ refreshTrigger }: GrandTotalsProps) {
   if (error) {
     return (
       <Card className="border-2 border-destructive/30 bg-destructive/10 shadow-lg">
-        <CardContent className="py-12 text-center text-destructive">
-          Error loading totals. Please try again.
+        <CardContent className="py-12 text-center">
+          <p className="text-destructive mb-4">
+            Error loading totals. Please try again.
+          </p>
+          <Button onClick={() => refetch()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
         </CardContent>
       </Card>
     );

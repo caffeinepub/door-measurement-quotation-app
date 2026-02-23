@@ -1,52 +1,45 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-23T04:46:30.610Z",
-  "summary": "The implementation addresses all three requirements with comprehensive error handling, validation, and user feedback. PDF generation was converted to HTML-based printing, WhatsApp sharing includes Web Share API with desktop fallback, and extensive error handling with toast notifications was added throughout QuotationActions component.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-23T05:25:53.053Z",
+  "summary": "The diff implements fixes for the door entries and totals loading errors by enhancing useQueries.ts with retry logic and proper error handling. The components DoorEntryList and GrandTotals show error UI with retry buttons. Backend methods getAllTypes and getTotalSquareFeet exist but the diff does not show evidence of verifying their availability or testing network connectivity/authentication handling as requested in REQ-3.",
+  "missing_requirements": [
     {
-      "description": "Automatic clearing of door entries and customer info after successful PDF generation or WhatsApp sharing",
-      "reason": "BuildRequest constraints specify 'Maintain the existing UI layout and design' and non-goals include no mention of automatic data clearing. This behavior was not requested in any requirement.",
+      "id": "REQ-3",
+      "requirement": "Verify backend actor availability and ensure the getAllTypes and getTotalSquareFeet methods are functioning correctly and accessible from the frontend queries",
+      "reason": "While backend methods exist in main.mo and frontend queries check for actor availability, there is no evidence in the diff of verification testing, network connectivity handling improvements, or authentication state management enhancements beyond basic actor null checks",
       "evidence": [
-        "frontend/src/components/QuotationActions.tsx"
-      ]
-    },
-    {
-      "description": "HTML-based quotation generation instead of PDF format",
-      "reason": "BuildRequest constraints explicitly state 'Preserve the current PDF format and content structure from pdfGenerator.ts'. The implementation changed from PDF to HTML print window, which violates the constraint.",
-      "evidence": [
-        "frontend/src/components/QuotationActions.tsx",
-        "frontend/src/utils/pdfGenerator.ts"
-      ]
-    },
-    {
-      "description": "HTML file attachment for WhatsApp sharing instead of PDF",
-      "reason": "The implementation creates HTML files for sharing, but the BuildRequest specifies PDF format. REQ-2 explicitly mentions 'PDF attachment is correctly included in the share'.",
-      "evidence": [
-        "frontend/src/components/QuotationActions.tsx",
-        "frontend/src/utils/whatsappShare.ts"
-      ]
-    },
-    {
-      "description": "Alert-based user instructions for desktop WhatsApp fallback",
-      "reason": "While error handling was requested, using browser alerts instead of toast notifications or modals contradicts REQ-3 AC: 'Error messages are displayed in a user-friendly toast or modal'.",
-      "evidence": [
-        "frontend/src/utils/whatsappShare.ts"
+        "backend/main.mo",
+        "frontend/src/hooks/useQueries.ts"
       ]
     }
   ],
-  "confidence": 0.85,
+  "hallucinated_features": [
+    {
+      "description": "Added refreshTrigger prop to useGetAllDoorEntries and passed from App.tsx through DoorEntryList to force query refetch",
+      "reason": "The BuildRequest does not mention implementing a refresh trigger mechanism. This appears to be an implementation detail added beyond the requested error fixing scope",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/App.tsx",
+        "frontend/src/components/DoorEntryList.tsx"
+      ]
+    },
+    {
+      "description": "Modified DoorEntryList to calculate totals dynamically on the frontend using useMemo instead of relying solely on backend totals",
+      "reason": "The BuildRequest explicitly states as a non-goal: 'Changing the door entry or totals calculation logic'. The addition of frontend total calculations with useMemo appears to change how totals are computed",
+      "evidence": [
+        "frontend/src/components/DoorEntryList.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.75,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
-    "frontend/src/components/DoorEntryForm.tsx",
     "frontend/src/components/DoorEntryList.tsx",
     "frontend/src/components/GrandTotals.tsx",
-    "frontend/src/components/QuotationActions.tsx",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/utils/pdfGenerator.ts",
-    "frontend/src/utils/whatsappShare.ts",
     "project_state.json"
   ]
 }

@@ -5,8 +5,6 @@ import Float "mo:core/Float";
 import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
 
-
-
 actor {
   public type CoatingType = {
     #single;
@@ -118,4 +116,3 @@ actor {
     };
   };
 };
-

@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the PDF generation and WhatsApp sharing functionality in the door quotation application.
+**Goal:** Fix the loading errors preventing door entries and grand totals from displaying in the door size calculator application.
 
 **Planned changes:**
-- Debug and resolve PDF generation errors in QuotationActions component
-- Fix WhatsApp sharing to work on both mobile and desktop devices
-- Add error handling with clear user feedback for generation and sharing failures
-- Display success confirmations when PDF is generated and shared successfully
+- Debug and resolve the "Error loading door entries" issue in the DoorEntryList component by fixing the useQuery hook implementation
+- Debug and resolve the "Error loading totals" issue in the GrandTotals component by fixing the totals calculation query
+- Verify backend actor methods (getAllTypes and getTotalSquareFeet) are accessible and responding correctly to frontend queries
+- Implement proper error handling with retry capability for failed queries
+- Ensure loading states display appropriate UI indicators
 
-**User-visible outcome:** Users can successfully generate door quotation PDFs and share them via WhatsApp without errors, with clear feedback messages for both success and failure scenarios.
+**User-visible outcome:** Door entries and grand totals load successfully without error messages, allowing users to view their door size entries and calculated totals.

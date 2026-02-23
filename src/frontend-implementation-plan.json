@@ -1,66 +1,78 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix generate & print functionality",
+  "title": "Fix door entries and totals loading errors",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Debug and fix the PDF generation functionality in the QuotationActions component to ensure quotations can be successfully generated",
+      "summary": "Debug and fix door entries loading error in DoorEntryList component",
       "acceptanceCriteria": [
-        "PDF generation completes without errors",
-        "Generated PDF contains all door entries with correct calculations",
-        "Customer information is properly included in the PDF",
-        "Coating type totals are accurately displayed in the PDF"
+        "Door entries load successfully without showing error messages",
+        "If backend query fails, provide meaningful error feedback with retry capability",
+        "Loading states are properly handled with appropriate UI indicators"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/pdfGenerator.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Debug and fix PDF generation logic to ensure proper HTML structure, correct data binding for door entries, customer information, and coating totals. Add error handling for missing or invalid data. Ensure all calculations from coatingRates.ts are correctly applied. Verify the generated HTML renders properly as a PDF."
+          "description": "Review and fix the useGetAllDoorEntries query hook to ensure proper error handling, enabled state management based on actor availability, and appropriate retry logic. Add logging to diagnose query failures and verify the actor is available before executing queries."
         },
         {
-          "path": "frontend/src/components/QuotationActions.tsx",
+          "path": "frontend/src/components/DoorEntryList.tsx",
           "operation": "modify",
-          "description": "Fix the PDF generation flow by adding proper error handling around pdfGenerator.ts calls. Ensure customer data and door entries are correctly passed to the PDF generator. Add validation to check that required data (customer info, door entries) exists before attempting PDF generation. Implement try-catch blocks to capture and handle PDF generation errors."
+          "description": "Enhance error handling in DoorEntryList to display more specific error messages distinguishing between actor unavailability, network errors, and backend failures. Add retry button functionality and improve loading state UI. Ensure the component properly handles the pending, error, and success states from the useGetAllDoorEntries query."
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Add error handling and validation to ensure the backend actor is properly initialized and available. Include checks for authentication state and canister availability. Add debugging logs to track actor initialization issues."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Fix the WhatsApp sharing functionality to ensure the generated PDF can be shared successfully on both mobile and desktop devices",
+      "summary": "Debug and fix totals loading error in GrandTotals component",
       "acceptanceCriteria": [
-        "WhatsApp sharing works on mobile devices using Web Share API",
-        "WhatsApp sharing works on desktop with fallback to opening WhatsApp web",
-        "PDF attachment is correctly included in the share",
-        "Error handling provides clear feedback if sharing fails"
+        "Grand totals calculate and display correctly without error messages",
+        "Error handling provides clear feedback if backend calculation fails",
+        "Totals update automatically when door entries change"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/whatsappShare.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Debug and fix WhatsApp sharing logic to ensure the Web Share API is properly detected and used on mobile devices. Fix the desktop fallback to correctly open WhatsApp web with the pre-filled message. Ensure the PDF blob is correctly attached to the share payload. Add proper error detection for share cancellation vs. actual failures. Implement browser capability checks before attempting share operations."
+          "description": "Review and fix the useGetTotalSquareFeet query hook to ensure proper error handling, enabled state management based on actor availability, and appropriate retry logic. Verify the query is properly invalidated when door entries change. Add logging to diagnose calculation failures."
         },
         {
-          "path": "frontend/src/components/QuotationActions.tsx",
+          "path": "frontend/src/components/GrandTotals.tsx",
           "operation": "modify",
-          "description": "Fix the integration between PDF generation and WhatsApp sharing by ensuring the PDF blob is correctly passed to whatsappShare.ts. Add proper sequencing to ensure PDF generation completes before attempting to share. Implement error handling for both generation and sharing failures with specific error messages for each step."
+          "description": "Enhance error handling in GrandTotals to display more specific error messages and retry functionality. Improve loading state UI and ensure proper handling of pending, error, and success states from the useGetTotalSquareFeet query. Verify the component properly responds to door entry changes."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add error handling and user feedback to the QuotationActions component to display specific error messages when PDF generation or sharing fails",
+      "summary": "Verify backend actor availability and ensure getAllTypes and getTotalSquareFeet methods are accessible",
       "acceptanceCriteria": [
-        "Users see a clear error message if PDF generation fails",
-        "Users see a specific message if WhatsApp sharing is unavailable",
-        "Error messages are displayed in a user-friendly toast or modal",
-        "Success confirmation is shown after successful PDF generation and sharing"
+        "Backend actor methods respond successfully to frontend queries",
+        "Network connectivity issues are handled gracefully",
+        "Authentication state is properly managed for backend calls"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/QuotationActions.tsx",
+          "path": "frontend/src/hooks/useActor.ts",
           "operation": "modify",
-          "description": "Add comprehensive error handling and user feedback using toast notifications or modals. Implement specific error messages for different failure scenarios: missing customer info, missing door entries, PDF generation errors, Web Share API unavailability, sharing cancellation, and network errors. Add success confirmation messages after successful PDF generation and WhatsApp sharing. Ensure error messages are user-friendly and actionable."
+          "description": "Add comprehensive error handling for actor initialization failures including authentication issues, canister unavailability, and network errors. Implement retry logic and provide clear error states to dependent components. Add validation to verify the actor interface matches the expected backend methods (getAllTypes, getTotalSquareFeet)."
+        },
+        {
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "operation": "modify",
+          "description": "Enhance authentication state management to ensure proper identity initialization and persistence. Add error handling for authentication failures and provide clear feedback when authentication is required for backend operations. Verify the AuthClient is properly configured for the canister environment."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add defensive checks to ensure queries are only enabled when the actor is available and authenticated. Implement proper error boundaries for network failures and backend unavailability. Add retry configuration with exponential backoff for transient failures. Ensure query invalidation properly triggers refetches when the actor state changes."
         }
       ]
     }

@@ -1,77 +1,69 @@
 {
   "kind": "build_request",
-  "title": "Fix generate & print functionality",
-  "projectName": "Door Quotation",
+  "title": "Fix door entries and totals loading errors",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Debug and fix the PDF generation functionality in the QuotationActions component to ensure quotations can be successfully generated",
+      "text": "Debug and fix the 'Error loading door entries. Please try again.' error displayed in the DoorEntryList component by investigating the useQuery hook for fetching door entries and ensuring proper error handling and retry logic",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-cannot-generate"
+          "msg-latest"
         ],
         "quotes": [
-          "Cannot generate & print"
+          "Error loading door entries. Please try again."
         ]
       },
       "acceptanceCriteria": [
-        "PDF generation completes without errors",
-        "Generated PDF contains all door entries with correct calculations",
-        "Customer information is properly included in the PDF",
-        "Coating type totals are accurately displayed in the PDF"
+        "Door entries load successfully without showing error messages",
+        "If backend query fails, provide meaningful error feedback with retry capability",
+        "Loading states are properly handled with appropriate UI indicators"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the WhatsApp sharing functionality to ensure the generated PDF can be shared successfully on both mobile and desktop devices",
+      "text": "Debug and fix the 'Error loading totals. Please try again.' error displayed in the GrandTotals component by investigating the useQuery hook for calculating totals and ensuring proper error handling",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-cannot-generate"
+          "msg-latest"
         ],
         "quotes": [
-          "Cannot generate & print"
+          "Error loading totals. Please try again."
         ]
       },
       "acceptanceCriteria": [
-        "WhatsApp sharing works on mobile devices using Web Share API",
-        "WhatsApp sharing works on desktop with fallback to opening WhatsApp web",
-        "PDF attachment is correctly included in the share",
-        "Error handling provides clear feedback if sharing fails"
+        "Grand totals calculate and display correctly without error messages",
+        "Error handling provides clear feedback if backend calculation fails",
+        "Totals update automatically when door entries change"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add error handling and user feedback to the QuotationActions component to display specific error messages when PDF generation or sharing fails",
-      "target": "frontend",
+      "text": "Verify backend actor availability and ensure the getAllTypes and getTotalSquareFeet methods are functioning correctly and accessible from the frontend queries",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-cannot-generate"
-        ],
-        "quotes": [
-          "Cannot generate & print"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "Users see a clear error message if PDF generation fails",
-        "Users see a specific message if WhatsApp sharing is unavailable",
-        "Error messages are displayed in a user-friendly toast or modal",
-        "Success confirmation is shown after successful PDF generation and sharing"
+        "Backend actor methods respond successfully to frontend queries",
+        "Network connectivity issues are handled gracefully",
+        "Authentication state is properly managed for backend calls"
       ]
     }
   ],
   "constraints": [
-    "Maintain the existing UI layout and design of QuotationActions component",
-    "Preserve the current PDF format and content structure from pdfGenerator.ts",
-    "Keep the existing WhatsApp sharing flow with Web Share API and fallback"
+    "Do not change the backend schema or main.mo structure",
+    "Preserve existing useQueries.ts query invalidation logic",
+    "Maintain current authentication flow with Internet Identity"
   ],
   "nonGoals": [
-    "Changing the PDF content or layout design",
-    "Adding alternative sharing methods beyond WhatsApp",
-    "Modifying the door entry calculation logic",
-    "Changing backend data structures or APIs"
+    "Redesigning the error message UI styling",
+    "Adding new features beyond fixing the loading errors",
+    "Changing the door entry or totals calculation logic"
   ],
   "imageRequirements": {
     "required": [],

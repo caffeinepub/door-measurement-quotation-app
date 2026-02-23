@@ -8,10 +8,14 @@ export function useGetAllDoorEntries(refreshTrigger?: number) {
   return useQuery<DoorEntry[]>({
     queryKey: ["doorEntries", refreshTrigger],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        throw new Error("Backend actor not available");
+      }
       return actor.getAllTypes();
     },
     enabled: !!actor && !isFetching,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 
@@ -22,17 +26,13 @@ export function useGetTotalSquareFeet() {
     queryKey: ["totalSquareFeet"],
     queryFn: async () => {
       if (!actor) {
-        return {
-          singleCoating: 0,
-          doubleCoating: 0,
-          doubleSagwan: 0,
-          laminate: 0,
-          grandTotal: 0,
-        };
+        throw new Error("Backend actor not available");
       }
       return actor.getTotalSquareFeet();
     },
     enabled: !!actor && !isFetching,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 

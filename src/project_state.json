@@ -3,45 +3,36 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [
-    "Generate & print functionality is not working"
-  ],
+  "known_issues": [],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-debug-and-fix-the-pdf-generation-functionality-in-the-quotationactions-component-to-ensure-quotations-can-be-successfully-generated",
-      "title": "Debug and fix the PDF generation functionality in the QuotationActions component to ensure quotations can be successfully generated",
+      "id": "feature-debug-and-fix-the-error-loading-door-entries-please-try-again-error-displayed-in-the-doorentrylist-component-by-investigating-the-usequery-hook-for-fetching-door-entries-and-ensuring-proper-error-handling-and-retry-logic",
+      "title": "Debug and fix the 'Error loading door entries. Please try again.' error displayed in the DoorEntryList component by investigating the useQuery hook for fetching door entries and ensuring proper error handling and retry logic",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-whatsapp-sharing-functionality-to-ensure-the-generated-pdf-can-be-shared-successfully-on-both-mobile-and-desktop-devices",
-      "title": "Fix the WhatsApp sharing functionality to ensure the generated PDF can be shared successfully on both mobile and desktop devices",
+      "id": "feature-debug-and-fix-the-error-loading-totals-please-try-again-error-displayed-in-the-grandtotals-component-by-investigating-the-usequery-hook-for-calculating-totals-and-ensuring-proper-error-handling",
+      "title": "Debug and fix the 'Error loading totals. Please try again.' error displayed in the GrandTotals component by investigating the useQuery hook for calculating totals and ensuring proper error handling",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-error-handling-and-user-feedback-to-the-quotationactions-component-to-display-specific-error-messages-when-pdf-generation-or-sharing-fails",
-      "title": "Add error handling and user feedback to the QuotationActions component to display specific error messages when PDF generation or sharing fails",
+      "id": "feature-verify-backend-actor-availability-and-ensure-the-getalltypes-and-gettotalsquarefeet-methods-are-functioning-correctly-and-accessible-from-the-frontend-queries",
+      "title": "Verify backend actor availability and ensure the getAllTypes and getTotalSquareFeet methods are functioning correctly and accessible from the frontend queries",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Fix generate & print functionality",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "projectName": "Door Quotation",
+  "new_feature_requests": [],
+  "projectName": "Fix door entries and totals loading errors",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

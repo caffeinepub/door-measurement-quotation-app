@@ -130,18 +130,18 @@ export function generateQuotationHTML(
 
       return `
         <tr>
-          <td style="padding: 12px; border: 1px solid #ddd;">${heightDisplay}" × ${widthDisplay}"</td>
-          <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${group.squareFeet.toFixed(2)}</td>
-          <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">${
+          <td>${heightDisplay}" × ${widthDisplay}"</td>
+          <td class="center">${group.squareFeet.toFixed(2)}</td>
+          <td class="right">${
             singleEntry ? formatCurrency(singleEntry.amount) : "-"
           }</td>
-          <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">${
+          <td class="right">${
             doubleEntry ? formatCurrency(doubleEntry.amount) : "-"
           }</td>
-          <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">${
+          <td class="right">${
             doubleSagwanEntry ? formatCurrency(doubleSagwanEntry.amount) : "-"
           }</td>
-          <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">${
+          <td class="right">${
             laminateEntry ? formatCurrency(laminateEntry.amount) : "-"
           }</td>
         </tr>
@@ -154,100 +154,251 @@ export function generateQuotationHTML(
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <title>Door Quotation - ${customerName}</title>
       <style>
-        @media print {
-          body { margin: 0; }
-          @page { margin: 1cm; }
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
         }
+        
         body {
           font-family: Arial, sans-serif;
-          padding: 20px;
-          max-width: 1000px;
-          margin: 0 auto;
+          padding: 10px;
+          font-size: 11px;
+          line-height: 1.4;
         }
+        
+        @media screen and (min-width: 640px) {
+          body {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            font-size: 14px;
+          }
+        }
+        
+        @media print {
+          body { 
+            margin: 0;
+            padding: 10px;
+            font-size: 10px;
+          }
+          @page { 
+            margin: 0.5cm;
+            size: A4;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+        
         .header {
           text-align: center;
-          margin-bottom: 30px;
+          margin-bottom: 15px;
           border-bottom: 2px solid #333;
-          padding-bottom: 20px;
+          padding-bottom: 10px;
         }
+        
         .header h1 {
-          margin: 0 0 10px 0;
+          margin: 0 0 5px 0;
           color: #333;
+          font-size: 1.5em;
         }
+        
+        .header p {
+          font-size: 0.9em;
+        }
+        
         .customer-info {
-          margin-bottom: 30px;
+          margin-bottom: 15px;
           background: #f5f5f5;
-          padding: 15px;
+          padding: 10px;
           border-radius: 5px;
         }
+        
         .customer-info p {
-          margin: 5px 0;
-          font-size: 14px;
+          margin: 3px 0;
+          font-size: 1em;
         }
+        
+        .table-container {
+          overflow-x: auto;
+          margin-bottom: 15px;
+          -webkit-overflow-scrolling: touch;
+        }
+        
         table {
           width: 100%;
           border-collapse: collapse;
-          margin-bottom: 30px;
+          min-width: 100%;
+          font-size: 0.85em;
         }
+        
+        @media screen and (min-width: 640px) {
+          table {
+            font-size: 1em;
+          }
+        }
+        
         th {
           background-color: #333;
           color: white;
-          padding: 12px;
+          padding: 6px 4px;
           text-align: left;
           border: 1px solid #ddd;
+          font-size: 0.9em;
+          white-space: nowrap;
         }
-        th.center {
+        
+        @media screen and (min-width: 640px) {
+          th {
+            padding: 12px 8px;
+            font-size: 1em;
+          }
+        }
+        
+        td {
+          padding: 6px 4px;
+          border: 1px solid #ddd;
+          font-size: 0.9em;
+        }
+        
+        @media screen and (min-width: 640px) {
+          td {
+            padding: 10px 8px;
+            font-size: 1em;
+          }
+        }
+        
+        th.center, td.center {
           text-align: center;
         }
-        th.right {
+        
+        th.right, td.right {
           text-align: right;
         }
+        
         tfoot td {
           font-weight: bold;
           background-color: #f0f0f0;
-          padding: 12px;
+          padding: 8px 4px;
           border: 1px solid #ddd;
         }
+        
+        @media screen and (min-width: 640px) {
+          tfoot td {
+            padding: 12px 8px;
+          }
+        }
+        
         .summary {
           background: #f5f5f5;
-          padding: 20px;
+          padding: 12px;
           border-radius: 5px;
+          margin-bottom: 15px;
         }
+        
+        @media screen and (min-width: 640px) {
+          .summary {
+            padding: 20px;
+          }
+        }
+        
         .summary h3 {
           margin-top: 0;
+          margin-bottom: 10px;
           color: #333;
+          font-size: 1.2em;
         }
+        
         .summary-item {
           display: flex;
           justify-content: space-between;
-          padding: 8px 0;
+          padding: 6px 0;
           border-bottom: 1px solid #ddd;
+          font-size: 0.95em;
         }
+        
+        @media screen and (min-width: 640px) {
+          .summary-item {
+            padding: 8px 0;
+            font-size: 1em;
+          }
+        }
+        
         .summary-item:last-child {
           border-bottom: none;
           font-weight: bold;
-          font-size: 1.1em;
-          margin-top: 10px;
-          padding-top: 15px;
+          font-size: 1.05em;
+          margin-top: 8px;
+          padding-top: 12px;
           border-top: 2px solid #333;
         }
+        
         .note {
-          margin-top: 30px;
-          padding: 15px;
+          margin-top: 15px;
+          padding: 10px;
           background: #fff3cd;
           border-left: 4px solid #ffc107;
-          font-size: 12px;
+          font-size: 0.85em;
+          line-height: 1.5;
         }
+        
+        @media screen and (min-width: 640px) {
+          .note {
+            margin-top: 30px;
+            padding: 15px;
+            font-size: 0.9em;
+          }
+        }
+        
         .footer {
-          margin-top: 40px;
+          margin-top: 20px;
           text-align: center;
-          font-size: 12px;
+          font-size: 0.8em;
           color: #666;
           border-top: 1px solid #ddd;
-          padding-top: 20px;
+          padding-top: 10px;
+        }
+        
+        @media screen and (min-width: 640px) {
+          .footer {
+            margin-top: 40px;
+            font-size: 0.85em;
+            padding-top: 20px;
+          }
+        }
+        
+        @media print {
+          .header h1 {
+            font-size: 18px;
+          }
+          table {
+            font-size: 9px;
+          }
+          th, td {
+            padding: 4px 2px;
+          }
+          .summary {
+            padding: 8px;
+          }
+          .summary h3 {
+            font-size: 12px;
+          }
+          .summary-item {
+            font-size: 9px;
+            padding: 4px 0;
+          }
+          .note {
+            padding: 6px;
+            font-size: 8px;
+          }
+          .footer {
+            font-size: 8px;
+            margin-top: 15px;
+          }
         }
       </style>
     </head>
@@ -262,31 +413,33 @@ export function generateQuotationHTML(
         <p><strong>Mobile:</strong> ${customerMobile}</p>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Door Size</th>
-            <th class="center">Sq.Ft</th>
-            <th class="right">Single Coating</th>
-            <th class="right">Double Coating</th>
-            <th class="right">Double + Sagwan</th>
-            <th class="right">Laminate</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tableRows}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td>Total</td>
-            <td style="text-align: center;">${totals.squareFeet.toFixed(2)}</td>
-            <td style="text-align: right;">${totals.single > 0 ? formatCurrency(totals.single) : "-"}</td>
-            <td style="text-align: right;">${totals.double > 0 ? formatCurrency(totals.double) : "-"}</td>
-            <td style="text-align: right;">${totals.doubleSagwan > 0 ? formatCurrency(totals.doubleSagwan) : "-"}</td>
-            <td style="text-align: right;">${totals.laminate > 0 ? formatCurrency(totals.laminate) : "-"}</td>
-          </tr>
-        </tfoot>
-      </table>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Door Size</th>
+              <th class="center">Sq.Ft</th>
+              <th class="right">Single Coating</th>
+              <th class="right">Double Coating</th>
+              <th class="right">Double + Sagwan</th>
+              <th class="right">Laminate</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td class="center">${totals.squareFeet.toFixed(2)}</td>
+              <td class="right">${totals.single > 0 ? formatCurrency(totals.single) : "-"}</td>
+              <td class="right">${totals.double > 0 ? formatCurrency(totals.double) : "-"}</td>
+              <td class="right">${totals.doubleSagwan > 0 ? formatCurrency(totals.doubleSagwan) : "-"}</td>
+              <td class="right">${totals.laminate > 0 ? formatCurrency(totals.laminate) : "-"}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
 
       <div class="summary">
         <h3>Coating Type Summary</h3>
@@ -325,8 +478,7 @@ export function generateQuotationHTML(
       </div>
 
       <div class="note">
-        <strong>Note:</strong> All calculations are based on rounded dimensions according to standard carpenter sizing rules. 
-        Actual entered dimensions are displayed in the table for reference.
+        <strong>Note:</strong> All calculations are based on rounded dimensions according to standard carpenter sizing rules. Actual entered dimensions are displayed in the table for reference.
       </div>
 
       <div class="footer">
