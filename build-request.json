@@ -1,0 +1,56 @@
+{
+  "kind": "build_request",
+  "title": "Fix backend data loading errors for door entries and totals",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Investigate and fix the backend actor so that fetching door entries and fetching totals no longer returns errors. The app currently shows 'Error loading door entries. Please try again.' and 'Error loading totals. Please try again.' on page load, indicating the query calls to the backend are failing. Ensure the getDoorEntries and getTotals (or equivalent) backend methods return valid responses and do not trap or throw.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Fix this error please"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On app load, the door entries list renders without an error state (shows empty list or entries if any exist)",
+        "On app load, the totals section renders without an error state (shows zero totals or actual totals)",
+        "Retry button in DoorEntryList resolves successfully after the fix",
+        "Retry button in GrandTotals resolves successfully after the fix"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Review the frontend React Query hooks in frontend/src/hooks/useQueries.ts that call the backend for door entries and totals. Ensure the actor is correctly initialized before queries run, query keys are stable, and error boundaries or query error handling do not mask a successful response as an error. Fix any issues found.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Error loading door entries. Please try again.",
+          "Error loading totals. Please try again."
+        ]
+      },
+      "acceptanceCriteria": [
+        "useQueries hooks for entries and totals do not enter error state when the backend is healthy",
+        "Actor availability is checked before queries are enabled (e.g., using 'enabled' flag tied to actor being non-null)"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Keep all Motoko logic in backend/main.mo single actor"
+  ],
+  "nonGoals": [
+    "Adding new features or UI changes unrelated to the loading errors",
+    "Changing the coating rate logic or dimension rounding logic"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

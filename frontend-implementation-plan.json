@@ -1,0 +1,22 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Fix frontend data loading errors for door entries and totals",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "summary": "Fix React Query hooks to properly handle actor initialization and prevent false error states when loading door entries and totals",
+      "acceptanceCriteria": [
+        "useQueries hooks for entries and totals do not enter error state when the backend is healthy",
+        "Actor availability is checked before queries are enabled (e.g., using 'enabled' flag tied to actor being non-null)"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Review and fix the query hooks for fetching door entries (getAll) and totals (getTotals). Ensure each query includes an 'enabled' flag that checks actor availability before executing. Verify query keys are stable and do not cause unnecessary refetches. Add proper null/undefined checks for the actor before calling backend methods. Ensure error handling correctly distinguishes between actor unavailability and actual backend errors."
+        }
+      ]
+    }
+  ]
+}

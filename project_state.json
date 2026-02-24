@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-review-the-frontend-react-query-hooks-in-frontend-src-hooks-usequeries-ts-that-call-the-backend-for-door-entries-and-totals-ensure-the-actor-is-correctly-initialized-before-queries-run-query-keys-are-stable-and-error-boundaries-or-query-error-handling-do-not-mask-a-successful-response-as-an-error-fix-any-issues-found",
+      "title": "Review the frontend React Query hooks in frontend/src/hooks/useQueries.ts that call the backend for door entries and totals. Ensure the actor is correctly initialized before queries run, query keys are stable, and error boundaries or query error handling do not mask a successful response as an error. Fix any issues found.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Investigate and fix the backend actor so that fetching door entries and fetching totals no longer returns errors. The app currently shows 'Error loading door entries. Please try again.' and 'Error loading totals. Please try again.' on page load, indicating the query calls to the backend are failing. Ensure the getDoorEntries and getTotals (or equivalent) backend methods return valid responses and do not trap or throw.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Fix backend data loading errors for door entries and totals",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
