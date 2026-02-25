@@ -1,42 +1,82 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T13:31:58.123Z",
+  "generatedAt": "2026-02-25T10:41:55.423Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
+    "total": 6,
     "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Investigate and fix the backend actor so that fetching door entries and fetching totals no longer returns errors. The app currently shows 'Error loading door entries. Please try again.' and 'Error loading totals. Please try again.' on page load, indicating the query calls to the backend are failing. Ensure the getDoorEntries and getTotals (or equivalent) backend methods return valid responses and do not trap or throw.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Create or update `frontend/src/utils/dimensionRounding.ts` to implement exactly two carpenter-style rounding rules applied in strict priority order:\n\n**Rule 1 (highest priority):** IF actual width > 38 inches AND actual height < 80 inches → use rounded width = 40, rounded height = 80.\n\n**Rule 2:** IF actual width > 36 inches AND actual height < 78 inches → use rounded width = 38, rounded height = 78.\n\nIf neither rule matches, return the actual dimensions unchanged. The function must accept actual (decimal) height and width and return the dimensions to use for calculation only. These rounded values must never be returned to the display layer.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/dimensionRounding.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/dimensionRounding.ts"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Review the frontend React Query hooks in frontend/src/hooks/useQueries.ts that call the backend for door entries and totals. Ensure the actor is correctly initialized before queries run, query keys are stable, and error boundaries or query error handling do not mask a successful response as an error. Fix any issues found.",
-        "status": "implemented",
+        "summary": "Update `frontend/src/utils/squareFeetCalculator.ts` so that it applies the rounding rules from `dimensionRounding.ts` before computing square footage. The formula remains `(roundedHeight × roundedWidth) / 144`. The function must accept actual height and width, internally derive rounded dimensions using the priority-ordered rules, and return the square footage based on rounded values.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/utils/squareFeetCalculator.ts"
         ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
-        ]
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Update `frontend/src/utils/pdfGenerator.ts` to ensure that when generating the HTML quotation document, all door dimensions displayed in the table (height and width columns) use the actual entered dimensions — never the rounded dimensions. The per-entry coating amounts and totals must be computed using the rounded square footage (via the updated `squareFeetCalculator.ts`), but the dimension columns must show what the user typed.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/utils/pdfGenerator.ts"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Ensure that `frontend/src/components/DoorEntryList.tsx` and `frontend/src/components/GrandTotals.tsx` display only actual entered dimensions in the door list table, while all monetary amounts and square footage values are computed using the rounded dimensions via the updated `squareFeetCalculator.ts`. Totals in the footer row must also reflect rounded calculation values.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/components/DoorEntryList.tsx",
+          "frontend/src/components/GrandTotals.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Ensure that `frontend/src/components/QuotationActions.tsx` and `frontend/src/utils/whatsappShare.ts` produce WhatsApp share text that displays only actual entered dimensions, while all computed amounts in the share message reflect rounded calculation values.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/utils/whatsappShare.ts",
+          "frontend/src/components/QuotationActions.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Verify and ensure that the rounding rules are applied uniformly across all four door coating types: Single Coating, Double Coating, Double Coating + Sagwan Patti, and Laminate. The rounding logic must be coating-type-agnostic — the same Rule 1 / Rule 2 priority evaluation applies regardless of coating type.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/components/DoorEntryForm.tsx",
+          "frontend/src/utils/coatingRates.ts"
+        ],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/dimensionRounding.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

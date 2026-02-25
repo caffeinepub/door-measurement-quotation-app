@@ -1,20 +1,122 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix frontend data loading errors for door entries and totals",
+  "title": "Add carpenter-style rounding rules for door size calculation",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Fix React Query hooks to properly handle actor initialization and prevent false error states when loading door entries and totals",
+      "id": "REQ-1",
+      "summary": "Implement exactly two carpenter-style rounding rules in strict priority order: Rule 1 (width > 38 AND height < 80 → 40×80) and Rule 2 (width > 36 AND height < 78 → 38×78), replacing the existing four-rule composite rounding system",
       "acceptanceCriteria": [
-        "useQueries hooks for entries and totals do not enter error state when the backend is healthy",
-        "Actor availability is checked before queries are enabled (e.g., using 'enabled' flag tied to actor being non-null)"
+        "Given width=39, height=79 → rounded width=40, height=80 (Rule 1 fires).",
+        "Given width=37, height=77 → rounded width=38, height=78 (Rule 2 fires; Rule 1 does not because width ≤ 38).",
+        "Given width=39, height=80 → no rounding applied (height is not < 80 for Rule 1; Rule 2 also does not fire because width > 36 but height is not < 78).",
+        "Given width=36, height=77 → no rounding applied (neither rule fires).",
+        "Given width=38.5, height=75 → Rule 1 fires (width > 38) → rounded 40×80.",
+        "Function returns actual dimensions when no rule matches."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/utils/dimensionRounding.ts",
           "operation": "modify",
-          "description": "Review and fix the query hooks for fetching door entries (getAll) and totals (getTotals). Ensure each query includes an 'enabled' flag that checks actor availability before executing. Verify query keys are stable and do not cause unnecessary refetches. Add proper null/undefined checks for the actor before calling backend methods. Ensure error handling correctly distinguishes between actor unavailability and actual backend errors."
+          "description": "Replace the existing four-rule composite rounding system with exactly two carpenter-style rules evaluated in strict priority order. Rule 1: IF actual width > 38 inches AND actual height < 80 inches THEN return rounded width = 40, rounded height = 80. Rule 2: IF actual width > 36 inches AND actual height < 78 inches THEN return rounded width = 38, rounded height = 78. If neither rule matches, return actual dimensions unchanged. Remove all existing composite rule functions (rule42x80, rule40x84, rule42x84, rule44x96) and individual rounding helpers (roundTo40or42, roundTo80or84or96). The roundDimensions function must accept actual (decimal) height and width and return the dimensions to use for calculation only."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Update square footage calculator to apply the new two-rule carpenter-style rounding before computing square footage using the formula (roundedHeight × roundedWidth) / 144",
+      "acceptanceCriteria": [
+        "For actual width=39, height=79: square feet = (80 × 40) / 144 = 22.22 sq ft.",
+        "For actual width=37, height=77: square feet = (78 × 38) / 144 = 20.58 sq ft.",
+        "For actual width=34, height=76: square feet = (76 × 34) / 144 (no rounding, actual dims used).",
+        "Coating amount calculations (single, double, doubleSagwan, laminate) are derived from the rounded square footage.",
+        "Rates are not modified."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/squareFeetCalculator.ts",
+          "operation": "modify",
+          "description": "Modify the calculateSquareFeet function to import and apply the updated roundDimensions function from dimensionRounding.ts before computing square footage. The function must accept actual height and width parameters, internally call roundDimensions to derive rounded dimensions using the priority-ordered rules (Rule 1 then Rule 2), and return the square footage calculated as (roundedHeight × roundedWidth) / 144. Ensure coating amounts for all four types (single, double, doubleSagwan, laminate) are derived from this rounded square footage value."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Ensure PDF quotation displays only actual entered dimensions in height/width columns while per-entry amounts and totals reflect rounded calculation values",
+      "acceptanceCriteria": [
+        "PDF table displays actual entered height and width for every door entry.",
+        "Per-entry amounts and grand totals in the PDF reflect rounded calculation values.",
+        "No column or cell in the PDF shows rounded dimensions (40×80 or 38×78 labels must not appear)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/pdfGenerator.ts",
+          "operation": "modify",
+          "description": "Review and verify that the generateQuotationHTML function displays only actual entered dimensions (heightEntered, widthEntered) in all height and width columns of the door entry table. Ensure per-entry coating amounts and totals are computed using the updated calculateSquareFeet utility (which internally applies the new rounding rules). Confirm that no rounded dimension values (40, 38, 80, 78) appear as dimension labels anywhere in the generated HTML quotation document. The amounts must reflect the rounded square footage for accurate cost calculation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Ensure DoorEntryList and GrandTotals components display only actual entered dimensions in the door list table while all monetary amounts and square footage values use rounded calculations",
+      "acceptanceCriteria": [
+        "Door list table shows actual height and width as entered by the user.",
+        "Calculated amounts per row use rounded square footage.",
+        "Grand totals row uses rounded square footage for all four coating types.",
+        "No rounded dimension values (40, 38, 80, 78) appear as dimension labels in the table."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/DoorEntryList.tsx",
+          "operation": "modify",
+          "description": "Review and verify that the DoorEntryList component displays only actual entered dimensions (heightEntered, widthEntered) in the height and width columns of the door list table. Ensure all per-row coating amounts are computed using the updated calculateSquareFeet utility (which applies the new rounding rules internally). Verify that the totals footer row also reflects rounded calculation values for all four coating types. Confirm that no rounded dimension values appear as dimension labels in any table cell."
+        },
+        {
+          "path": "frontend/src/components/GrandTotals.tsx",
+          "operation": "modify",
+          "description": "Review and verify that the GrandTotals component computes and displays grand totals for square feet and all four coating type amounts using the updated calculation logic that applies the new rounding rules. Ensure no rounded dimension values are displayed in the summary card. The totals must reflect the rounded calculation values derived from the updated squareFeetCalculator utility."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Ensure WhatsApp share text displays only actual entered dimensions while all computed amounts reflect rounded calculation values",
+      "acceptanceCriteria": [
+        "WhatsApp share message shows actual door dimensions as entered.",
+        "Amounts in the WhatsApp message are computed using rounded square footage.",
+        "Rounded dimension values do not appear in the share text."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/whatsappShare.ts",
+          "operation": "modify",
+          "description": "Review and verify that the shareViaWhatsApp function generates share text displaying only actual entered dimensions (heightEntered, widthEntered) for each door entry. Ensure all amounts in the share message are computed using the updated calculateSquareFeet utility (which applies the new rounding rules internally). Confirm that no rounded dimension values (40, 38, 80, 78) appear in the WhatsApp share text."
+        },
+        {
+          "path": "frontend/src/components/QuotationActions.tsx",
+          "operation": "modify",
+          "description": "Review the QuotationActions component to ensure it passes actual entered dimensions to the pdfGenerator and whatsappShare utilities. Verify that the component does not introduce any display of rounded dimensions in the quotation generation or sharing flows."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Verify that the new rounding rules are applied uniformly across all four door coating types with coating-type-agnostic logic",
+      "acceptanceCriteria": [
+        "For a door entry with width=39, height=79: all four coating amounts use square footage derived from 40×80.",
+        "For a door entry with width=37, height=77: all four coating amounts use square footage derived from 38×78.",
+        "For a door entry where no rule applies: all four coating amounts use actual dimensions."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/DoorEntryForm.tsx",
+          "operation": "modify",
+          "description": "Review the DoorEntryForm component to verify that it calls the updated roundDimensions function for all four coating types (Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate) in a coating-type-agnostic manner. Ensure the same Rule 1 / Rule 2 priority evaluation applies regardless of coating type when submitting door entries via the addDoorMutation hook. The rounding logic must be uniform across all coating types."
+        },
+        {
+          "path": "frontend/src/utils/coatingRates.ts",
+          "operation": "modify",
+          "description": "Review the coatingRates utility to confirm that all coating amount calculations (single, double, doubleSagwan, laminate) are derived from the square footage value computed by the updated calculateSquareFeet function. Verify that the rounding rules are applied uniformly through the square footage calculation, with no coating-type-specific logic in the amount computation. Ensure coating rates remain unchanged per the constraint."
         }
       ]
     }

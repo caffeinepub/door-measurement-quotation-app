@@ -1,53 +1,147 @@
 {
   "kind": "build_request",
-  "title": "Fix backend data loading errors for door entries and totals",
-  "priority": "high",
+  "title": "Add carpenter-style rounding rules for door size calculation",
+  "projectName": "Door Quotation",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Investigate and fix the backend actor so that fetching door entries and fetching totals no longer returns errors. The app currently shows 'Error loading door entries. Please try again.' and 'Error loading totals. Please try again.' on page load, indicating the query calls to the backend are failing. Ensure the getDoorEntries and getTotals (or equivalent) backend methods return valid responses and do not trap or throw.",
-      "target": "backend",
+      "text": "Create or update `frontend/src/utils/dimensionRounding.ts` to implement exactly two carpenter-style rounding rules applied in strict priority order:\n\n**Rule 1 (highest priority):** IF actual width > 38 inches AND actual height < 80 inches → use rounded width = 40, rounded height = 80.\n\n**Rule 2:** IF actual width > 36 inches AND actual height < 78 inches → use rounded width = 38, rounded height = 78.\n\nIf neither rule matches, return the actual dimensions unchanged. The function must accept actual (decimal) height and width and return the dimensions to use for calculation only. These rounded values must never be returned to the display layer.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-6"
         ],
         "quotes": [
-          "Fix this error please"
+          "RULE 1: IF Actual WIDTH > 38 inches AND Actual HEIGHT < 80 inches THEN Use ROUNDED WIDTH = 40 inches, Use ROUNDED HEIGHT = 80 inches",
+          "RULE 2: IF Actual WIDTH > 36 inches AND Actual HEIGHT < 78 inches THEN Use ROUNDED WIDTH = 38 inches, Use ROUNDED HEIGHT = 78 inches",
+          "Apply Rule 1 first, then Rule 2."
         ]
       },
       "acceptanceCriteria": [
-        "On app load, the door entries list renders without an error state (shows empty list or entries if any exist)",
-        "On app load, the totals section renders without an error state (shows zero totals or actual totals)",
-        "Retry button in DoorEntryList resolves successfully after the fix",
-        "Retry button in GrandTotals resolves successfully after the fix"
+        "Given width=39, height=79 → rounded width=40, height=80 (Rule 1 fires).",
+        "Given width=37, height=77 → rounded width=38, height=78 (Rule 2 fires; Rule 1 does not because width ≤ 38).",
+        "Given width=39, height=80 → no rounding applied (height is not < 80 for Rule 1; Rule 2 also does not fire because width > 36 but height is not < 78).",
+        "Given width=36, height=77 → no rounding applied (neither rule fires).",
+        "Given width=38.5, height=75 → Rule 1 fires (width > 38) → rounded 40×80.",
+        "Function returns actual dimensions when no rule matches."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Review the frontend React Query hooks in frontend/src/hooks/useQueries.ts that call the backend for door entries and totals. Ensure the actor is correctly initialized before queries run, query keys are stable, and error boundaries or query error handling do not mask a successful response as an error. Fix any issues found.",
+      "text": "Update `frontend/src/utils/squareFeetCalculator.ts` so that it applies the rounding rules from `dimensionRounding.ts` before computing square footage. The formula remains `(roundedHeight × roundedWidth) / 144`. The function must accept actual height and width, internally derive rounded dimensions using the priority-ordered rules, and return the square footage based on rounded values.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-6"
         ],
         "quotes": [
-          "Error loading door entries. Please try again.",
-          "Error loading totals. Please try again."
+          "Perform square feet and amount calculation using 80 × 40",
+          "Perform square feet and amount calculation using 78 × 38",
+          "Rounded dimensions must be used ONLY for calculation."
         ]
       },
       "acceptanceCriteria": [
-        "useQueries hooks for entries and totals do not enter error state when the backend is healthy",
-        "Actor availability is checked before queries are enabled (e.g., using 'enabled' flag tied to actor being non-null)"
+        "For actual width=39, height=79: square feet = (80 × 40) / 144 = 22.22 sq ft.",
+        "For actual width=37, height=77: square feet = (78 × 38) / 144 = 20.58 sq ft.",
+        "For actual width=34, height=76: square feet = (76 × 34) / 144 (no rounding, actual dims used).",
+        "Coating amount calculations (single, double, doubleSagwan, laminate) are derived from the rounded square footage.",
+        "Rates are not modified."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update `frontend/src/utils/pdfGenerator.ts` to ensure that when generating the HTML quotation document, all door dimensions displayed in the table (height and width columns) use the actual entered dimensions — never the rounded dimensions. The per-entry coating amounts and totals must be computed using the rounded square footage (via the updated `squareFeetCalculator.ts`), but the dimension columns must show what the user typed.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Display ONLY actual entered dimensions in: PDF quotation",
+          "Do NOT display rounded dimensions anywhere.",
+          "Totals must reflect rounded calculation values."
+        ]
+      },
+      "acceptanceCriteria": [
+        "PDF table displays actual entered height and width for every door entry.",
+        "Per-entry amounts and grand totals in the PDF reflect rounded calculation values.",
+        "No column or cell in the PDF shows rounded dimensions (40×80 or 38×78 labels must not appear)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure that `frontend/src/components/DoorEntryList.tsx` and `frontend/src/components/GrandTotals.tsx` display only actual entered dimensions in the door list table, while all monetary amounts and square footage values are computed using the rounded dimensions via the updated `squareFeetCalculator.ts`. Totals in the footer row must also reflect rounded calculation values.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Display ONLY actual entered dimensions in: Door list table",
+          "Totals must reflect rounded calculation values.",
+          "Do NOT display rounded dimensions anywhere."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Door list table shows actual height and width as entered by the user.",
+        "Calculated amounts per row use rounded square footage.",
+        "Grand totals row uses rounded square footage for all four coating types.",
+        "No rounded dimension values (40, 38, 80, 78) appear as dimension labels in the table."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Ensure that `frontend/src/components/QuotationActions.tsx` and `frontend/src/utils/whatsappShare.ts` produce WhatsApp share text that displays only actual entered dimensions, while all computed amounts in the share message reflect rounded calculation values.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Display ONLY actual entered dimensions in: WhatsApp share",
+          "Do NOT display rounded dimensions anywhere.",
+          "Totals must reflect rounded calculation values."
+        ]
+      },
+      "acceptanceCriteria": [
+        "WhatsApp share message shows actual door dimensions as entered.",
+        "Amounts in the WhatsApp message are computed using rounded square footage.",
+        "Rounded dimension values do not appear in the share text."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Verify and ensure that the rounding rules are applied uniformly across all four door coating types: Single Coating, Double Coating, Double Coating + Sagwan Patti, and Laminate. The rounding logic must be coating-type-agnostic — the same Rule 1 / Rule 2 priority evaluation applies regardless of coating type.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Apply these rules to all door types: Single Coating, Double Coating, Double Coating + Sagwan Patti, Laminate"
+        ]
+      },
+      "acceptanceCriteria": [
+        "For a door entry with width=39, height=79: all four coating amounts use square footage derived from 40×80.",
+        "For a door entry with width=37, height=77: all four coating amounts use square footage derived from 38×78.",
+        "For a door entry where no rule applies: all four coating amounts use actual dimensions."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Keep all Motoko logic in backend/main.mo single actor"
+    "Do not change coating rates in coatingRates.ts.",
+    "Do not modify the fraction input system (1/8 to 7/8) in fractionParser.ts or DoorEntryForm.tsx.",
+    "Do not change the UI layout.",
+    "Rounded dimensions must never be displayed to the user in any view (table, PDF, print, WhatsApp).",
+    "Rule 1 must always be evaluated before Rule 2."
   ],
   "nonGoals": [
-    "Adding new features or UI changes unrelated to the loading errors",
-    "Changing the coating rate logic or dimension rounding logic"
+    "Adding new coating types.",
+    "Changing how fractions are parsed or displayed.",
+    "Modifying the backend actor or data storage.",
+    "Changing the visual design or layout of any component.",
+    "Exposing rounded dimensions in any UI element."
   ],
   "imageRequirements": {
     "required": [],

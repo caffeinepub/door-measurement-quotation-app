@@ -1,15 +1,67 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T13:31:58.121Z",
-  "summary": "Both REQ-1 (backend fix) and REQ-2 (frontend hooks fix) appear to be implemented. The backend/main.mo was updated with proper getAll() and getTotals() query methods that return valid responses without trapping. The frontend/src/hooks/useQueries.ts was updated with actor availability checks (enabled flag tied to actor being non-null and not fetching), safe default returns, and retry:false to prevent false error states.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.88,
+  "generatedAt": "2026-02-25T10:41:55.420Z",
+  "summary": "The diff shows only one file was meaningfully modified: `frontend/src/utils/dimensionRounding.ts`, which correctly implements REQ-1. However, REQ-2 through REQ-6 require updates to `squareFeetCalculator.ts`, `pdfGenerator.ts`, `DoorEntryList.tsx`, `GrandTotals.tsx`, `QuotationActions.tsx`, and `whatsappShare.ts` — none of which appear in the diff as modified files. The project_state.json and frontend-file-summaries.txt show all new feature requests are still marked 'pending', confirming the implementation is incomplete.",
+  "missing_requirements": [
+    {
+      "id": "REQ-2",
+      "requirement": "Update `frontend/src/utils/squareFeetCalculator.ts` to apply rounding rules from `dimensionRounding.ts` before computing square footage using formula (roundedHeight x roundedWidth) / 144.",
+      "reason": "`squareFeetCalculator.ts` does not appear in the diff as a modified file. The project state marks AR-3 as 'pending'.",
+      "evidence": [
+        "project_state.json",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Update `frontend/src/utils/pdfGenerator.ts` to display actual dimensions in the PDF table while computing amounts using rounded square footage.",
+      "reason": "`pdfGenerator.ts` does not appear in the diff as a modified file. The project state marks AR-4 as 'pending'.",
+      "evidence": [
+        "project_state.json",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Ensure `DoorEntryList.tsx` and `GrandTotals.tsx` display only actual entered dimensions while computing amounts using rounded square footage via updated `squareFeetCalculator.ts`.",
+      "reason": "Neither `DoorEntryList.tsx` nor `GrandTotals.tsx` appear in the diff as modified files for this purpose. The project state marks AR-5 as 'pending'.",
+      "evidence": [
+        "project_state.json",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Ensure `QuotationActions.tsx` and `whatsappShare.ts` produce WhatsApp share text with actual dimensions but amounts computed using rounded square footage.",
+      "reason": "Neither `QuotationActions.tsx` nor `whatsappShare.ts` appear in the diff as modified files for this purpose. The project state marks AR-6 as 'pending'.",
+      "evidence": [
+        "project_state.json",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Verify rounding rules are applied uniformly across all four coating types in a coating-type-agnostic manner.",
+      "reason": "Without the `squareFeetCalculator.ts` update (REQ-2), the rounding cannot be applied to any coating type calculations. Project state marks AR-7 as 'pending'.",
+      "evidence": [
+        "project_state.json"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "DoorEntryForm.tsx was updated to use the new `roundDimensions` combined function at the form/display layer.",
+      "reason": "The build request states rounded dimensions must never be displayed to the user and rounding should only be used internally in calculations. Applying rounding in `DoorEntryForm.tsx` was not requested and may expose rounded values at the UI entry level, contradicting the constraints.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.85,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/dimensionRounding.ts",
     "project_state.json"
   ]
 }

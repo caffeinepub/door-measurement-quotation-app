@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-review-the-frontend-react-query-hooks-in-frontend-src-hooks-usequeries-ts-that-call-the-backend-for-door-entries-and-totals-ensure-the-actor-is-correctly-initialized-before-queries-run-query-keys-are-stable-and-error-boundaries-or-query-error-handling-do-not-mask-a-successful-response-as-an-error-fix-any-issues-found",
-      "featureTitle": "Review the frontend React Query hooks in frontend/src/hooks/useQueries.ts that call the backend for door entries and totals. Ensure the actor is correctly initialized before queries run, query keys are stable, and error boundaries or query error handling do not mask a successful response as an error. Fix any issues found.",
+      "featureId": "feature-create-or-update-frontend-src-utils-dimensionrounding-ts-to-implement-exactly-two-carpenter-style-rounding-rules-applied-in-strict-priority-order-rule-1-highest-priority-if-actual-width-38-inches-and-actual-height-80-inches-use-rounded-width-40-rounded-height-80-rule-2-if-actual-width-36-inches-and-actual-height-78-inches-use-rounded-width-38-rounded-height-78-if-neither-rule-matches-return-the-actual-dimensions-unchanged-the-function-must-accept-actual-decimal-height-and-width-and-return-the-dimensions-to-use-for-calculation-only-these-rounded-values-must-never-be-returned-to-the-display-layer",
+      "featureTitle": "Create or update `frontend/src/utils/dimensionRounding.ts` to implement exactly two carpenter-style rounding rules applied in strict priority order:\n\n**Rule 1 (highest priority):** IF actual width > 38 inches AND actual height < 80 inches → use rounded width = 40, rounded height = 80.\n\n**Rule 2:** IF actual width > 36 inches AND actual height < 78 inches → use rounded width = 38, rounded height = 78.\n\nIf neither rule matches, return the actual dimensions unchanged. The function must accept actual (decimal) height and width and return the dimensions to use for calculation only. These rounded values must never be returned to the display layer.",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/utils/dimensionRounding.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -15,7 +15,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-1"
       ],
       "confidence": "high"
     }

@@ -23,7 +23,7 @@ function calculateCoatingAmount(squareFeet: number, rate: number): number {
 }
 
 export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListProps) {
-  const { data: entries, isLoading, error, refetch } = useGetAllDoorEntries(refreshTrigger);
+  const { data: entries, isLoading, isFetching, isPlaceholderData, error, refetch } = useGetAllDoorEntries(refreshTrigger);
   const deleteDoorMutation = useDeleteDoorEntry();
   const [deletingId, setDeletingId] = useState<bigint | null>(null);
 
@@ -71,7 +71,8 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
         squareFeet: 0,
       };
 
-  if (isLoading) {
+  // Only show full-screen loader on true first load (no data at all yet)
+  if (isLoading && !entries) {
     return (
       <Card className="shadow-md">
         <CardContent className="flex items-center justify-center py-12">
@@ -81,16 +82,21 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
     );
   }
 
-  if (error) {
+  // Only show error state when there's an actual error AND no cached data to show
+  if (error && !entries) {
     return (
       <Card className="shadow-md border-destructive/50">
         <CardContent className="py-12 text-center">
           <p className="text-destructive mb-4">
             Error loading door entries. Please try again.
           </p>
-          <Button onClick={handleRetry} variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Retry
+          <Button onClick={handleRetry} variant="outline" size="sm" disabled={isFetching}>
+            {isFetching ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            {isFetching ? 'Retrying...' : 'Retry'}
           </Button>
         </CardContent>
       </Card>
@@ -100,7 +106,10 @@ export function DoorEntryList({ refreshTrigger, onEntryDeleted }: DoorEntryListP
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <CardTitle className="text-xl">Door Entries</CardTitle>
+        <CardTitle className="text-xl flex items-center gap-2">
+          Door Entries
+          {(isFetching || isPlaceholderData) && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </CardTitle>
         <CardDescription>
           {entries && entries.length > 0
             ? `${entries.length} door ${entries.length === 1 ? 'entry' : 'entries'} added`

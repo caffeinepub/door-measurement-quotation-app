@@ -1,16 +1,19 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "Door quotation application with carpenter-style rounding rules for door size calculations. Rounded dimensions are used only for square footage and amount calculations; actual dimensions are displayed everywhere (door list, PDF, print, WhatsApp). Supports Single Coating, Double Coating, Double Coating + Sagwan Patti, and Laminate door types.",
+  "architectural_notes": [
+    "Dimension rounding logic lives in frontend/src/utils/dimensionRounding.ts; sq-ft calc in squareFeetCalculator.ts; PDF output in pdfGenerator.ts",
+    "Rounded dimensions must never be displayed — only used internally for calculation and totals"
+  ],
   "known_issues": [],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-review-the-frontend-react-query-hooks-in-frontend-src-hooks-usequeries-ts-that-call-the-backend-for-door-entries-and-totals-ensure-the-actor-is-correctly-initialized-before-queries-run-query-keys-are-stable-and-error-boundaries-or-query-error-handling-do-not-mask-a-successful-response-as-an-error-fix-any-issues-found",
-      "title": "Review the frontend React Query hooks in frontend/src/hooks/useQueries.ts that call the backend for door entries and totals. Ensure the actor is correctly initialized before queries run, query keys are stable, and error boundaries or query error handling do not mask a successful response as an error. Fix any issues found.",
+      "id": "feature-create-or-update-frontend-src-utils-dimensionrounding-ts-to-implement-exactly-two-carpenter-style-rounding-rules-applied-in-strict-priority-order-rule-1-highest-priority-if-actual-width-38-inches-and-actual-height-80-inches-use-rounded-width-40-rounded-height-80-rule-2-if-actual-width-36-inches-and-actual-height-78-inches-use-rounded-width-38-rounded-height-78-if-neither-rule-matches-return-the-actual-dimensions-unchanged-the-function-must-accept-actual-decimal-height-and-width-and-return-the-dimensions-to-use-for-calculation-only-these-rounded-values-must-never-be-returned-to-the-display-layer",
+      "title": "Create or update `frontend/src/utils/dimensionRounding.ts` to implement exactly two carpenter-style rounding rules applied in strict priority order:\n\n**Rule 1 (highest priority):** IF actual width > 38 inches AND actual height < 80 inches → use rounded width = 40, rounded height = 80.\n\n**Rule 2:** IF actual width > 36 inches AND actual height < 78 inches → use rounded width = 38, rounded height = 78.\n\nIf neither rule matches, return the actual dimensions unchanged. The function must accept actual (decimal) height and width and return the dimensions to use for calculation only. These rounded values must never be returned to the display layer.",
       "reqIds": [
-        "REQ-2"
+        "REQ-1"
       ],
       "version": 1
     }
@@ -18,14 +21,53 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Investigate and fix the backend actor so that fetching door entries and fetching totals no longer returns errors. The app currently shows 'Error loading door entries. Please try again.' and 'Error loading totals. Please try again.' on page load, indicating the query calls to the backend are failing. Ensure the getDoorEntries and getTotals (or equivalent) backend methods return valid responses and do not trap or throw.",
+      "summary": "Carpenter-style rounding rules for door size calculation: Rule 1 (width>38 → 40×80), Rule 2 (width>36 → 38×78), applied in priority order for all door types; rounded dims used only for calculations, actual dims displayed everywhere",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Update `frontend/src/utils/squareFeetCalculator.ts` so that it applies the rounding rules from `dimensionRounding.ts` before computing square footage. The formula remains `(roundedHeight × roundedWidth) / 144`. The function must accept actual height and width, internally derive rounded dimensions using the priority-ordered rules, and return the square footage based on rounded values.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Update `frontend/src/utils/pdfGenerator.ts` to ensure that when generating the HTML quotation document, all door dimensions displayed in the table (height and width columns) use the actual entered dimensions — never the rounded dimensions. The per-entry coating amounts and totals must be computed using the rounded square footage (via the updated `squareFeetCalculator.ts`), but the dimension columns must show what the user typed.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Ensure that `frontend/src/components/DoorEntryList.tsx` and `frontend/src/components/GrandTotals.tsx` display only actual entered dimensions in the door list table, while all monetary amounts and square footage values are computed using the rounded dimensions via the updated `squareFeetCalculator.ts`. Totals in the footer row must also reflect rounded calculation values.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Ensure that `frontend/src/components/QuotationActions.tsx` and `frontend/src/utils/whatsappShare.ts` produce WhatsApp share text that displays only actual entered dimensions, while all computed amounts in the share message reflect rounded calculation values.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Verify and ensure that the rounding rules are applied uniformly across all four door coating types: Single Coating, Double Coating, Double Coating + Sagwan Patti, and Laminate. The rounding logic must be coating-type-agnostic — the same Rule 1 / Rule 2 priority evaluation applies regardless of coating type.",
+      "reqIds": [
+        "REQ-6"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Fix backend data loading errors for door entries and totals",
+  "gameProjectType": "none",
+  "projectName": "Door Quotation",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

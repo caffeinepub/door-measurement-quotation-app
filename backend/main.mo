@@ -1,9 +1,11 @@
 import Nat "mo:core/Nat";
 import Float "mo:core/Float";
 import Array "mo:core/Array";
-import Iter "mo:core/Iter";
 import Map "mo:core/Map";
+import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
+
+
 
 actor {
   public type CoatingType = {

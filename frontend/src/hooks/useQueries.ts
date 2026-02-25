@@ -11,8 +11,7 @@ const DEFAULT_TOTALS: ComputeTotals = {
 };
 
 export function useGetAllDoorEntries(refreshTrigger?: number) {
-  const { actor, isFetching } = useActor();
-  const isActorReady = !!actor && !isFetching;
+  const { actor } = useActor();
 
   return useQuery<DoorEntry[]>({
     queryKey: ["doorEntries", refreshTrigger],
@@ -21,15 +20,16 @@ export function useGetAllDoorEntries(refreshTrigger?: number) {
       const result = await actor.getAll();
       return result ?? [];
     },
-    enabled: isActorReady,
-    retry: false,
+    enabled: !!actor,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
     staleTime: 0,
+    placeholderData: (prev) => prev,
   });
 }
 
 export function useGetTotalSquareFeet() {
-  const { actor, isFetching } = useActor();
-  const isActorReady = !!actor && !isFetching;
+  const { actor } = useActor();
 
   return useQuery<ComputeTotals>({
     queryKey: ["totalSquareFeet"],
@@ -38,9 +38,11 @@ export function useGetTotalSquareFeet() {
       const result = await actor.getTotals();
       return result ?? DEFAULT_TOTALS;
     },
-    enabled: isActorReady,
-    retry: false,
+    enabled: !!actor,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
     staleTime: 0,
+    placeholderData: (prev) => prev,
   });
 }
 
